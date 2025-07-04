@@ -33,7 +33,7 @@ export default function LandingPage() {
   return (
     <div className="flex flex-col min-h-screen bg-background">
       <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-        <div className="container flex h-16 items-center justify-between">
+        <div className="container flex h-16 items-center justify-between px-4 md:px-6">
           <Link href="/" aria-label="Home">
             <Logo />
           </Link>
@@ -60,7 +60,8 @@ export default function LandingPage() {
       
       <main className="flex-1">
         {/* Hero Section */}
-        <section className="container grid lg:grid-cols-2 gap-10 items-center py-20 md:py-28 lg:py-32">
+        <section className="w-full py-20 md:py-28 lg:py-32">
+          <div className="container grid lg:grid-cols-2 gap-12 items-center px-4 md:px-6">
             <div className="space-y-6 text-center lg:text-left">
                 <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tighter">
                     Financial Management, <span className="text-primary">Reimagined</span>.
@@ -88,11 +89,12 @@ export default function LandingPage() {
                     priority
                 />
             </div>
+          </div>
         </section>
 
         {/* Features Section */}
-        <section id="features" className="py-20 md:py-28 lg:py-32 bg-muted">
-            <div className="container space-y-16">
+        <section id="features" className="w-full py-20 md:py-28 lg:py-32 bg-muted">
+            <div className="container space-y-16 px-4 md:px-6">
                 <div className="text-center space-y-4">
                     <h2 className="text-3xl md:text-4xl font-bold">Everything You Need, All in One Place</h2>
                     <p className="text-lg text-muted-foreground max-w-3xl mx-auto">
@@ -149,70 +151,72 @@ export default function LandingPage() {
         </section>
 
         {/* Pricing Section */}
-        <section id="pricing" className="container py-20 md:py-28 lg:py-32">
-             <div className="text-center space-y-4 mb-16">
-                <h2 className="text-3xl md:text-4xl font-bold">Simple, Transparent Pricing</h2>
-                <p className="text-lg text-muted-foreground max-w-xl mx-auto">
-                    Choose the plan that's right for you. No hidden fees, ever.
-                </p>
-            </div>
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-5xl mx-auto items-stretch">
-                 <Card className="flex flex-col">
-                    <CardHeader>
-                        <CardTitle>Starter</CardTitle>
-                        <p className="text-4xl font-bold">$0<span className="text-lg font-normal text-muted-foreground">/month</span></p>
-                    </CardHeader>
-                    <CardContent className="flex-1 space-y-4">
-                        <p>For individuals and freelancers getting started.</p>
-                        <ul className="space-y-2 text-sm text-muted-foreground">
-                           <li className="flex items-center gap-2"><CheckCircle className="h-5 w-5 text-green-500" /> Basic Analytics</li>
-                           <li className="flex items-center gap-2"><CheckCircle className="h-5 w-5 text-green-500" /> 5 Invoices/mo</li>
-                           <li className="flex items-center gap-2"><CheckCircle className="h-5 w-5 text-green-500" /> Basic Support</li>
-                        </ul>
-                    </CardContent>
-                    <CardFooter>
-                        <Button className="w-full" variant="outline" asChild><Link href="/register">Get Started</Link></Button>
-                    </CardFooter>
-                 </Card>
-                 <Card className="flex flex-col border-primary shadow-lg ring-2 ring-primary">
-                    <CardHeader>
-                        <div className="flex justify-between items-center">
-                            <CardTitle>Pro</CardTitle>
-                            <span className="text-xs font-semibold bg-primary text-primary-foreground px-2 py-1 rounded-full">Most Popular</span>
-                        </div>
-                        <p className="text-4xl font-bold">$20<span className="text-lg font-normal text-muted-foreground">/month</span></p>
-                    </CardHeader>
-                    <CardContent className="flex-1 space-y-4">
-                        <p>For growing businesses that need more power.</p>
-                         <ul className="space-y-2 text-sm text-muted-foreground">
-                           <li className="flex items-center gap-2"><CheckCircle className="h-5 w-5 text-green-500" /> Advanced Analytics</li>
-                           <li className="flex items-center gap-2"><CheckCircle className="h-5 w-5 text-green-500" /> Unlimited Invoices</li>
-                           <li className="flex items-center gap-2"><CheckCircle className="h-5 w-5 text-green-500" /> AI Advisor Access</li>
-                           <li className="flex items-center gap-2"><CheckCircle className="h-5 w-5 text-green-500" /> Priority Support</li>
-                        </ul>
-                    </CardContent>
-                    <CardFooter>
-                        <Button className="w-full" asChild><Link href="/register">Choose Pro</Link></Button>
-                    </CardFooter>
-                 </Card>
-                 <Card className="flex flex-col">
-                    <CardHeader>
-                        <CardTitle>Enterprise</CardTitle>
-                        <p className="text-4xl font-bold">Custom</p>
-                    </CardHeader>
-                    <CardContent className="flex-1 space-y-4">
-                        <p>For large organizations with custom needs.</p>
-                         <ul className="space-y-2 text-sm text-muted-foreground">
-                           <li className="flex items-center gap-2"><CheckCircle className="h-5 w-5 text-green-500" /> Custom Features</li>
-                           <li className="flex items-center gap-2"><CheckCircle className="h-5 w-5 text-green-500" /> Dedicated Support</li>
-                           <li className="flex items-center gap-2"><CheckCircle className="h-5 w-5 text-green-500" /> SSO & Audit Logs</li>
-                        </ul>
-                    </CardContent>
-                     <CardFooter>
-                        <Button className="w-full" variant="outline" asChild><Link href="#contact">Contact Us</Link></Button>
-                    </CardFooter>
-                 </Card>
-            </div>
+        <section id="pricing" className="w-full py-20 md:py-28 lg:py-32">
+             <div className="container px-4 md:px-6">
+                 <div className="text-center space-y-4 mb-16">
+                    <h2 className="text-3xl md:text-4xl font-bold">Simple, Transparent Pricing</h2>
+                    <p className="text-lg text-muted-foreground max-w-xl mx-auto">
+                        Choose the plan that's right for you. No hidden fees, ever.
+                    </p>
+                </div>
+                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-5xl mx-auto items-stretch">
+                     <Card className="flex flex-col">
+                        <CardHeader>
+                            <CardTitle>Starter</CardTitle>
+                            <p className="text-4xl font-bold">$0<span className="text-lg font-normal text-muted-foreground">/month</span></p>
+                        </CardHeader>
+                        <CardContent className="flex-1 space-y-4">
+                            <p>For individuals and freelancers getting started.</p>
+                            <ul className="space-y-2 text-sm text-muted-foreground">
+                               <li className="flex items-center gap-2"><CheckCircle className="h-5 w-5 text-green-500" /> Basic Analytics</li>
+                               <li className="flex items-center gap-2"><CheckCircle className="h-5 w-5 text-green-500" /> 5 Invoices/mo</li>
+                               <li className="flex items-center gap-2"><CheckCircle className="h-5 w-5 text-green-500" /> Basic Support</li>
+                            </ul>
+                        </CardContent>
+                        <CardFooter>
+                            <Button className="w-full" variant="outline" asChild><Link href="/register">Get Started</Link></Button>
+                        </CardFooter>
+                     </Card>
+                     <Card className="flex flex-col border-primary shadow-lg ring-2 ring-primary">
+                        <CardHeader>
+                            <div className="flex justify-between items-center">
+                                <CardTitle>Pro</CardTitle>
+                                <span className="text-xs font-semibold bg-primary text-primary-foreground px-2 py-1 rounded-full">Most Popular</span>
+                            </div>
+                            <p className="text-4xl font-bold">$20<span className="text-lg font-normal text-muted-foreground">/month</span></p>
+                        </CardHeader>
+                        <CardContent className="flex-1 space-y-4">
+                            <p>For growing businesses that need more power.</p>
+                             <ul className="space-y-2 text-sm text-muted-foreground">
+                               <li className="flex items-center gap-2"><CheckCircle className="h-5 w-5 text-green-500" /> Advanced Analytics</li>
+                               <li className="flex items-center gap-2"><CheckCircle className="h-5 w-5 text-green-500" /> Unlimited Invoices</li>
+                               <li className="flex items-center gap-2"><CheckCircle className="h-5 w-5 text-green-500" /> AI Advisor Access</li>
+                               <li className="flex items-center gap-2"><CheckCircle className="h-5 w-5 text-green-500" /> Priority Support</li>
+                            </ul>
+                        </CardContent>
+                        <CardFooter>
+                            <Button className="w-full" asChild><Link href="/register">Choose Pro</Link></Button>
+                        </CardFooter>
+                     </Card>
+                     <Card className="flex flex-col">
+                        <CardHeader>
+                            <CardTitle>Enterprise</CardTitle>
+                            <p className="text-4xl font-bold">Custom</p>
+                        </CardHeader>
+                        <CardContent className="flex-1 space-y-4">
+                            <p>For large organizations with custom needs.</p>
+                             <ul className="space-y-2 text-sm text-muted-foreground">
+                               <li className="flex items-center gap-2"><CheckCircle className="h-5 w-5 text-green-500" /> Custom Features</li>
+                               <li className="flex items-center gap-2"><CheckCircle className="h-5 w-5 text-green-500" /> Dedicated Support</li>
+                               <li className="flex items-center gap-2"><CheckCircle className="h-5 w-5 text-green-500" /> SSO & Audit Logs</li>
+                            </ul>
+                        </CardContent>
+                         <CardFooter>
+                            <Button className="w-full" variant="outline" asChild><Link href="#contact">Contact Us</Link></Button>
+                        </CardFooter>
+                     </Card>
+                </div>
+             </div>
         </section>
       </main>
 
