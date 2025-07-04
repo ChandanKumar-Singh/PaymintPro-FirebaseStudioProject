@@ -15,12 +15,19 @@ import { Badge } from "@/components/ui/badge";
 import { Setup2FADialog } from "@/components/dialogs/setup-2fa-dialog";
 import { ChangePlanDialog } from "@/components/dialogs/change-plan-dialog";
 import { UpdatePaymentDialog } from "@/components/dialogs/update-payment-dialog";
+import { Download } from "lucide-react";
 
 const billingHistory = [
     { id: 'bill_1', date: '2024-07-01', amount: 20.00, description: 'Pro Plan - Monthly' },
     { id: 'bill_2', date: '2024-06-01', amount: 20.00, description: 'Pro Plan - Monthly' },
     { id: 'bill_3', date: '2024-05-01', amount: 20.00, description: 'Pro Plan - Monthly' },
 ];
+
+const loginHistory = [
+    { id: 'session_1', device: 'Chrome on MacOS', location: 'New York, US', ip: '192.168.1.1', lastSeen: 'July 4, 2024' },
+    { id: 'session_2', device: 'Safari on iPhone', location: 'New York, US', ip: '192.168.1.1', lastSeen: 'July 3, 2024' },
+    { id: 'session_3', device: 'Paymint Desktop App', location: 'London, UK', ip: '10.0.0.1', lastSeen: 'July 1, 2024' },
+]
 
 export default function SettingsPage() {
     const searchParams = useSearchParams();
@@ -160,6 +167,30 @@ export default function SettingsPage() {
                                         <Setup2FADialog />
                                      </div>
                                 </div>
+                                <Separator />
+                                <div className="space-y-4">
+                                    <h3 className="text-lg font-medium">Login History</h3>
+                                    <Table>
+                                        <TableHeader>
+                                            <TableRow>
+                                                <TableHead>Device</TableHead>
+                                                <TableHead>Location</TableHead>
+                                                <TableHead>Last Seen</TableHead>
+                                                <TableHead>IP Address</TableHead>
+                                            </TableRow>
+                                        </TableHeader>
+                                        <TableBody>
+                                            {loginHistory.map(session => (
+                                                <TableRow key={session.id}>
+                                                    <TableCell>{session.device}</TableCell>
+                                                    <TableCell>{session.location}</TableCell>
+                                                    <TableCell>{session.lastSeen}</TableCell>
+                                                    <TableCell>{session.ip}</TableCell>
+                                                </TableRow>
+                                            ))}
+                                        </TableBody>
+                                    </Table>
+                                </div>
                             </CardContent>
                              <CardFooter className="border-t px-6 py-4">
                                <div className="flex justify-end w-full">
@@ -212,6 +243,7 @@ export default function SettingsPage() {
                                                    <TableHead>Date</TableHead>
                                                    <TableHead>Description</TableHead>
                                                    <TableHead className="text-right">Amount</TableHead>
+                                                   <TableHead className="w-[50px] text-right">Action</TableHead>
                                                </TableRow>
                                            </TableHeader>
                                            <TableBody>
@@ -220,6 +252,12 @@ export default function SettingsPage() {
                                                        <TableCell>{item.date}</TableCell>
                                                        <TableCell>{item.description}</TableCell>
                                                        <TableCell className="text-right">{item.amount.toLocaleString('en-US', { style: 'currency', currency: 'USD' })}</TableCell>
+                                                       <TableCell className="text-right">
+                                                            <Button variant="ghost" size="icon">
+                                                                <Download className="h-4 w-4" />
+                                                                <span className="sr-only">Download invoice</span>
+                                                            </Button>
+                                                       </TableCell>
                                                    </TableRow>
                                                ))}
                                            </TableBody>
