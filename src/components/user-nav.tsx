@@ -16,8 +16,22 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { CreditCard, LogOut, Settings, User } from 'lucide-react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { useToast } from '@/hooks/use-toast';
 
 export function UserNav() {
+  const router = useRouter();
+  const { toast } = useToast();
+
+  const handleLogout = () => {
+    // Mock logout logic
+    toast({
+        title: "Logged Out",
+        description: "You have been successfully logged out.",
+    });
+    router.push('/login');
+  }
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -63,7 +77,7 @@ export function UserNav() {
           </Link>
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
-        <DropdownMenuItem>
+        <DropdownMenuItem onClick={handleLogout}>
           <LogOut className="mr-2 h-4 w-4" />
           <span>Log out</span>
         </DropdownMenuItem>
