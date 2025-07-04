@@ -42,35 +42,31 @@ export function MainNav() {
       <SidebarMenu>
         {menuItems.map((item) => (
           <SidebarMenuItem key={item.href}>
-            <Link href={item.href} passHref legacyBehavior>
-              <SidebarMenuButton
-                asChild
-                isActive={pathname.startsWith(item.href)}
-                tooltip={item.label}
-              >
-                <a>
-                  <item.icon />
-                  {item.label}
-                </a>
-              </SidebarMenuButton>
-            </Link>
+            <SidebarMenuButton
+              asChild
+              isActive={pathname.startsWith(item.href)}
+              tooltip={item.label}
+            >
+              <Link href={item.href}>
+                <item.icon />
+                {item.label}
+              </Link>
+            </SidebarMenuButton>
           </SidebarMenuItem>
         ))}
       </SidebarMenu>
       <SidebarMenu>
         <SidebarMenuItem>
-          <Link href={settingsItem.href} passHref legacyBehavior>
-            <SidebarMenuButton
-              asChild
-              isActive={pathname.startsWith(settingsItem.href)}
-              tooltip={settingsItem.label}
-            >
-              <a>
-                <settingsItem.icon />
-                {settingsItem.label}
-              </a>
-            </SidebarMenuButton>
-          </Link>
+          <SidebarMenuButton
+            asChild
+            isActive={pathname.startsWith(settingsItem.href)}
+            tooltip={settingsItem.label}
+          >
+            <Link href={settingsItem.href}>
+              <settingsItem.icon />
+              {settingsItem.label}
+            </Link>
+          </SidebarMenuButton>
         </SidebarMenuItem>
       </SidebarMenu>
     </div>
