@@ -12,6 +12,9 @@ import { Switch } from "@/components/ui/switch";
 import { Separator } from "@/components/ui/separator";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
+import { Setup2FADialog } from "@/components/dialogs/setup-2fa-dialog";
+import { ChangePlanDialog } from "@/components/dialogs/change-plan-dialog";
+import { UpdatePaymentDialog } from "@/components/dialogs/update-payment-dialog";
 
 const billingHistory = [
     { id: 'bill_1', date: '2024-07-01', amount: 20.00, description: 'Pro Plan - Monthly' },
@@ -154,7 +157,7 @@ export default function SettingsPage() {
                                             <p className="font-medium">Enable 2FA</p>
                                             <p className="text-sm text-muted-foreground">Secure your account with an extra layer of protection.</p>
                                         </div>
-                                        <Button variant="outline">Setup</Button>
+                                        <Setup2FADialog />
                                      </div>
                                 </div>
                             </CardContent>
@@ -178,7 +181,7 @@ export default function SettingsPage() {
                                             <CardTitle className="text-xl">Pro Plan</CardTitle>
                                             <CardDescription>$20 / month</CardDescription>
                                         </div>
-                                        <Button variant="outline">Change Plan</Button>
+                                        <ChangePlanDialog />
                                    </CardHeader>
                                </Card>
                                 <Card>
@@ -195,7 +198,7 @@ export default function SettingsPage() {
                                                <p className="text-sm text-muted-foreground">Expires 08/2028</p>
                                            </div>
                                        </div>
-                                       <Button variant="outline">Update</Button>
+                                       <UpdatePaymentDialog />
                                    </CardContent>
                                 </Card>
                                  <Card>

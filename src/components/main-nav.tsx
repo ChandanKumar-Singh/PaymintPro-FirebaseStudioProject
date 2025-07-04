@@ -18,14 +18,16 @@ import {
   FileText,
   CandlestickChart,
   Sparkles,
+  Target,
 } from 'lucide-react';
 
 const menuItems = [
   { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
   { href: '/transactions', label: 'Transactions', icon: ArrowRightLeft },
   { href: '/accounts', label: 'Accounts', icon: Landmark },
-  { href: '/payments', label: 'Payments', icon: Receipt },
   { href: '/cards', label: 'Cards', icon: CreditCard },
+  { href: '/payments', label: 'Payments', icon: Receipt },
+  { href: '/budgets', label: 'Budgets', icon: Target },
   { href: '/invoicing', label: 'Invoicing', icon: FileText },
   { href: '/trading', label: 'Trading', icon: CandlestickChart },
   { href: '/reports', label: 'Reports', icon: PieChart },

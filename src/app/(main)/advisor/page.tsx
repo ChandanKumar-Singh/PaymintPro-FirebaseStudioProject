@@ -6,6 +6,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { Sparkles, Loader2 } from 'lucide-react';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { askFinancialAdvisor } from '@/ai/flows/financial-advice';
 
 export default function AdvisorPage() {
     const [query, setQuery] = useState('');
@@ -15,18 +16,16 @@ export default function AdvisorPage() {
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        // This is a placeholder for a real AI interaction.
-        // In a real app, you would call your Genkit flow here.
         setIsLoading(true);
         setError('');
         setResponse('');
         
-        await new Promise(resolve => setTimeout(resolve, 1500)); // Simulate API call
-        
-        if (query.toLowerCase().includes('error')) {
-            setError('This is a simulated error. Please try a different query.');
-        } else {
-            setResponse(`Based on your question about "${query}", here is some personalized financial advice... (This is a placeholder response)`);
+        try {
+            const result = await askFinancialAdvisor(query);
+            setResponse(result.advice);
+        } catch (err) {
+            setError('Sorry, I couldn\'t fetch advice right now. Please try again later.');
+            console.error(err);
         }
         
         setIsLoading(false);
