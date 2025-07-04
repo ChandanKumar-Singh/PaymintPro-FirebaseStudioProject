@@ -11,7 +11,7 @@ import {
   SidebarMenuItem,
   SidebarMenuButton,
 } from '@/components/ui/sidebar';
-import { Settings, Search, Bell } from 'lucide-react';
+import { Settings, Search, Bell, Rocket } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { MainNav } from '@/components/main-nav';
@@ -61,14 +61,17 @@ export default function MainLayout({
         <SidebarFooter>
           <Card className="m-2 border-none bg-sidebar-accent shadow-none">
             <CardHeader className="p-2 pt-0">
-              <CardTitle className="text-sm font-medium">Upgrade to Pro</CardTitle>
+              <CardTitle className="flex items-center gap-2 text-sm font-medium">
+                <Rocket className="h-4 w-4 text-sidebar-primary" />
+                <span>Upgrade to Pro</span>
+              </CardTitle>
               <CardDescription className="text-xs">
-                Get more features and priority support.
+                Unlock all features and get priority support.
               </CardDescription>
             </CardHeader>
             <CardContent className="p-2 pt-0">
               <Button size="sm" className="w-full">
-                Upgrade
+                Upgrade Now
               </Button>
             </CardContent>
           </Card>
