@@ -10,6 +10,7 @@ import Link from "next/link";
 import { useState } from "react";
 import { ConfirmDialog } from "@/components/dialogs/confirm-dialog";
 import { useToast } from "@/hooks/use-toast";
+import { EditInvoiceSheet } from "@/components/sheets/edit-invoice-sheet";
 
 const initialInvoices = [
   { id: 'inv_1', customer: 'Acme Inc.', invoiceNumber: 'INV-007', date: '2024-07-15', dueDate: '2024-08-14', amount: 12000.00, status: 'Paid' },
@@ -34,20 +35,28 @@ const getStatusBadge = (status: string) => {
   }
 };
 
+type Invoice = typeof initialInvoices[0];
 
 export default function InvoicingPage() {
     const [invoices, setInvoices] = useState(initialInvoices);
     const [confirmOpen, setConfirmOpen] = useState(false);
-    const [selectedInvoice, setSelectedInvoice] = useState<string | null>(null);
+    const [editSheetOpen, setEditSheetOpen] = useState(false);
+    const [selectedInvoice, setSelectedInvoice] = useState<Invoice | null>(null);
     const { toast } = useToast();
 
-    const handleDeleteClick = (invoiceId: string) => {
-        setSelectedInvoice(invoiceId);
+    const handleDeleteClick = (invoice: Invoice) => {
+        setSelectedInvoice(invoice);
         setConfirmOpen(true);
+    }
+
+    const handleEditClick = (invoice: Invoice) => {
+        setSelectedInvoice(invoice);
+        setEditSheetOpen(true);
     }
     
     const handleDeleteConfirm = () => {
-        setInvoices(invoices.filter(inv => inv.id !== selectedInvoice));
+        if (!selectedInvoice) return;
+        setInvoices(invoices.filter(inv => inv.id !== selectedInvoice.id));
         toast({
             title: "Invoice Deleted",
             description: "The invoice has been successfully deleted.",
@@ -71,6 +80,11 @@ export default function InvoicingPage() {
                 onConfirm={handleDeleteConfirm}
                 title="Are you sure?"
                 description="This will permanently delete the invoice. This action cannot be undone."
+            />
+            <EditInvoiceSheet
+                open={editSheetOpen}
+                onOpenChange={setEditSheetOpen}
+                invoice={selectedInvoice}
             />
             <div className="flex justify-between items-center">
                 <h1 className="text-3xl font-bold tracking-tight">Invoicing</h1>
@@ -125,9 +139,9 @@ export default function InvoicingPage() {
                                             </DropdownMenuTrigger>
                                             <DropdownMenuContent align="end">
                                                 <DropdownMenuItem>View Invoice</DropdownMenuItem>
-                                                <DropdownMenuItem>Edit</DropdownMenuItem>
+                                                <DropdownMenuItem onClick={() => handleEditClick(invoice)}>Edit</DropdownMenuItem>
                                                 <DropdownMenuItem onClick={() => handleSendReminder(invoice.customer)}>Send Reminder</DropdownMenuItem>
-                                                <DropdownMenuItem className="text-destructive focus:text-destructive" onClick={() => handleDeleteClick(invoice.id)}>Delete</DropdownMenuItem>
+                                                <DropdownMenuItem className="text-destructive focus:text-destructive" onClick={() => handleDeleteClick(invoice)}>Delete</DropdownMenuItem>
                                             </DropdownMenuContent>
                                         </DropdownMenu>
                                     </TableCell>

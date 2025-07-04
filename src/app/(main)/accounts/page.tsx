@@ -9,11 +9,12 @@ import { Banknote, MoreHorizontal } from "lucide-react";
 import { AddAccountDialog } from '@/components/dialogs/add-account-dialog';
 import { ConfirmDialog } from '@/components/dialogs/confirm-dialog';
 import { useToast } from '@/hooks/use-toast';
+import { EditAccountSheet } from '@/components/sheets/edit-account-sheet';
 
 const initialAccounts = [
-  { id: "acc_1", name: "Primary Checking", bank: "Capital One", accountNumber: "**** **** **** 1234", balance: 10530.00 },
-  { id: "acc_2", name: "Business Savings", bank: "Chase", accountNumber: "**** **** **** 5678", balance: 75250.50 },
-  { id: "acc_3", name: "Investment Account", bank: "Fidelity", accountNumber: "**** **** **** 9012", balance: 120800.75 },
+  { id: "acc_1", name: "Primary Checking", bank: "Capital One", accountNumber: "**** **** **** 1234", balance: 10530.00, type: 'Checking' },
+  { id: "acc_2", name: "Business Savings", bank: "Chase", accountNumber: "**** **** **** 5678", balance: 75250.50, type: 'Savings' },
+  { id: "acc_3", name: "Investment Account", bank: "Fidelity", accountNumber: "**** **** **** 9012", balance: 120800.75, type: 'Investment' },
 ];
 
 const transactions = [
@@ -28,19 +29,28 @@ const getStatusBadge = (status: string) => {
     return <Badge variant="default" className="bg-green-100 text-green-800 border-green-200 hover:bg-green-100">Completed</Badge>;
 };
 
+type Account = typeof initialAccounts[0];
+
 export default function AccountsPage() {
   const [accounts, setAccounts] = useState(initialAccounts);
   const [confirmOpen, setConfirmOpen] = useState(false);
-  const [selectedAccount, setSelectedAccount] = useState<string | null>(null);
+  const [editSheetOpen, setEditSheetOpen] = useState(false);
+  const [selectedAccount, setSelectedAccount] = useState<Account | null>(null);
   const { toast } = useToast();
 
-  const handleRemoveClick = (accountId: string) => {
-    setSelectedAccount(accountId);
+  const handleRemoveClick = (account: Account) => {
+    setSelectedAccount(account);
     setConfirmOpen(true);
   }
 
+  const handleEditClick = (account: Account) => {
+    setSelectedAccount(account);
+    setEditSheetOpen(true);
+  }
+
   const handleRemoveConfirm = () => {
-    setAccounts(accounts.filter(acc => acc.id !== selectedAccount));
+    if (!selectedAccount) return;
+    setAccounts(accounts.filter(acc => acc.id !== selectedAccount.id));
     toast({
         title: "Account Removed",
         description: "The account has been successfully removed.",
@@ -57,6 +67,11 @@ export default function AccountsPage() {
         onConfirm={handleRemoveConfirm}
         title="Are you sure?"
         description="This will permanently remove the account and all its data. This action cannot be undone."
+      />
+      <EditAccountSheet 
+        open={editSheetOpen}
+        onOpenChange={setEditSheetOpen}
+        account={selectedAccount}
       />
       <div className="flex justify-between items-center">
         <h1 className="text-3xl font-bold tracking-tight">Accounts</h1>
@@ -87,9 +102,9 @@ export default function AccountsPage() {
                       </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
-                      <DropdownMenuItem>View Details</DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => handleEditClick(account)}>Edit</DropdownMenuItem>
                       <DropdownMenuItem>Set as Default</DropdownMenuItem>
-                      <DropdownMenuItem className="text-destructive focus:text-destructive" onClick={() => handleRemoveClick(account.id)}>Remove Account</DropdownMenuItem>
+                      <DropdownMenuItem className="text-destructive focus:text-destructive" onClick={() => handleRemoveClick(account)}>Remove Account</DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
                 </div>

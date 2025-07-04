@@ -1,7 +1,7 @@
 
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import {
   Tabs,
   TabsContent,
@@ -33,8 +33,9 @@ import { Card, CardContent, CardFooter, CardHeader, CardTitle, CardDescription }
 import { MoreHorizontal, Search, Download, ListFilter } from "lucide-react"
 import { DateRangePicker } from "@/components/date-range-picker"
 import { cn } from '@/lib/utils';
+import { EditTransactionSheet } from '@/components/sheets/edit-transaction-sheet';
 
-const transactions = [
+const transactionsData = [
   {
     id: "txn_001",
     customer: "Liam Johnson",
@@ -113,9 +114,24 @@ const getStatusBadge = (status: string) => {
   }
 };
 
+type Transaction = typeof transactionsData[0];
+
 export default function TransactionsPage() {
+    const [editSheetOpen, setEditSheetOpen] = useState(false);
+    const [selectedTransaction, setSelectedTransaction] = useState<Transaction | null>(null);
+
+    const handleEditClick = (transaction: Transaction) => {
+      setSelectedTransaction(transaction);
+      setEditSheetOpen(true);
+    }
+
     return (
       <Tabs defaultValue="all" className="space-y-6">
+        <EditTransactionSheet 
+          open={editSheetOpen}
+          onOpenChange={setEditSheetOpen}
+          transaction={selectedTransaction}
+        />
         <div>
             <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-4">
                 <h1 className="text-3xl font-bold tracking-tight">Transactions</h1>
@@ -192,7 +208,7 @@ export default function TransactionsPage() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {transactions.map((transaction) => (
+                  {transactionsData.map((transaction) => (
                     <TableRow key={transaction.id}>
                       <TableCell className="px-4">
                         <Checkbox />
@@ -223,7 +239,7 @@ export default function TransactionsPage() {
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align="end">
                             <DropdownMenuItem>View details</DropdownMenuItem>
-                            <DropdownMenuItem>Edit</DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => handleEditClick(transaction)}>Edit</DropdownMenuItem>
                             <DropdownMenuItem className="text-destructive focus:text-destructive focus:bg-destructive/10">Delete</DropdownMenuItem>
                           </DropdownMenuContent>
                         </DropdownMenu>

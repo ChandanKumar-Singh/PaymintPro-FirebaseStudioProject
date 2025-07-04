@@ -1,12 +1,14 @@
 'use client';
+import { useState } from 'react';
 import { Card, CardHeader, CardTitle, CardContent, CardDescription, CardFooter } from '@/components/ui/card';
 import { Progress } from "@/components/ui/progress";
 import { AddBudgetDialog } from '@/components/dialogs/add-budget-dialog';
 import { MoreHorizontal } from 'lucide-react';
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from '@/components/ui/dropdown-menu';
 import { Button } from '@/components/ui/button';
+import { EditBudgetSheet } from '@/components/sheets/edit-budget-sheet';
 
-const budgets = [
+const initialBudgets = [
     { name: 'Groceries', spent: 450.75, total: 800 },
     { name: 'Dining Out', spent: 210.50, total: 300 },
     { name: 'Software', spent: 49.99, total: 50 },
@@ -14,10 +16,25 @@ const budgets = [
     { name: 'Shopping', spent: 175.20, total: 400 },
 ];
 
+type Budget = typeof initialBudgets[0];
 
 export default function BudgetsPage() {
+    const [budgets, setBudgets] = useState(initialBudgets);
+    const [editSheetOpen, setEditSheetOpen] = useState(false);
+    const [selectedBudget, setSelectedBudget] = useState<Budget | null>(null);
+
+    const handleEditClick = (budget: Budget) => {
+        setSelectedBudget(budget);
+        setEditSheetOpen(true);
+    }
+
     return (
         <div className="space-y-6">
+            <EditBudgetSheet 
+                open={editSheetOpen}
+                onOpenChange={setEditSheetOpen}
+                budget={selectedBudget}
+            />
             <div className="flex justify-between items-center">
                 <h1 className="text-3xl font-bold tracking-tight">Budgets</h1>
                 <AddBudgetDialog />
@@ -39,7 +56,7 @@ export default function BudgetsPage() {
                                         </Button>
                                         </DropdownMenuTrigger>
                                         <DropdownMenuContent align="end">
-                                        <DropdownMenuItem>Edit Budget</DropdownMenuItem>
+                                        <DropdownMenuItem onClick={() => handleEditClick(budget)}>Edit Budget</DropdownMenuItem>
                                         <DropdownMenuItem className="text-destructive focus:text-destructive">Delete Budget</DropdownMenuItem>
                                         </DropdownMenuContent>
                                     </DropdownMenu>
