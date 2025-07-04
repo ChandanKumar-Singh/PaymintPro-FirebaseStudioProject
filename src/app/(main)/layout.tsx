@@ -1,3 +1,4 @@
+'use client';
 import React from 'react';
 import Link from 'next/link';
 import {
@@ -15,6 +16,7 @@ import { MainNav } from '@/components/main-nav';
 import { UserNav } from '@/components/user-nav';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { ThemeToggle } from '@/components/theme-toggle';
+import { ChangePlanDialog } from '@/components/dialogs/change-plan-dialog';
 
 function Logo() {
   return (
@@ -68,9 +70,11 @@ export default function MainLayout({
               </CardDescription>
             </CardHeader>
             <CardContent className="p-2 pt-0">
-              <Button size="sm" className="w-full">
-                Upgrade Now
-              </Button>
+              <ChangePlanDialog>
+                <Button size="sm" className="w-full">
+                  Upgrade Now
+                </Button>
+              </ChangePlanDialog>
             </CardContent>
           </Card>
         </SidebarFooter>

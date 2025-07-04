@@ -13,7 +13,7 @@ const plans = [
     { name: 'Enterprise', price: 'Custom', features: ['Custom Features', 'Dedicated Support', 'SSO & Audit Logs'] },
 ];
 
-export function ChangePlanDialog() {
+export function ChangePlanDialog({ children }: { children?: React.ReactNode }) {
     const [open, setOpen] = useState(false);
     const { toast } = useToast();
 
@@ -28,7 +28,7 @@ export function ChangePlanDialog() {
     return (
         <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>
-                <Button variant="outline">Change Plan</Button>
+                {children || <Button variant="outline">Change Plan</Button>}
             </DialogTrigger>
             <DialogContent className="sm:max-w-3xl">
                 <DialogHeader>
