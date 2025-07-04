@@ -3,14 +3,14 @@ import { Card, CardHeader, CardTitle, CardContent, CardDescription } from '@/com
 export default function PaymentsPage() {
     return (
         <div className="space-y-6">
-            <h1 className="text-2xl font-bold">Payments</h1>
+            <h1 className="text-3xl font-bold tracking-tight">Payments</h1>
             <Card>
                 <CardHeader>
-                    <CardTitle>Bill Payments</CardTitle>
+                    <CardTitle>Manage Payments</CardTitle>
                     <CardDescription>Schedule and manage your bill payments.</CardDescription>
                 </CardHeader>
                 <CardContent>
-                    <p>Bill payment features will be available here.</p>
+                    <p>Payment features will be available here.</p>
                 </CardContent>
             </Card>
         </div>

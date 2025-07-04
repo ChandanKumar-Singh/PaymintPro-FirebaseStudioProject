@@ -25,18 +25,18 @@ export function UserNav() {
             <AvatarImage
               src="https://placehold.co/40x40.png"
               alt="User avatar"
-              data-ai-hint="person avatar"
+              data-ai-hint="woman avatar"
             />
-            <AvatarFallback>BP</AvatarFallback>
+            <AvatarFallback>OM</AvatarFallback>
           </Avatar>
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent className="w-56" align="end" forceMount>
         <DropdownMenuLabel className="font-normal">
           <div className="flex flex-col space-y-1">
-            <p className="text-sm font-medium leading-none">Brock Peters</p>
+            <p className="text-sm font-medium leading-none">Olivia Martin</p>
             <p className="text-xs leading-none text-muted-foreground">
-              brock.peters@example.com
+              olivia.martin@email.com
             </p>
           </div>
         </DropdownMenuLabel>

@@ -5,58 +5,45 @@ import {
   CardContent,
   CardDescription,
 } from '@/components/ui/card';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Badge } from '@/components/ui/badge';
-import Image from 'next/image';
+import Link from 'next/link';
+import { Button } from './ui/button';
 
-const transactions = [
+const sales = [
   {
-    name: 'Spotify',
-    type: 'Subscription',
-    amount: -10.99,
-    date: '2024-07-28',
-    image: 'https://placehold.co/40x40.png',
-    dataAiHint: 'spotify logo',
+    name: 'Olivia Martin',
+    email: 'olivia.martin@email.com',
+    amount: 1999.0,
+    avatar: 'https://placehold.co/40x40.png',
+    dataAiHint: 'woman avatar'
   },
   {
-    name: 'Amazon',
-    type: 'Shopping',
-    amount: -124.5,
-    date: '2024-07-27',
-    image: 'https://placehold.co/40x40.png',
-    dataAiHint: 'amazon logo',
+    name: 'Jackson Lee',
+    email: 'jackson.lee@email.com',
+    amount: 39.0,
+    avatar: 'https://placehold.co/40x40.png',
+    dataAiHint: 'man avatar'
   },
   {
-    name: 'Paycheck',
-    type: 'Income',
-    amount: 2500.0,
-    date: '2024-07-26',
-    image: 'https://placehold.co/40x40.png',
-    dataAiHint: 'company logo',
+    name: 'Isabella Nguyen',
+    email: 'isabella.nguyen@email.com',
+    amount: 299.0,
+    avatar: 'https://placehold.co/40x40.png',
+    dataAiHint: 'woman avatar'
   },
   {
-    name: 'Starbucks',
-    type: 'Food',
-    amount: -5.75,
-    date: '2024-07-26',
-    image: 'https://placehold.co/40x40.png',
-    dataAiHint: 'starbucks logo',
+    name: 'William Kim',
+    email: 'will@email.com',
+    amount: 99.0,
+    avatar: 'https://placehold.co/40x40.png',
+    dataAiHint: 'man avatar'
   },
   {
-    name: 'Netflix',
-    type: 'Subscription',
-    amount: -15.49,
-    date: '2024-07-25',
-    image: 'https://placehold.co/40x40.png',
-    dataAiHint: 'netflix logo',
+    name: 'Sofia Davis',
+    email: 'sofia.davis@email.com',
+    amount: 39.0,
+    avatar: 'https://placehold.co/40x40.png',
+    dataAiHint: 'woman avatar'
   },
 ];
 
@@ -64,59 +51,39 @@ export function RecentTransactions() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Recent Transactions</CardTitle>
-        <CardDescription>Your last 5 transactions.</CardDescription>
+        <div className="flex justify-between items-center">
+            <div>
+                <CardTitle>Recent Sales</CardTitle>
+                <CardDescription>You made 265 sales this month.</CardDescription>
+            </div>
+            <Button asChild variant="ghost" size="sm">
+                <Link href="#">View all</Link>
+            </Button>
+        </div>
       </CardHeader>
       <CardContent>
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Transaction</TableHead>
-              <TableHead className="text-right">Amount</TableHead>
-              <TableHead className="hidden sm:table-cell">Date</TableHead>
-              <TableHead className="hidden md:table-cell">Category</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {transactions.map((transaction) => (
-              <TableRow key={transaction.name}>
-                <TableCell>
-                  <div className="flex items-center gap-4">
-                    <Avatar className="h-9 w-9">
-                      <AvatarImage
-                        src={transaction.image}
-                        alt={transaction.name}
-                        data-ai-hint={transaction.dataAiHint}
-                      />
-                      <AvatarFallback>
-                        {transaction.name.charAt(0)}
-                      </AvatarFallback>
-                    </Avatar>
-                    <div>
-                      <div className="font-medium">{transaction.name}</div>
-                    </div>
-                  </div>
-                </TableCell>
-                <TableCell
-                  className={`text-right font-medium ${
-                    transaction.amount > 0 ? '' : 'text-muted-foreground'
-                  }`}
-                >
-                  {transaction.amount.toLocaleString('en-US', {
-                    style: 'currency',
-                    currency: 'USD',
-                  })}
-                </TableCell>
-                <TableCell className="hidden sm:table-cell text-muted-foreground">
-                  {transaction.date}
-                </TableCell>
-                <TableCell className="hidden md:table-cell">
-                  <Badge variant="outline">{transaction.type}</Badge>
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
+        <div className="space-y-6">
+          {sales.map((sale) => (
+            <div key={sale.email} className="flex items-center gap-4">
+              <Avatar className="h-9 w-9">
+                <AvatarImage src={sale.avatar} alt={sale.name} data-ai-hint={sale.dataAiHint} />
+                <AvatarFallback>
+                  {sale.name.split(' ').map((n) => n[0]).join('')}
+                </AvatarFallback>
+              </Avatar>
+              <div className="flex-1">
+                <p className="text-sm font-medium leading-none">{sale.name}</p>
+                <p className="text-sm text-muted-foreground">{sale.email}</p>
+              </div>
+              <div className="font-medium">
+                {sale.amount.toLocaleString('en-US', {
+                  style: 'currency',
+                  currency: 'USD',
+                })}
+              </div>
+            </div>
+          ))}
+        </div>
       </CardContent>
     </Card>
   );

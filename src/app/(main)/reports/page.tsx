@@ -3,14 +3,14 @@ import { Card, CardHeader, CardTitle, CardContent, CardDescription } from '@/com
 export default function ReportsPage() {
     return (
         <div className="space-y-6">
-            <h1 className="text-2xl font-bold">Reports</h1>
+            <h1 className="text-3xl font-bold tracking-tight">Reports</h1>
             <Card>
                 <CardHeader>
-                    <CardTitle>Spending Analysis</CardTitle>
-                    <CardDescription>Analyze your spending habits with detailed reports.</CardDescription>
+                    <CardTitle>Financial Reports</CardTitle>
+                    <CardDescription>Analyze your finances with detailed reports.</CardDescription>
                 </CardHeader>
                 <CardContent>
-                    <p>Financial reports and spending analysis will be displayed here.</p>
+                    <p>Financial reports and analysis will be displayed here.</p>
                 </CardContent>
             </Card>
         </div>
