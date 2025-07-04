@@ -45,7 +45,7 @@ export default function SettingsPage() {
         <div className="space-y-6">
             <h1 className="text-3xl font-bold tracking-tight">Settings</h1>
             <Tabs defaultValue={tab} className="w-full">
-                <TabsList className="grid w-full grid-cols-4">
+                <TabsList className="grid w-full grid-cols-1 sm:grid-cols-2 md:grid-cols-4">
                     <TabsTrigger value="profile">Profile</TabsTrigger>
                     <TabsTrigger value="notifications">Notifications</TabsTrigger>
                     <TabsTrigger value="security">Security</TabsTrigger>
@@ -174,18 +174,18 @@ export default function SettingsPage() {
                                         <TableHeader>
                                             <TableRow>
                                                 <TableHead>Device</TableHead>
-                                                <TableHead>Location</TableHead>
+                                                <TableHead className="hidden sm:table-cell">Location</TableHead>
                                                 <TableHead>Last Seen</TableHead>
-                                                <TableHead>IP Address</TableHead>
+                                                <TableHead className="hidden sm:table-cell">IP Address</TableHead>
                                             </TableRow>
                                         </TableHeader>
                                         <TableBody>
                                             {loginHistory.map(session => (
                                                 <TableRow key={session.id}>
                                                     <TableCell>{session.device}</TableCell>
-                                                    <TableCell>{session.location}</TableCell>
+                                                    <TableCell className="hidden sm:table-cell">{session.location}</TableCell>
                                                     <TableCell>{session.lastSeen}</TableCell>
-                                                    <TableCell>{session.ip}</TableCell>
+                                                    <TableCell className="hidden sm:table-cell">{session.ip}</TableCell>
                                                 </TableRow>
                                             ))}
                                         </TableBody>

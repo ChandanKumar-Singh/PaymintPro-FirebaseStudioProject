@@ -84,9 +84,14 @@ export default function TradingPage() {
                              <div className="h-[350px]">
                                 <ResponsiveContainer width="100%" height="100%">
                                     <LineChart data={stockData} margin={{ top: 5, right: 20, left: -10, bottom: 5 }}>
-                                        <XAxis dataKey="name" stroke="#888888" fontSize={12} />
-                                        <YAxis stroke="#888888" fontSize={12} domain={['dataMin - 2', 'dataMax + 2']} tickFormatter={(value) => `$${value}`} />
-                                        <Tooltip formatter={(value: number) => `$${value.toFixed(2)}`} />
+                                        <XAxis dataKey="name" stroke="hsl(var(--muted-foreground))" fontSize={12} tickLine={false} axisLine={false} />
+                                        <YAxis stroke="hsl(var(--muted-foreground))" fontSize={12} domain={['dataMin - 2', 'dataMax + 2']} tickFormatter={(value) => `$${value}`} tickLine={false} axisLine={false}/>
+                                        <Tooltip
+                                            contentStyle={{
+                                                backgroundColor: "hsl(var(--background))",
+                                                borderColor: "hsl(var(--border))"
+                                            }}
+                                            formatter={(value: number) => `$${value.toFixed(2)}`} />
                                         <Line type="monotone" dataKey="price" stroke="hsl(var(--primary))" strokeWidth={2} dot={false} />
                                     </LineChart>
                                 </ResponsiveContainer>

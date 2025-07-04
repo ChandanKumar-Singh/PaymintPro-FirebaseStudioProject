@@ -7,16 +7,14 @@ import {
   SidebarFooter,
   SidebarInset,
   SidebarTrigger,
-  SidebarMenu,
-  SidebarMenuItem,
-  SidebarMenuButton,
 } from '@/components/ui/sidebar';
-import { Settings, Search, Bell, Rocket } from 'lucide-react';
+import { Settings, Search, Rocket } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { MainNav } from '@/components/main-nav';
 import { UserNav } from '@/components/user-nav';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { ThemeToggle } from '@/components/theme-toggle';
 
 function Logo() {
   return (
@@ -28,10 +26,10 @@ function Logo() {
         fill="none"
         xmlns="http://www.w3.org/2000/svg"
       >
-        <circle cx="12" cy="12" r="12" fill="#3B82F6" />
+        <circle cx="12" cy="12" r="12" fill="hsl(var(--primary))" />
         <path
           d="M14.488 8H11V20H14.488V15.564H17.332C19.932 15.564 21.5 13.848 21.5 11.784C21.5 9.72 19.932 8 17.332 8H14.488ZM14.488 12.94V10.628H17.2C18.3 10.628 18.928 11.064 18.928 11.784C18.928 12.504 18.3 12.94 17.2 12.94H14.488Z"
-          fill="white"
+          fill="hsl(var(--primary-foreground))"
           transform="translate(-2, -2)"
         />
       </svg>
@@ -91,6 +89,7 @@ export default function MainLayout({
                 className="w-full rounded-lg bg-card pl-8 md:w-[200px] lg:w-[320px]"
               />
             </div>
+            <ThemeToggle />
             <UserNav />
           </div>
         </header>

@@ -106,11 +106,11 @@ const initialTransactionsData = [
 const getStatusBadge = (status: string) => {
   switch (status) {
     case 'Success':
-      return <Badge variant="outline" className="bg-emerald-100 text-emerald-800 border-emerald-200">Success</Badge>;
+      return <Badge variant="outline" className="bg-emerald-100 text-emerald-800 border-emerald-200 dark:bg-emerald-900/40 dark:text-emerald-300 dark:border-emerald-700">Success</Badge>;
     case 'Processing':
-      return <Badge variant="outline" className="bg-blue-100 text-blue-800 border-blue-200">Processing</Badge>;
+      return <Badge variant="outline" className="bg-blue-100 text-blue-800 border-blue-200 dark:bg-blue-900/40 dark:text-blue-300 dark:border-blue-700">Processing</Badge>;
     case 'Declined':
-      return <Badge variant="outline" className="bg-rose-100 text-rose-800 border-rose-200">Declined</Badge>;
+      return <Badge variant="outline" className="bg-rose-100 text-rose-800 border-rose-200 dark:bg-rose-900/40 dark:text-rose-300 dark:border-rose-700">Declined</Badge>;
     default:
       return <Badge variant="secondary">{status}</Badge>;
   }
@@ -200,7 +200,7 @@ export default function TransactionsPage() {
                     <DropdownMenuTrigger asChild>
                       <Button variant="outline" className="gap-1">
                         <ListFilter className="h-4 w-4" />
-                        <span>Filter</span>
+                        <span className="hidden sm:inline">Filter</span>
                       </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
@@ -224,13 +224,13 @@ export default function TransactionsPage() {
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead className="w-[40px] px-4">
+                    <TableHead className="w-[40px] px-4 hidden sm:table-cell">
                       <Checkbox />
                     </TableHead>
                     <TableHead>Customer</TableHead>
-                    <TableHead>Type</TableHead>
+                    <TableHead className="hidden sm:table-cell">Type</TableHead>
                     <TableHead>Status</TableHead>
-                    <TableHead>Date</TableHead>
+                    <TableHead className="hidden md:table-cell">Date</TableHead>
                     <TableHead className="text-right">Amount</TableHead>
                     <TableHead className="w-[50px]"></TableHead>
                   </TableRow>
@@ -238,20 +238,20 @@ export default function TransactionsPage() {
                 <TableBody>
                   {transactionsData.map((transaction) => (
                     <TableRow key={transaction.id}>
-                      <TableCell className="px-4">
+                      <TableCell className="px-4 hidden sm:table-cell">
                         <Checkbox />
                       </TableCell>
                       <TableCell>
                         <div className="font-medium">{transaction.customer}</div>
-                        <div className="text-sm text-muted-foreground">{transaction.email}</div>
+                        <div className="text-sm text-muted-foreground hidden md:inline">{transaction.email}</div>
                       </TableCell>
-                      <TableCell>
-                        <Badge variant="outline" className={cn(transaction.type === 'Refund' && 'bg-gray-100')}>{transaction.type}</Badge>
+                      <TableCell className="hidden sm:table-cell">
+                        <Badge variant="outline" className={cn(transaction.type === 'Refund' && 'bg-gray-100 dark:bg-gray-800')}>{transaction.type}</Badge>
                       </TableCell>
                       <TableCell>
                           {getStatusBadge(transaction.status)}
                       </TableCell>
-                      <TableCell className="text-muted-foreground">
+                      <TableCell className="text-muted-foreground hidden md:table-cell">
                           {new Date(transaction.date).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
                       </TableCell>
                       <TableCell className="text-right font-medium">

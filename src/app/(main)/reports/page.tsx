@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { DateRangePicker } from "@/components/date-range-picker";
 import { Download } from "lucide-react";
-import { BarChart, Bar, XAxis, YAxis, Tooltip, Legend, PieChart, Pie, Cell, LineChart, Line } from "recharts";
+import { BarChart, Bar, XAxis, YAxis, Tooltip, Legend, PieChart, Pie, Cell, LineChart, Line, ResponsiveContainer } from "recharts";
 import { ChartContainer, ChartTooltipContent } from "@/components/ui/chart";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
@@ -64,14 +64,16 @@ export default function ReportsPage() {
                     </CardHeader>
                     <CardContent>
                         <ChartContainer config={{}} className="h-[300px] w-full">
-                            <BarChart data={incomeExpenseData}>
-                                <XAxis dataKey="month" stroke="#888888" fontSize={12} tickLine={false} axisLine={false} />
-                                <YAxis stroke="#888888" fontSize={12} tickLine={false} axisLine={false} tickFormatter={(value) => `$${value}`} />
-                                <Tooltip cursor={{ fill: 'hsl(var(--muted))' }} content={<ChartTooltipContent />} />
-                                <Legend />
-                                <Bar dataKey="income" fill="hsl(var(--chart-1))" radius={[4, 4, 0, 0]} />
-                                <Bar dataKey="expense" fill="hsl(var(--chart-2))" radius={[4, 4, 0, 0]} />
-                            </BarChart>
+                           <ResponsiveContainer width="100%" height="100%">
+                                <BarChart data={incomeExpenseData}>
+                                    <XAxis dataKey="month" stroke="hsl(var(--muted-foreground))" fontSize={12} tickLine={false} axisLine={false} />
+                                    <YAxis stroke="hsl(var(--muted-foreground))" fontSize={12} tickLine={false} axisLine={false} tickFormatter={(value) => `$${value}`} />
+                                    <Tooltip cursor={{ fill: 'hsl(var(--muted))' }} content={<ChartTooltipContent />} />
+                                    <Legend />
+                                    <Bar dataKey="income" fill="hsl(var(--chart-1))" radius={[4, 4, 0, 0]} />
+                                    <Bar dataKey="expense" fill="hsl(var(--chart-2))" radius={[4, 4, 0, 0]} />
+                                </BarChart>
+                           </ResponsiveContainer>
                         </ChartContainer>
                     </CardContent>
                 </Card>
@@ -81,15 +83,17 @@ export default function ReportsPage() {
                     </CardHeader>
                     <CardContent>
                         <ChartContainer config={{}} className="h-[300px] w-full">
-                            <PieChart>
-                                <Pie data={spendingData} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={100} fill="#8884d8" label>
-                                    {spendingData.map((entry, index) => (
-                                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                                    ))}
-                                </Pie>
-                                <Tooltip content={<ChartTooltipContent />} />
-                                <Legend />
-                            </PieChart>
+                           <ResponsiveContainer width="100%" height="100%">
+                                <PieChart>
+                                    <Pie data={spendingData} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={100} fill="#8884d8" label>
+                                        {spendingData.map((entry, index) => (
+                                            <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                                        ))}
+                                    </Pie>
+                                    <Tooltip content={<ChartTooltipContent />} />
+                                    <Legend />
+                                </PieChart>
+                           </ResponsiveContainer>
                         </ChartContainer>
                     </CardContent>
                 </Card>
@@ -102,13 +106,15 @@ export default function ReportsPage() {
                 </CardHeader>
                 <CardContent>
                      <ChartContainer config={{}} className="h-[300px] w-full">
-                        <LineChart data={cashflowData}>
-                            <XAxis dataKey="name" stroke="#888888" fontSize={12} tickLine={false} axisLine={false} />
-                            <YAxis stroke="#888888" fontSize={12} tickLine={false} axisLine={false} tickFormatter={(value) => `$${value}`} />
-                            <Tooltip content={<ChartTooltipContent />} />
-                            <Legend />
-                            <Line type="monotone" dataKey="cashflow" stroke="hsl(var(--chart-1))" strokeWidth={2} dot={{ r: 4, fill: "hsl(var(--chart-1))" }} activeDot={{ r: 8 }} />
-                        </LineChart>
+                       <ResponsiveContainer width="100%" height="100%">
+                            <LineChart data={cashflowData}>
+                                <XAxis dataKey="name" stroke="hsl(var(--muted-foreground))" fontSize={12} tickLine={false} axisLine={false} />
+                                <YAxis stroke="hsl(var(--muted-foreground))" fontSize={12} tickLine={false} axisLine={false} tickFormatter={(value) => `$${value}`} />
+                                <Tooltip content={<ChartTooltipContent />} />
+                                <Legend />
+                                <Line type="monotone" dataKey="cashflow" stroke="hsl(var(--chart-1))" strokeWidth={2} dot={{ r: 4, fill: "hsl(var(--chart-1))" }} activeDot={{ r: 8 }} />
+                            </LineChart>
+                       </ResponsiveContainer>
                     </ChartContainer>
                 </CardContent>
             </Card>
@@ -123,8 +129,8 @@ export default function ReportsPage() {
                         <TableHeader>
                             <TableRow>
                                 <TableHead>Report Name</TableHead>
-                                <TableHead>Date Generated</TableHead>
-                                <TableHead>Type</TableHead>
+                                <TableHead className="hidden sm:table-cell">Date Generated</TableHead>
+                                <TableHead className="hidden sm:table-cell">Type</TableHead>
                                 <TableHead className="text-right">Actions</TableHead>
                             </TableRow>
                         </TableHeader>
@@ -132,8 +138,8 @@ export default function ReportsPage() {
                             {recentReports.map(report => (
                                 <TableRow key={report.id}>
                                     <TableCell className="font-medium">{report.name}</TableCell>
-                                    <TableCell>{new Date(report.date).toLocaleDateString()}</TableCell>
-                                    <TableCell><Badge variant="secondary">{report.type}</Badge></TableCell>
+                                    <TableCell className="hidden sm:table-cell">{new Date(report.date).toLocaleDateString()}</TableCell>
+                                    <TableCell className="hidden sm:table-cell"><Badge variant="secondary">{report.type}</Badge></TableCell>
                                     <TableCell className="text-right">
                                         <Button variant="ghost" size="icon">
                                             <Download className="h-4 w-4" />
