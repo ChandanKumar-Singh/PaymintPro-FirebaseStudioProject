@@ -11,7 +11,7 @@ export default {
     extend: {
       fontFamily: {
         body: ['Inter', 'sans-serif'],
-        headline: ['Inter', 'sans-serif'],
+        headline: ['Josefin Sans', 'sans-serif'],
         code: ['monospace'],
       },
       colors: {
@@ -88,12 +88,42 @@ export default {
             height: '0',
           },
         },
+        fadeIn: {
+          from: { opacity: '0' },
+          to: { opacity: '1' },
+        },
+        fadeOut: {
+          from: { opacity: '1' },
+          to: { opacity: '0' },
+        },
+        slideIn: {
+          from: { transform: 'translateY(10px)', opacity: '0' },
+          to: { transform: 'translateY(0)', opacity: '1' },
+        },
+        slideOut: {
+          from: { transform: 'translateY(0)', opacity: '1' },
+          to: { transform: 'translateY(10px)', opacity: '0' },
+        },
+        scaleIn: {
+          from: { transform: 'scale(0.95)', opacity: '0' },
+          to: { transform: 'scale(1)', opacity: '1' },
+        },
+        scaleOut: {
+          from: { transform: 'scale(1)', opacity: '1' },
+          to: { transform: 'scale(0.95)', opacity: '0' },
+        },
       },
       animation: {
         'accordion-down': 'accordion-down 0.2s ease-out',
         'accordion-up': 'accordion-up 0.2s ease-out',
+        fade: 'fadeIn 0.3s ease-out',
+        'fade-out': 'fadeOut 0.3s ease-in',
+        slide: 'slideIn 0.4s ease-out',
+        'slide-out': 'slideOut 0.4s ease-in',
+        scale: 'scaleIn 0.3s ease-out',
+        'scale-out': 'scaleOut 0.3s ease-in',
       },
     },
   },
-  plugins: [require('tailwindcss-animate')],
+  plugins: [require('tailwindcss-animate'), require('@tailwindcss/typography'), require('@tailwindcss/forms')],
 } satisfies Config;
