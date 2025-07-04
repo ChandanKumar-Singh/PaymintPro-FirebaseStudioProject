@@ -1,13 +1,15 @@
+'use client';
+
 import { Button } from "@/components/ui/button";
-import { PlusCircle } from "lucide-react";
 import { CreditCardDisplay } from "@/components/credit-card-display";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { AddCardDialog } from "@/components/dialogs/add-card-dialog";
 
 const cards = [
-    { brand: 'visa', number: '**** **** **** 1234', holder: 'Olivia Martin', expiry: '08/28', status: 'Active', type: 'Physical' },
-    { brand: 'mastercard', number: '**** **** **** 5678', holder: 'Olivia Martin', expiry: '11/26', status: 'Active', type: 'Virtual' },
-    { brand: 'visa', number: '**** **** **** 9012', holder: 'Olivia Martin', expiry: '04/25', status: 'Inactive', type: 'Physical' },
+    { id: 'card-1', brand: 'visa', number: '**** **** **** 1234', holder: 'Olivia Martin', expiry: '08/28', status: 'Active', type: 'Physical' },
+    { id: 'card-2', brand: 'mastercard', number: '**** **** **** 5678', holder: 'Olivia Martin', expiry: '11/26', status: 'Active', type: 'Virtual' },
+    { id: 'card-3', brand: 'visa', number: '**** **** **** 9012', holder: 'Olivia Martin', expiry: '04/25', status: 'Inactive', type: 'Physical' },
 ] as const;
 
 const cardTransactions = [
@@ -24,15 +26,12 @@ export default function CardsPage() {
         <div className="space-y-6">
             <div className="flex justify-between items-center">
                 <h1 className="text-3xl font-bold tracking-tight">My Cards</h1>
-                <Button>
-                    <PlusCircle className="mr-2 h-4 w-4" />
-                    Add New Card
-                </Button>
+                <AddCardDialog />
             </div>
             
             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
                 {cards.map(card => (
-                    <CreditCardDisplay key={card.number} {...card} />
+                    <CreditCardDisplay key={card.id} {...card} />
                 ))}
             </div>
 

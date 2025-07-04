@@ -7,6 +7,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ArrowUp } from "lucide-react";
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
 import Image from 'next/image';
+import { useState } from "react";
+import { TradeOrderDialog } from "@/components/dialogs/trade-order-dialog";
 
 const stockData = [
   { name: '9:00 AM', price: 150.75 },
@@ -38,8 +40,28 @@ const marketNews = [
 ]
 
 export default function TradingPage() {
+    const [tradeDialogOpen, setTradeDialogOpen] = useState(false);
+    const [tradeDetails, setTradeDetails] = useState({ action: 'Buy' as 'Buy' | 'Sell', symbol: 'AAPL', shares: 0, price: 155.10 });
+    const [buyShares, setBuyShares] = useState('');
+    const [sellShares, setSellShares] = useState('');
+
+    const handleTradeClick = (action: 'Buy' | 'Sell') => {
+        const shares = action === 'Buy' ? parseInt(buyShares) : parseInt(sellShares);
+        if (shares > 0) {
+            setTradeDetails({
+                action,
+                symbol: 'AAPL',
+                shares,
+                price: 155.10
+            });
+            setTradeDialogOpen(true);
+        }
+    }
+
+
     return (
         <div className="space-y-6">
+            <TradeOrderDialog open={tradeDialogOpen} onOpenChange={setTradeDialogOpen} tradeDetails={tradeDetails} />
             <h1 className="text-3xl font-bold tracking-tight">Trading</h1>
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 <div className="lg:col-span-2 space-y-6">
@@ -115,18 +137,18 @@ export default function TradingPage() {
                             </CardHeader>
                             <TabsContent value="buy">
                                 <CardContent className="space-y-4">
-                                    <Input placeholder="Amount (shares)" type="number"/>
+                                    <Input placeholder="Amount (shares)" type="number" value={buyShares} onChange={e => setBuyShares(e.target.value)} />
                                     <p className="text-sm text-muted-foreground">Market Price: ~$155.10</p>
-                                    <p className="text-sm font-bold">Estimated Cost: $1,551.00</p>
-                                    <Button className="w-full">Buy AAPL</Button>
+                                    <p className="text-sm font-bold">Estimated Cost: {(parseFloat(buyShares) * 155.10 || 0).toLocaleString('en-US', { style: 'currency', currency: 'USD' })}</p>
+                                    <Button className="w-full" onClick={() => handleTradeClick('Buy')} disabled={!buyShares || parseInt(buyShares) <= 0}>Buy AAPL</Button>
                                 </CardContent>
                             </TabsContent>
                             <TabsContent value="sell">
                                  <CardContent className="space-y-4">
-                                    <Input placeholder="Amount (shares)" type="number"/>
+                                    <Input placeholder="Amount (shares)" type="number" value={sellShares} onChange={e => setSellShares(e.target.value)} />
                                     <p className="text-sm text-muted-foreground">You own: 10 shares</p>
-                                    <p className="text-sm font-bold">Estimated Credit: $1,551.00</p>
-                                    <Button variant="destructive" className="w-full">Sell AAPL</Button>
+                                    <p className="text-sm font-bold">Estimated Credit: {(parseFloat(sellShares) * 155.10 || 0).toLocaleString('en-US', { style: 'currency', currency: 'USD' })}</p>
+                                    <Button variant="destructive" className="w-full" onClick={() => handleTradeClick('Sell')} disabled={!sellShares || parseInt(sellShares) <= 0}>Sell AAPL</Button>
                                 </CardContent>
                             </TabsContent>
                         </Tabs>

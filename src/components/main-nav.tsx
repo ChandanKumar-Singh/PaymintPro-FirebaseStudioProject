@@ -17,6 +17,7 @@ import {
   Receipt,
   FileText,
   CandlestickChart,
+  Sparkles,
 } from 'lucide-react';
 
 const menuItems = [
@@ -28,6 +29,7 @@ const menuItems = [
   { href: '/invoicing', label: 'Invoicing', icon: FileText },
   { href: '/trading', label: 'Trading', icon: CandlestickChart },
   { href: '/reports', label: 'Reports', icon: PieChart },
+  { href: '/advisor', label: 'AI Advisor', icon: Sparkles },
 ];
 
 const settingsItem = { href: '/settings', label: 'Settings', icon: Settings };

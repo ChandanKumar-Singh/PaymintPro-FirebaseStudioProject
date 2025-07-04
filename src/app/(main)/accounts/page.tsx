@@ -1,87 +1,66 @@
+'use client';
+import { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { Banknote, MoreHorizontal, PlusCircle } from "lucide-react";
+import { Banknote, MoreHorizontal } from "lucide-react";
+import { AddAccountDialog } from '@/components/dialogs/add-account-dialog';
+import { ConfirmDialog } from '@/components/dialogs/confirm-dialog';
+import { useToast } from '@/hooks/use-toast';
 
-const accounts = [
-  {
-    id: "acc_1",
-    name: "Primary Checking",
-    bank: "Capital One",
-    accountNumber: "**** **** **** 1234",
-    balance: 10530.00,
-  },
-  {
-    id: "acc_2",
-    name: "Business Savings",
-    bank: "Chase",
-    accountNumber: "**** **** **** 5678",
-    balance: 75250.50,
-  },
-  {
-    id: "acc_3",
-    name: "Investment Account",
-    bank: "Fidelity",
-    accountNumber: "**** **** **** 9012",
-    balance: 120800.75,
-  },
+const initialAccounts = [
+  { id: "acc_1", name: "Primary Checking", bank: "Capital One", accountNumber: "**** **** **** 1234", balance: 10530.00 },
+  { id: "acc_2", name: "Business Savings", bank: "Chase", accountNumber: "**** **** **** 5678", balance: 75250.50 },
+  { id: "acc_3", name: "Investment Account", bank: "Fidelity", accountNumber: "**** **** **** 9012", balance: 120800.75 },
 ];
 
 const transactions = [
-  {
-    id: "txn_1",
-    description: "Stripe Payout",
-    date: "2024-07-25",
-    amount: 5250.00,
-    status: "Completed",
-  },
-  {
-    id: "txn_2",
-    description: "Google Ads",
-    date: "2024-07-24",
-    amount: -350.00,
-    status: "Completed",
-  },
-  {
-    id: "txn_3",
-    description: "Figma Subscription",
-    date: "2024-07-24",
-    amount: -15.00,
-    status: "Completed",
-  },
-  {
-    id: "txn_4",
-    description: "Client Payment - Acme Inc.",
-    date: "2024-07-23",
-    amount: 12000.00,
-    status: "Completed",
-  },
-  {
-    id: "txn_5",
-    description: "Office Supplies",
-    date: "2024-07-22",
-    amount: -125.60,
-    status: "Completed",
-  },
+  { id: "txn_1", description: "Stripe Payout", date: "2024-07-25", amount: 5250.00, status: "Completed" },
+  { id: "txn_2", description: "Google Ads", date: "2024-07-24", amount: -350.00, status: "Completed" },
+  { id: "txn_3", description: "Figma Subscription", date: "2024-07-24", amount: -15.00, status: "Completed" },
+  { id: "txn_4", description: "Client Payment - Acme Inc.", date: "2024-07-23", amount: 12000.00, status: "Completed" },
+  { id: "txn_5", description: "Office Supplies", date: "2024-07-22", amount: -125.60, status: "Completed" },
 ];
-
 
 const getStatusBadge = (status: string) => {
     return <Badge variant="default" className="bg-green-100 text-green-800 border-green-200 hover:bg-green-100">Completed</Badge>;
 };
 
-
 export default function AccountsPage() {
+  const [accounts, setAccounts] = useState(initialAccounts);
+  const [confirmOpen, setConfirmOpen] = useState(false);
+  const [selectedAccount, setSelectedAccount] = useState<string | null>(null);
+  const { toast } = useToast();
+
+  const handleRemoveClick = (accountId: string) => {
+    setSelectedAccount(accountId);
+    setConfirmOpen(true);
+  }
+
+  const handleRemoveConfirm = () => {
+    setAccounts(accounts.filter(acc => acc.id !== selectedAccount));
+    toast({
+        title: "Account Removed",
+        description: "The account has been successfully removed.",
+    });
+    setConfirmOpen(false);
+    setSelectedAccount(null);
+  }
+
   return (
     <div className="space-y-6">
+      <ConfirmDialog 
+        open={confirmOpen}
+        onOpenChange={setConfirmOpen}
+        onConfirm={handleRemoveConfirm}
+        title="Are you sure?"
+        description="This will permanently remove the account and all its data. This action cannot be undone."
+      />
       <div className="flex justify-between items-center">
         <h1 className="text-3xl font-bold tracking-tight">Accounts</h1>
-        <Button>
-          <PlusCircle className="mr-2 h-4 w-4" />
-          Add New
-        </Button>
+        <AddAccountDialog />
       </div>
 
       <div className="space-y-4">
@@ -110,7 +89,7 @@ export default function AccountsPage() {
                     <DropdownMenuContent align="end">
                       <DropdownMenuItem>View Details</DropdownMenuItem>
                       <DropdownMenuItem>Set as Default</DropdownMenuItem>
-                      <DropdownMenuItem className="text-destructive focus:text-destructive">Remove Account</DropdownMenuItem>
+                      <DropdownMenuItem className="text-destructive focus:text-destructive" onClick={() => handleRemoveClick(account.id)}>Remove Account</DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
                 </div>

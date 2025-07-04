@@ -2,10 +2,11 @@ import { StatCard } from '@/components/stat-card';
 import { TransactionChart } from '@/components/transaction-chart';
 import { RecentTransactions } from '@/components/recent-transactions';
 import { MyCards } from '@/components/my-cards';
-import { QuickTransfer } from '@/components/quick-transfer';
+import { QuickInvoice } from '@/components/quick-transfer';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Button } from '@/components/ui/button';
 import { DateRangePicker } from '@/components/date-range-picker';
-import { DollarSign, Users, CreditCard, Activity } from 'lucide-react';
+import { DollarSign, Users, CreditCard, Activity, ChevronDown } from 'lucide-react';
 
 export default function DashboardPage() {
   return (
@@ -19,7 +20,19 @@ export default function DashboardPage() {
         </div>
         <div className="flex items-center gap-4">
           <DateRangePicker />
-          <Button>Create new</Button>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+                <Button>
+                    Create New
+                    <ChevronDown className="ml-2 h-4 w-4" />
+                </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+                <DropdownMenuItem>New Invoice</DropdownMenuItem>
+                <DropdownMenuItem>New Payment</DropdownMenuItem>
+                <DropdownMenuItem>New Transaction</DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
       </div>
 
@@ -61,7 +74,7 @@ export default function DashboardPage() {
       
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <MyCards />
-        <QuickTransfer />
+        <QuickInvoice />
       </div>
     </div>
   );

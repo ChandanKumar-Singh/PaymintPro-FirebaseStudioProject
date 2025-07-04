@@ -1,3 +1,4 @@
+'use client';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
@@ -5,8 +6,12 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Badge } from "@/components/ui/badge";
 import { MoreHorizontal, PlusCircle, FileWarning, FileClock, FileCheck } from "lucide-react";
 import { StatCard } from "@/components/stat-card";
+import Link from "next/link";
+import { useState } from "react";
+import { ConfirmDialog } from "@/components/dialogs/confirm-dialog";
+import { useToast } from "@/hooks/use-toast";
 
-const invoices = [
+const initialInvoices = [
   { id: 'inv_1', customer: 'Acme Inc.', invoiceNumber: 'INV-007', date: '2024-07-15', dueDate: '2024-08-14', amount: 12000.00, status: 'Paid' },
   { id: 'inv_2', customer: 'Stark Industries', invoiceNumber: 'INV-006', date: '2024-07-10', dueDate: '2024-07-25', amount: 7500.00, status: 'Overdue' },
   { id: 'inv_3', customer: 'Wayne Enterprises', invoiceNumber: 'INV-005', date: '2024-07-05', dueDate: '2024-08-04', amount: 2500.00, status: 'Sent' },
@@ -31,14 +36,50 @@ const getStatusBadge = (status: string) => {
 
 
 export default function InvoicingPage() {
+    const [invoices, setInvoices] = useState(initialInvoices);
+    const [confirmOpen, setConfirmOpen] = useState(false);
+    const [selectedInvoice, setSelectedInvoice] = useState<string | null>(null);
+    const { toast } = useToast();
+
+    const handleDeleteClick = (invoiceId: string) => {
+        setSelectedInvoice(invoiceId);
+        setConfirmOpen(true);
+    }
+    
+    const handleDeleteConfirm = () => {
+        setInvoices(invoices.filter(inv => inv.id !== selectedInvoice));
+        toast({
+            title: "Invoice Deleted",
+            description: "The invoice has been successfully deleted.",
+        });
+        setConfirmOpen(false);
+        setSelectedInvoice(null);
+    }
+
+    const handleSendReminder = (customer: string) => {
+         toast({
+            title: "Reminder Sent",
+            description: `A reminder has been sent to ${customer}.`,
+        });
+    }
+
     return (
         <div className="space-y-6">
+            <ConfirmDialog 
+                open={confirmOpen}
+                onOpenChange={setConfirmOpen}
+                onConfirm={handleDeleteConfirm}
+                title="Are you sure?"
+                description="This will permanently delete the invoice. This action cannot be undone."
+            />
             <div className="flex justify-between items-center">
                 <h1 className="text-3xl font-bold tracking-tight">Invoicing</h1>
-                <Button>
-                    <PlusCircle className="mr-2 h-4 w-4" />
-                    Create Invoice
-                </Button>
+                <Link href="/invoicing/new" passHref>
+                    <Button>
+                        <PlusCircle className="mr-2 h-4 w-4" />
+                        Create Invoice
+                    </Button>
+                </Link>
             </div>
 
             <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
@@ -85,8 +126,8 @@ export default function InvoicingPage() {
                                             <DropdownMenuContent align="end">
                                                 <DropdownMenuItem>View Invoice</DropdownMenuItem>
                                                 <DropdownMenuItem>Edit</DropdownMenuItem>
-                                                <DropdownMenuItem>Send Reminder</DropdownMenuItem>
-                                                <DropdownMenuItem className="text-destructive focus:text-destructive">Delete</DropdownMenuItem>
+                                                <DropdownMenuItem onClick={() => handleSendReminder(invoice.customer)}>Send Reminder</DropdownMenuItem>
+                                                <DropdownMenuItem className="text-destructive focus:text-destructive" onClick={() => handleDeleteClick(invoice.id)}>Delete</DropdownMenuItem>
                                             </DropdownMenuContent>
                                         </DropdownMenu>
                                     </TableCell>
