@@ -18,6 +18,18 @@ const nextConfig: NextConfig = {
       },
     ],
   },
+/*   Set ignoreBuildErrors: false and ignoreDuringBuilds: false to enforce stricter checks
+
+Add more trusted domains under remotePatterns if needed
+
+You can also customize things like:
+
+ts
+Copy
+Edit
+compress: true,
+poweredByHeader: false,
+experimental: { serverActions: true }, */
 };
 
 export default nextConfig;
