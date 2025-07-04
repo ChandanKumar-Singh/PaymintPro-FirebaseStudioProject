@@ -10,7 +10,7 @@ import { useEffect, useState } from "react";
 interface EditBudgetSheetProps {
     open: boolean;
     onOpenChange: (open: boolean) => void;
-    budget: { name: string; spent: number; total: number; } | null;
+    budget: { id: string, name: string; spent: number; total: number; } | null;
 }
 
 export function EditBudgetSheet({ open, onOpenChange, budget }: EditBudgetSheetProps) {

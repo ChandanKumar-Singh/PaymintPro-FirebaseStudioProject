@@ -47,6 +47,13 @@ export function CreditCardDisplay({ id, brand, number, holder, expiry, status, t
     // You would also need to update the state in the parent component
   }
 
+  const handleSettings = () => {
+      toast({
+          title: "Coming Soon",
+          description: "Card settings will be available in a future update.",
+      })
+  }
+
   return (
     <>
       <ConfirmDialog
@@ -94,7 +101,7 @@ export function CreditCardDisplay({ id, brand, number, holder, expiry, status, t
               <p className="text-sm text-muted-foreground">{number}</p>
             </div>
             <div className="flex items-center justify-end gap-2">
-              <Button variant="ghost" size="icon">
+              <Button variant="ghost" size="icon" onClick={handleSettings}>
                 <Settings className="h-4 w-4" />
               </Button>
               <Button variant="ghost" size="icon" className="text-destructive hover:text-destructive" onClick={() => setConfirmOpen(true)}>

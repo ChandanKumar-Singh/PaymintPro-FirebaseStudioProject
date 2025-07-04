@@ -138,7 +138,7 @@ export default function InvoicingPage() {
                                                 </Button>
                                             </DropdownMenuTrigger>
                                             <DropdownMenuContent align="end">
-                                                <DropdownMenuItem>View Invoice</DropdownMenuItem>
+                                                <DropdownMenuItem onClick={() => handleEditClick(invoice)}>View Invoice</DropdownMenuItem>
                                                 <DropdownMenuItem onClick={() => handleEditClick(invoice)}>Edit</DropdownMenuItem>
                                                 <DropdownMenuItem onClick={() => handleSendReminder(invoice.customer)}>Send Reminder</DropdownMenuItem>
                                                 <DropdownMenuItem className="text-destructive focus:text-destructive" onClick={() => handleDeleteClick(invoice)}>Delete</DropdownMenuItem>

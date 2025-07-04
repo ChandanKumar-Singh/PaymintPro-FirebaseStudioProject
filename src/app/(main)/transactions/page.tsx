@@ -34,8 +34,10 @@ import { MoreHorizontal, Search, Download, ListFilter } from "lucide-react"
 import { DateRangePicker } from "@/components/date-range-picker"
 import { cn } from '@/lib/utils';
 import { EditTransactionSheet } from '@/components/sheets/edit-transaction-sheet';
+import { ConfirmDialog } from '@/components/dialogs/confirm-dialog';
+import { useToast } from '@/hooks/use-toast';
 
-const transactionsData = [
+const initialTransactionsData = [
   {
     id: "txn_001",
     customer: "Liam Johnson",
@@ -114,15 +116,34 @@ const getStatusBadge = (status: string) => {
   }
 };
 
-type Transaction = typeof transactionsData[0];
+type Transaction = typeof initialTransactionsData[0];
 
 export default function TransactionsPage() {
+    const [transactionsData, setTransactionsData] = useState(initialTransactionsData);
     const [editSheetOpen, setEditSheetOpen] = useState(false);
+    const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
     const [selectedTransaction, setSelectedTransaction] = useState<Transaction | null>(null);
+    const { toast } = useToast();
 
     const handleEditClick = (transaction: Transaction) => {
       setSelectedTransaction(transaction);
       setEditSheetOpen(true);
+    }
+
+    const handleDeleteClick = (transaction: Transaction) => {
+      setSelectedTransaction(transaction);
+      setConfirmDeleteOpen(true);
+    }
+
+    const handleDeleteConfirm = () => {
+      if (!selectedTransaction) return;
+      setTransactionsData(transactionsData.filter(t => t.id !== selectedTransaction.id));
+      toast({
+          title: "Transaction Deleted",
+          description: "The transaction has been successfully deleted.",
+      });
+      setConfirmDeleteOpen(false);
+      setSelectedTransaction(null);
     }
 
     return (
@@ -131,6 +152,13 @@ export default function TransactionsPage() {
           open={editSheetOpen}
           onOpenChange={setEditSheetOpen}
           transaction={selectedTransaction}
+        />
+        <ConfirmDialog 
+          open={confirmDeleteOpen}
+          onOpenChange={setConfirmDeleteOpen}
+          onConfirm={handleDeleteConfirm}
+          title="Are you sure?"
+          description="This will permanently delete this transaction. This action cannot be undone."
         />
         <div>
             <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-4">
@@ -238,9 +266,9 @@ export default function TransactionsPage() {
                             </Button>
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align="end">
-                            <DropdownMenuItem>View details</DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => handleEditClick(transaction)}>View details</DropdownMenuItem>
                             <DropdownMenuItem onClick={() => handleEditClick(transaction)}>Edit</DropdownMenuItem>
-                            <DropdownMenuItem className="text-destructive focus:text-destructive focus:bg-destructive/10">Delete</DropdownMenuItem>
+                            <DropdownMenuItem className="text-destructive focus:text-destructive focus:bg-destructive/10" onClick={() => handleDeleteClick(transaction)}>Delete</DropdownMenuItem>
                           </DropdownMenuContent>
                         </DropdownMenu>
                       </TableCell>

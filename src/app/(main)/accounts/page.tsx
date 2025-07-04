@@ -48,6 +48,13 @@ export default function AccountsPage() {
     setEditSheetOpen(true);
   }
 
+  const handleSetDefault = (account: Account) => {
+    toast({
+        title: "Default Account Set",
+        description: `${account.name} is now your default account.`,
+    });
+  }
+
   const handleRemoveConfirm = () => {
     if (!selectedAccount) return;
     setAccounts(accounts.filter(acc => acc.id !== selectedAccount.id));
@@ -103,7 +110,7 @@ export default function AccountsPage() {
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
                       <DropdownMenuItem onClick={() => handleEditClick(account)}>Edit</DropdownMenuItem>
-                      <DropdownMenuItem>Set as Default</DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => handleSetDefault(account)}>Set as Default</DropdownMenuItem>
                       <DropdownMenuItem className="text-destructive focus:text-destructive" onClick={() => handleRemoveClick(account)}>Remove Account</DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>

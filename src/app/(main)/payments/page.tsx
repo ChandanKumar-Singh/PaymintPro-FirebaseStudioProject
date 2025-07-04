@@ -46,6 +46,13 @@ export default function PaymentsPage() {
         setConfirmOpen(true);
     }
     
+    const handleViewDetails = () => {
+        toast({
+            title: "Feature not available",
+            description: "Viewing payment details is not yet implemented.",
+        });
+    }
+
     const handleConfirmAction = () => {
         if (!selectedPayment) return;
 
@@ -90,7 +97,7 @@ export default function PaymentsPage() {
                                     </Button>
                                 </DropdownMenuTrigger>
                                 <DropdownMenuContent align="end">
-                                    <DropdownMenuItem>View Details</DropdownMenuItem>
+                                    <DropdownMenuItem onClick={handleViewDetails}>View Details</DropdownMenuItem>
                                     {payment.status === 'Upcoming' && <DropdownMenuItem onClick={() => handleActionClick(payment.id, 'cancel')}>Cancel Payment</DropdownMenuItem>}
                                     {payment.status === 'Failed' && <DropdownMenuItem onClick={() => handleActionClick(payment.id, 'retry')}>Retry Payment</DropdownMenuItem>}
                                 </DropdownMenuContent>
@@ -108,15 +115,13 @@ export default function PaymentsPage() {
 
     return (
         <div className="space-y-6">
-            {selectedPayment && (
-                <ConfirmDialog 
-                    open={confirmOpen}
-                    onOpenChange={setConfirmOpen}
-                    onConfirm={handleConfirmAction}
-                    title={`Are you sure you want to ${selectedPayment.action} this payment?`}
-                    description="This action may not be reversible depending on the payment status."
-                />
-            )}
+            <ConfirmDialog 
+                open={confirmOpen}
+                onOpenChange={setConfirmOpen}
+                onConfirm={handleConfirmAction}
+                title={`Are you sure you want to ${selectedPayment?.action} this payment?`}
+                description="This action may not be reversible depending on the payment status."
+            />
             <div className="flex justify-between items-center">
                 <h1 className="text-3xl font-bold tracking-tight">Payments</h1>
                 <NewPaymentDialog />
