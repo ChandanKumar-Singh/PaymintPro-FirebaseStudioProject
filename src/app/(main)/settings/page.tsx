@@ -59,7 +59,7 @@ export default function SettingsPage() {
                                 <CardDescription>This is how others will see you on the site.</CardDescription>
                             </CardHeader>
                             <CardContent className="space-y-6">
-                                 <div className="flex items-center space-x-4">
+                                <div className="flex items-center space-x-4">
                                     <Avatar className="h-20 w-20">
                                         <AvatarImage src="https://placehold.co/80x80.png" data-ai-hint="woman avatar" />
                                         <AvatarFallback>OM</AvatarFallback>
@@ -82,14 +82,14 @@ export default function SettingsPage() {
                                 </div>
                             </CardContent>
                             <CardFooter className="border-t px-6 py-4">
-                               <div className="flex justify-end w-full">
+                                <div className="flex justify-end w-full">
                                     <Button onClick={handleSaveChanges}>Save Changes</Button>
                                 </div>
                             </CardFooter>
                         </Card>
                     </TabsContent>
                     <TabsContent value="notifications">
-                         <Card>
+                        <Card>
                             <CardHeader>
                                 <CardTitle>Notifications</CardTitle>
                                 <CardDescription>Manage how you receive notifications.</CardDescription>
@@ -110,8 +110,8 @@ export default function SettingsPage() {
                                         <Switch id="email-security" />
                                     </div>
                                 </div>
-                                <Separator/>
-                                 <div className="space-y-4">
+                                <Separator />
+                                <div className="space-y-4">
                                     <h3 className="text-lg font-medium">Push Notifications</h3>
                                     <div className="flex items-center justify-between">
                                         <Label htmlFor="push-everything">Everything</Label>
@@ -121,28 +121,28 @@ export default function SettingsPage() {
                                         <Label htmlFor="push-mentions">Direct Mentions</Label>
                                         <Switch id="push-mentions" defaultChecked />
                                     </div>
-                                     <div className="flex items-center justify-between">
+                                    <div className="flex items-center justify-between">
                                         <Label htmlFor="push-none">No push notifications</Label>
                                         <Switch id="push-none" />
                                     </div>
                                 </div>
                             </CardContent>
-                             <CardFooter className="border-t px-6 py-4">
-                               <div className="flex justify-end w-full">
+                            <CardFooter className="border-t px-6 py-4">
+                                <div className="flex justify-end w-full">
                                     <Button onClick={handleSaveChanges}>Save Changes</Button>
                                 </div>
                             </CardFooter>
                         </Card>
                     </TabsContent>
                     <TabsContent value="security">
-                         <Card>
+                        <Card>
                             <CardHeader>
                                 <CardTitle>Security</CardTitle>
                                 <CardDescription>Manage your account security settings.</CardDescription>
                             </CardHeader>
                             <CardContent className="space-y-6">
-                                <div className="space-y-4">
-                                    <h3 className="text-lg font-medium">Change Password</h3>
+                                <h3 className="text-lg font-medium">Change Password</h3>
+                                <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
                                     <div className="space-y-2">
                                         <Label htmlFor="current-password">Current Password</Label>
                                         <Input id="current-password" type="password" />
@@ -151,21 +151,24 @@ export default function SettingsPage() {
                                         <Label htmlFor="new-password">New Password</Label>
                                         <Input id="new-password" type="password" />
                                     </div>
-                                     <div className="space-y-2">
+                                    <div className="space-y-2">
                                         <Label htmlFor="confirm-password">Confirm New Password</Label>
                                         <Input id="confirm-password" type="password" />
+                                    </div>
+                                    <div className="flex justify-end items-end w-full col-span-full">
+                                        <Button onClick={() => { }}>Save Changes</Button>
                                     </div>
                                 </div>
                                 <Separator />
                                 <div className="space-y-4">
-                                     <h3 className="text-lg font-medium">Two-Factor Authentication</h3>
-                                     <div className="flex items-center justify-between p-4 border rounded-lg">
+                                    <h3 className="text-lg font-medium">Two-Factor Authentication</h3>
+                                    <div className="flex items-center justify-between p-4 border rounded-lg">
                                         <div>
                                             <p className="font-medium">Enable 2FA</p>
                                             <p className="text-sm text-muted-foreground">Secure your account with an extra layer of protection.</p>
                                         </div>
                                         <Setup2FADialog />
-                                     </div>
+                                    </div>
                                 </div>
                                 <Separator />
                                 <div className="space-y-4">
@@ -192,77 +195,77 @@ export default function SettingsPage() {
                                     </Table>
                                 </div>
                             </CardContent>
-                             <CardFooter className="border-t px-6 py-4">
-                               <div className="flex justify-end w-full">
+                            <CardFooter className="border-t px-6 py-4">
+                                <div className="flex justify-end w-full">
                                     <Button onClick={handleSaveChanges}>Save Changes</Button>
                                 </div>
                             </CardFooter>
                         </Card>
                     </TabsContent>
                     <TabsContent value="billing">
-                         <Card>
+                        <Card>
                             <CardHeader>
                                 <CardTitle>Billing</CardTitle>
                                 <CardDescription>Manage your billing and subscription.</CardDescription>
                             </CardHeader>
                             <CardContent className="space-y-6">
-                               <Card>
-                                   <CardHeader className="flex flex-row items-center justify-between">
+                                <Card>
+                                    <CardHeader className="flex flex-row items-center justify-between">
                                         <div>
                                             <CardTitle className="text-xl">Pro Plan</CardTitle>
                                             <CardDescription>$20 / month</CardDescription>
                                         </div>
                                         <ChangePlanDialog />
-                                   </CardHeader>
-                               </Card>
-                                <Card>
-                                   <CardHeader>
-                                        <CardTitle>Payment Method</CardTitle>
-                                   </CardHeader>
-                                   <CardContent className="flex items-center justify-between">
-                                       <div className="flex items-center gap-4">
-                                           <Avatar>
-                                                <AvatarImage src="https://placehold.co/40x40.png" data-ai-hint="visa logo" />
-                                           </Avatar>
-                                           <div>
-                                               <p className="font-medium">Visa ending in 1234</p>
-                                               <p className="text-sm text-muted-foreground">Expires 08/2028</p>
-                                           </div>
-                                       </div>
-                                       <UpdatePaymentDialog />
-                                   </CardContent>
+                                    </CardHeader>
                                 </Card>
-                                 <Card>
-                                   <CardHeader>
+                                <Card>
+                                    <CardHeader>
+                                        <CardTitle>Payment Method</CardTitle>
+                                    </CardHeader>
+                                    <CardContent className="flex items-center justify-between">
+                                        <div className="flex items-center gap-4">
+                                            <Avatar>
+                                                <AvatarImage src="https://placehold.co/40x40.png" data-ai-hint="visa logo" />
+                                            </Avatar>
+                                            <div>
+                                                <p className="font-medium">Visa ending in 1234</p>
+                                                <p className="text-sm text-muted-foreground">Expires 08/2028</p>
+                                            </div>
+                                        </div>
+                                        <UpdatePaymentDialog />
+                                    </CardContent>
+                                </Card>
+                                <Card>
+                                    <CardHeader>
                                         <CardTitle>Billing History</CardTitle>
-                                   </CardHeader>
-                                   <CardContent>
-                                       <Table>
-                                           <TableHeader>
-                                               <TableRow>
-                                                   <TableHead>Date</TableHead>
-                                                   <TableHead>Description</TableHead>
-                                                   <TableHead className="text-right">Amount</TableHead>
-                                                   <TableHead className="w-[50px] text-right">Action</TableHead>
-                                               </TableRow>
-                                           </TableHeader>
-                                           <TableBody>
-                                               {billingHistory.map(item => (
-                                                   <TableRow key={item.id}>
-                                                       <TableCell>{item.date}</TableCell>
-                                                       <TableCell>{item.description}</TableCell>
-                                                       <TableCell className="text-right">{item.amount.toLocaleString('en-US', { style: 'currency', currency: 'USD' })}</TableCell>
-                                                       <TableCell className="text-right">
+                                    </CardHeader>
+                                    <CardContent>
+                                        <Table>
+                                            <TableHeader>
+                                                <TableRow>
+                                                    <TableHead>Date</TableHead>
+                                                    <TableHead>Description</TableHead>
+                                                    <TableHead className="text-right">Amount</TableHead>
+                                                    <TableHead className="w-[50px] text-right">Action</TableHead>
+                                                </TableRow>
+                                            </TableHeader>
+                                            <TableBody>
+                                                {billingHistory.map(item => (
+                                                    <TableRow key={item.id}>
+                                                        <TableCell>{item.date}</TableCell>
+                                                        <TableCell>{item.description}</TableCell>
+                                                        <TableCell className="text-right">{item.amount.toLocaleString('en-US', { style: 'currency', currency: 'USD' })}</TableCell>
+                                                        <TableCell className="text-right">
                                                             <Button variant="ghost" size="icon">
                                                                 <Download className="h-4 w-4" />
                                                                 <span className="sr-only">Download invoice</span>
                                                             </Button>
-                                                       </TableCell>
-                                                   </TableRow>
-                                               ))}
-                                           </TableBody>
-                                       </Table>
-                                   </CardContent>
+                                                        </TableCell>
+                                                    </TableRow>
+                                                ))}
+                                            </TableBody>
+                                        </Table>
+                                    </CardContent>
                                 </Card>
                             </CardContent>
                         </Card>
