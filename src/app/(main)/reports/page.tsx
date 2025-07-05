@@ -6,20 +6,12 @@ import { DateRangePicker } from "@/components/date-range-picker";
 import { Download } from "lucide-react";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, Legend, PieChart, Pie, Cell, LineChart, Line, ResponsiveContainer } from "recharts";
 import { ChartContainer, ChartTooltipContent } from "@/components/ui/chart";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Badge } from "@/components/ui/badge";
 import { useState, useEffect, useCallback } from "react";
 import { useAuth } from "@/components/auth-provider";
 import { getIncomeExpenseData, getSpendingByCategory, getCashflowData } from "@/lib/data";
 import { Skeleton } from "@/components/ui/skeleton";
 
 const PIE_CHART_COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884d8', '#ff4d4d'];
-
-const recentReports = [
-    { id: 'rep_1', name: 'Q2 2024 Summary', date: '2024-07-01', type: 'PDF' },
-    { id: 'rep_2', name: 'June 2024 Expense Report', date: '2024-07-01', type: 'CSV' },
-    { id: 'rep_3', name: '2023 Annual Report', date: '2024-01-15', type: 'PDF' },
-];
 
 export default function ReportsPage() {
     const { user } = useAuth();
@@ -67,7 +59,6 @@ export default function ReportsPage() {
                         <Skeleton className="h-[400px] w-full" />
                     </div>
                     <Skeleton className="h-[400px] w-full" />
-                    <Skeleton className="h-64 w-full" />
                 </div>
             ) : (
                 <>
@@ -130,39 +121,6 @@ export default function ReportsPage() {
                                     </LineChart>
                             </ResponsiveContainer>
                             </ChartContainer>
-                        </CardContent>
-                    </Card>
-
-                    <Card>
-                        <CardHeader>
-                            <CardTitle>Recent Reports</CardTitle>
-                            <CardDescription>Your recently generated reports.</CardDescription>
-                        </CardHeader>
-                        <CardContent>
-                            <Table>
-                                <TableHeader>
-                                    <TableRow>
-                                        <TableHead>Report Name</TableHead>
-                                        <TableHead className="hidden sm:table-cell">Date Generated</TableHead>
-                                        <TableHead className="hidden sm:table-cell">Type</TableHead>
-                                        <TableHead className="text-right">Actions</TableHead>
-                                    </TableRow>
-                                </TableHeader>
-                                <TableBody>
-                                    {recentReports.map(report => (
-                                        <TableRow key={report.id}>
-                                            <TableCell className="font-medium">{report.name}</TableCell>
-                                            <TableCell className="hidden sm:table-cell">{new Date(report.date).toLocaleDateString()}</TableCell>
-                                            <TableCell className="hidden sm:table-cell"><Badge variant="secondary">{report.type}</Badge></TableCell>
-                                            <TableCell className="text-right">
-                                                <Button variant="ghost" size="icon">
-                                                    <Download className="h-4 w-4" />
-                                                </Button>
-                                            </TableCell>
-                                        </TableRow>
-                                    ))}
-                                </TableBody>
-                            </Table>
                         </CardContent>
                     </Card>
                 </>

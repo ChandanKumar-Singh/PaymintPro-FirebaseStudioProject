@@ -7,13 +7,14 @@ import { Badge } from "@/components/ui/badge";
 import { MoreHorizontal, PlusCircle, FileWarning, FileClock, FileCheck } from "lucide-react";
 import { StatCard } from "@/components/stat-card";
 import Link from "next/link";
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { ConfirmDialog } from "@/components/dialogs/confirm-dialog";
 import { useToast } from "@/hooks/use-toast";
 import { EditInvoiceSheet } from "@/components/sheets/edit-invoice-sheet";
 import { useAuth } from "@/components/auth-provider";
 import { getInvoices, deleteDocument, type Invoice } from '@/lib/data';
 import { Skeleton } from "@/components/ui/skeleton";
+import { subDays } from "date-fns";
 
 const getStatusBadge = (status: string) => {
   switch (status) {
@@ -91,8 +92,26 @@ export default function InvoicingPage() {
         });
     }
 
-    const overdueAmount = invoices.filter(i => i.status === 'Overdue').reduce((acc, i) => acc + i.amount, 0);
-    const draftAmount = invoices.filter(i => i.status === 'Draft').reduce((acc, i) => acc + i.amount, 0);
+    const { overdueAmount, draftAmount, paidLast30d } = useMemo(() => {
+        const thirtyDaysAgo = subDays(new Date(), 30);
+        
+        let overdue = 0;
+        let draft = 0;
+        let paid = 0;
+
+        invoices.forEach(invoice => {
+            if (invoice.status === 'Overdue') {
+                overdue += invoice.amount;
+            } else if (invoice.status === 'Draft') {
+                draft += invoice.amount;
+            } else if (invoice.status === 'Paid' && new Date(invoice.date) >= thirtyDaysAgo) {
+                paid += invoice.amount;
+            }
+        });
+
+        return { overdueAmount: overdue, draftAmount: draft, paidLast30d: paid };
+
+    }, [invoices]);
 
     return (
         <div className="space-y-6">
@@ -122,7 +141,7 @@ export default function InvoicingPage() {
             <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
                 <StatCard title="Overdue" value={overdueAmount.toLocaleString('en-US', { style: 'currency', currency: 'USD' })} change={`${invoices.filter(i => i.status === 'Overdue').length} invoice(s)`} icon={FileWarning} />
                 <StatCard title="Draft" value={draftAmount.toLocaleString('en-US', { style: 'currency', currency: 'USD' })} change={`${invoices.filter(i => i.status === 'Draft').length} invoice(s)`} icon={FileClock} />
-                <StatCard title="Paid (Last 30d)" value="$12,350.00" change="+15% from last month" icon={FileCheck} />
+                <StatCard title="Paid (Last 30d)" value={paidLast30d.toLocaleString('en-US', { style: 'currency', currency: 'USD' })} change="In the last 30 days" icon={FileCheck} />
             </div>
 
             <Card>

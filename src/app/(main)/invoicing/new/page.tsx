@@ -3,7 +3,6 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { DatePicker } from "@/components/date-picker";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -26,7 +25,7 @@ export default function NewInvoicePage() {
     const { user } = useAuth();
     const router = useRouter();
     const { toast } = useToast();
-    const [customer, setCustomer] = useState('');
+    const [customerName, setCustomerName] = useState('');
     const [invoiceDate, setInvoiceDate] = useState<Date | undefined>(new Date());
     const [dueDate, setDueDate] = useState<Date | undefined>();
     const [lineItems, setLineItems] = useState<LineItem[]>([
@@ -55,7 +54,7 @@ export default function NewInvoicePage() {
             toast({ title: "Authentication Error", description: "You must be logged in to create an invoice.", variant: "destructive" });
             return;
         }
-        if(!customer || !invoiceDate || !dueDate || lineItems.some(item => !item.description || item.price <= 0)) {
+        if(!customerName || !invoiceDate || !dueDate || lineItems.some(item => !item.description || item.price <= 0)) {
             toast({ title: "Missing Information", description: "Please fill all required fields.", variant: "destructive" });
             return;
         }
@@ -63,7 +62,7 @@ export default function NewInvoicePage() {
         setLoading(true);
         try {
             const newInvoice = {
-                customer,
+                customer: customerName,
                 invoiceNumber: `INV-${Math.floor(Math.random() * 9000) + 1000}`,
                 date: format(invoiceDate, 'yyyy-MM-dd'),
                 dueDate: format(dueDate, 'yyyy-MM-dd'),
@@ -109,17 +108,8 @@ export default function NewInvoicePage() {
                         </CardHeader>
                         <CardContent className="space-y-4">
                             <div className="space-y-2">
-                                <Label htmlFor="customer">Customer</Label>
-                                <Select onValueChange={setCustomer} value={customer}>
-                                    <SelectTrigger id="customer">
-                                        <SelectValue placeholder="Select a customer" />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        <SelectItem value="Acme Inc.">Acme Inc.</SelectItem>
-                                        <SelectItem value="Stark Industries">Stark Industries</SelectItem>
-                                        <SelectItem value="Wayne Enterprises">Wayne Enterprises</SelectItem>
-                                    </SelectContent>
-                                </Select>
+                                <Label htmlFor="customer-name">Customer Name</Label>
+                                <Input id="customer-name" placeholder="Enter customer name" value={customerName} onChange={(e) => setCustomerName(e.target.value)} />
                             </div>
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                 <div className="space-y-2">

@@ -10,17 +10,22 @@ import Link from 'next/link';
 import { Button } from './ui/button';
 import { type Sale } from '@/lib/data';
 
-export function RecentTransactions({ sales }: { sales: Sale[] }) {
+interface RecentTransactionsProps {
+  sales: Sale[];
+  totalSalesThisMonth: number;
+}
+
+export function RecentTransactions({ sales, totalSalesThisMonth }: RecentTransactionsProps) {
   return (
     <Card>
       <CardHeader>
         <div className="flex justify-between items-center">
             <div>
                 <CardTitle>Recent Sales</CardTitle>
-                <CardDescription>You made 265 sales this month.</CardDescription>
+                <CardDescription>You made {totalSalesThisMonth} sales this month.</CardDescription>
             </div>
             <Button asChild variant="ghost" size="sm">
-                <Link href="#">View all</Link>
+                <Link href="/transactions">View all</Link>
             </Button>
         </div>
       </CardHeader>

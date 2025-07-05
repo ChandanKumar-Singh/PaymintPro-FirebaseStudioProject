@@ -132,7 +132,7 @@ export default function DashboardPage() {
               <TransactionChart data={overviewData} />
             </div>
             <div className="lg:col-span-3">
-              <RecentTransactions sales={recentSales} />
+              <RecentTransactions sales={recentSales} totalSalesThisMonth={stats?.sales.value || 0} />
             </div>
           </div>
           
