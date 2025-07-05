@@ -15,7 +15,6 @@ export default function SupportLayout({ children }: { children: React.ReactNode 
             setLoading(true);
             try {
                 const userTickets = await getTickets(user.uid);
-                userTickets.sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime());
                 setTickets(userTickets);
             } catch (error) {
                 console.error("Failed to fetch tickets for layout", error);
@@ -30,8 +29,8 @@ export default function SupportLayout({ children }: { children: React.ReactNode 
     }, [fetchTickets]);
 
     return (
-        <div className="grid md:grid-cols-[300px_1fr] lg:grid-cols-[350px_1fr] h-[calc(100vh_-_80px)] border rounded-lg overflow-hidden">
-            <div className="hidden md:flex flex-col border-r">
+        <div className="flex h-full border rounded-lg overflow-hidden">
+            <div className="hidden md:flex flex-col border-r w-[300px] lg:w-[350px] shrink-0">
                 {loading ? (
                     <div className="p-4 space-y-2">
                         <Skeleton className="h-8 w-3/4" />
@@ -43,7 +42,7 @@ export default function SupportLayout({ children }: { children: React.ReactNode 
                     <TicketList tickets={tickets} />
                 )}
             </div>
-            <div className="col-span-1 h-full">
+            <div className="flex-1 min-w-0">
                 {children}
             </div>
         </div>
