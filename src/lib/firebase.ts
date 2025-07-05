@@ -1,6 +1,6 @@
-import { initializeApp, getApps, getApp } from "firebase/app";
-import { getAuth } from "firebase/auth";
-import { getFirestore } from "firebase/firestore";
+import { initializeApp, getApps, getApp, type FirebaseApp } from "firebase/app";
+import { getAuth, type Auth } from "firebase/auth";
+import { getFirestore, type Firestore } from "firebase/firestore";
 
 export const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
@@ -11,9 +11,26 @@ export const firebaseConfig = {
   appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
 };
 
-const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
+// Function to check if Firebase is configured
+export function isFirebaseConfigured() {
+    return !!firebaseConfig.apiKey && firebaseConfig.apiKey !== 'your_api_key_here' && !!firebaseConfig.projectId;
+}
 
-const auth = getAuth(app);
-const db = getFirestore(app);
+let app: FirebaseApp;
+let auth: Auth;
+let db: Firestore;
+
+if (isFirebaseConfigured()) {
+    app = getApps().length ? getApp() : initializeApp(firebaseConfig);
+    auth = getAuth(app);
+    db = getFirestore(app);
+} else {
+    // Provide dummy objects if not configured to avoid further errors
+    // at import time. The AuthProvider will handle showing an error message.
+    app = {} as FirebaseApp;
+    auth = {} as Auth;
+    db = {} as Firestore;
+}
+
 
 export { app, auth, db };
