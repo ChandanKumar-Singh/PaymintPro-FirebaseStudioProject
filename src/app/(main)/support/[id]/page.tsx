@@ -5,7 +5,7 @@ import { getTicketById, addMessageToTicket, updateDocument, type Ticket, type Ti
 import { useParams, useRouter } from 'next/navigation';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Send, Sparkles, Loader2, Paperclip } from 'lucide-react';
+import { ArrowLeft, Send, Sparkles, Loader2, Paperclip, X } from 'lucide-react';
 import Link from 'next/link';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -18,6 +18,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { getSuggestedReplies } from '@/ai/flows/suggest-replies';
 import { enhanceReply } from '@/ai/flows/enhance-reply';
 import type { DocumentSnapshot } from 'firebase/firestore';
+import Image from 'next/image';
 
 
 const getStatusBadge = (status: string) => {
@@ -64,6 +65,7 @@ export default function TicketDetailPage() {
     const [suggestedReplies, setSuggestedReplies] = useState<string[]>([]);
     const [suggestionsLoading, setSuggestionsLoading] = useState(false);
     const [enhancingReply, setEnhancingReply] = useState(false);
+    const [attachment, setAttachment] = useState<{ file: File; previewUrl: string } | null>(null);
 
     // State for pagination
     const [lastMessageDoc, setLastMessageDoc] = useState<DocumentSnapshot | null>(null);
@@ -73,6 +75,7 @@ export default function TicketDetailPage() {
 
     const viewportRef = useRef<HTMLDivElement>(null);
     const textareaRef = useRef<HTMLTextAreaElement>(null);
+    const fileInputRef = useRef<HTMLInputElement>(null);
 
     const scrollToBottom = useCallback(() => {
         setTimeout(() => {
@@ -169,11 +172,20 @@ export default function TicketDetailPage() {
     }, [user, ticketId, scrollToBottom]);
 
     const handleSendMessage = async () => {
-        if (!user || !ticketId || !newMessage.trim()) return;
+        if (!user || !ticketId || (!newMessage.trim() && !attachment)) return;
+
+        if (attachment) {
+            toast({
+                title: "Feature Coming Soon!",
+                description: "Sending attachments will be available in a future update.",
+            });
+            return;
+        }
 
         setSending(true);
         const userMessageContent = newMessage;
         setNewMessage(''); 
+        setAttachment(null);
 
         try {
             const userMessage: Omit<TicketMessage, 'id'> = {
@@ -241,10 +253,28 @@ export default function TicketDetailPage() {
     };
     
     const handleAttachmentClick = () => {
-        toast({
-            title: "Coming Soon!",
-            description: "The ability to add attachments will be available in a future update.",
-        });
+        fileInputRef.current?.click();
+    };
+
+    const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
+        const file = event.target.files?.[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                setAttachment({
+                    file,
+                    previewUrl: reader.result as string,
+                });
+            };
+            reader.readAsDataURL(file);
+        }
+    };
+
+    const handleRemoveAttachment = () => {
+        setAttachment(null);
+        if (fileInputRef.current) {
+            fileInputRef.current.value = ''; // Reset the file input
+        }
     };
 
     if (loading) {
@@ -263,6 +293,13 @@ export default function TicketDetailPage() {
 
     return (
         <div className="space-y-6">
+             <input
+                type="file"
+                ref={fileInputRef}
+                onChange={handleFileSelect}
+                className="hidden"
+                accept="image/*"
+            />
             <div>
                 <Button variant="ghost" asChild>
                     <Link href="/support">
@@ -368,34 +405,56 @@ export default function TicketDetailPage() {
                 
                 <CardFooter className="pt-4 border-t">
                     {ticket.status !== 'Closed' ? (
-                        <div className="w-full flex items-center gap-2">
-                             <Button onClick={handleAttachmentClick} size="icon" variant="ghost" className="shrink-0" disabled={sending || isAgentReplying || enhancingReply}>
-                                <Paperclip className="h-4 w-4" />
-                                <span className="sr-only">Add attachment</span>
-                            </Button>
-                            <Textarea 
-                                ref={textareaRef}
-                                placeholder="Type your reply..." 
-                                value={newMessage}
-                                onChange={(e) => setNewMessage(e.target.value)}
-                                onKeyDown={(e) => {
-                                    if(e.key === 'Enter' && !e.shiftKey) {
-                                        e.preventDefault();
-                                        handleSendMessage();
-                                    }
-                                }}
-                                disabled={sending || isAgentReplying || enhancingReply}
-                                rows={1}
-                                className="min-h-[40px] max-h-[200px]"
-                            />
-                            <Button onClick={handleEnhanceReply} disabled={sending || isAgentReplying || enhancingReply || !newMessage.trim()} size="icon" variant="ghost">
-                                {enhancingReply ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
-                                <span className="sr-only">Enhance with AI</span>
-                            </Button>
-                            <Button onClick={handleSendMessage} disabled={sending || !newMessage.trim() || isAgentReplying || enhancingReply} size="icon">
-                                <Send className="h-4 w-4" />
-                                <span className="sr-only">Send Message</span>
-                            </Button>
+                        <div className="w-full space-y-2">
+                             {attachment && (
+                                <div className="relative p-2 border rounded-md">
+                                    <Button
+                                        variant="ghost"
+                                        size="icon"
+                                        className="absolute top-1 right-1 h-6 w-6 rounded-full bg-background/50 hover:bg-background/80"
+                                        onClick={handleRemoveAttachment}
+                                    >
+                                        <X className="h-4 w-4" />
+                                        <span className="sr-only">Remove attachment</span>
+                                    </Button>
+                                    <div className="flex items-center gap-4">
+                                        <Image src={attachment.previewUrl} alt="Preview" width={64} height={64} className="rounded-md object-cover h-16 w-16" />
+                                        <div className="text-sm">
+                                            <p className="font-medium truncate">{attachment.file.name}</p>
+                                            <p className="text-muted-foreground">{(attachment.file.size / 1024).toFixed(2)} KB</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
+                            <div className="flex items-center gap-2">
+                                <Button onClick={handleAttachmentClick} size="icon" variant="ghost" className="shrink-0" disabled={sending || isAgentReplying || enhancingReply}>
+                                    <Paperclip className="h-4 w-4" />
+                                    <span className="sr-only">Add attachment</span>
+                                </Button>
+                                <Textarea 
+                                    ref={textareaRef}
+                                    placeholder="Type your reply..." 
+                                    value={newMessage}
+                                    onChange={(e) => setNewMessage(e.target.value)}
+                                    onKeyDown={(e) => {
+                                        if(e.key === 'Enter' && !e.shiftKey) {
+                                            e.preventDefault();
+                                            handleSendMessage();
+                                        }
+                                    }}
+                                    disabled={sending || isAgentReplying || enhancingReply}
+                                    rows={1}
+                                    className="min-h-[40px] max-h-[200px]"
+                                />
+                                <Button onClick={handleEnhanceReply} disabled={sending || isAgentReplying || enhancingReply || !newMessage.trim()} size="icon" variant="ghost">
+                                    {enhancingReply ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
+                                    <span className="sr-only">Enhance with AI</span>
+                                </Button>
+                                <Button onClick={handleSendMessage} disabled={sending || (!newMessage.trim() && !attachment) || isAgentReplying || enhancingReply} size="icon">
+                                    <Send className="h-4 w-4" />
+                                    <span className="sr-only">Send Message</span>
+                                </Button>
+                            </div>
                         </div>
                     ) : (
                          <p className="text-sm text-muted-foreground w-full text-center">This ticket has been closed. To reopen it, please create a new ticket.</p>
