@@ -1,11 +1,11 @@
 'use client';
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { useAuth } from '@/components/auth-provider';
-import { getTicketById, getTicketMessages, addMessageToTicket, updateDocument, type Ticket, type TicketMessage } from '@/lib/data';
+import { getTicketById, addMessageToTicket, updateDocument, type Ticket, type TicketMessage, getPaginatedTicketMessages } from '@/lib/data';
 import { useParams, useRouter } from 'next/navigation';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Send, Sparkles, Loader2 } from 'lucide-react';
+import { ArrowLeft, Send, Sparkles, Loader2, Paperclip } from 'lucide-react';
 import Link from 'next/link';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -17,6 +17,7 @@ import { cn } from '@/lib/utils';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { getSuggestedReplies } from '@/ai/flows/suggest-replies';
 import { enhanceReply } from '@/ai/flows/enhance-reply';
+import type { DocumentSnapshot } from 'firebase/firestore';
 
 
 const getStatusBadge = (status: string) => {
@@ -45,6 +46,8 @@ const getPriorityBadge = (priority: string) => {
     }
 }
 
+const MESSAGES_PER_PAGE = 20;
+
 export default function TicketDetailPage() {
     const { user } = useAuth();
     const params = useParams();
@@ -62,65 +65,108 @@ export default function TicketDetailPage() {
     const [suggestionsLoading, setSuggestionsLoading] = useState(false);
     const [enhancingReply, setEnhancingReply] = useState(false);
 
+    // State for pagination
+    const [lastMessageDoc, setLastMessageDoc] = useState<DocumentSnapshot | null>(null);
+    const [hasMore, setHasMore] = useState(true);
+    const [loadingMore, setLoadingMore] = useState(false);
+    const [isInitialLoad, setIsInitialLoad] = useState(true);
 
-    const scrollAreaRef = useRef<HTMLDivElement>(null);
+    const viewportRef = useRef<HTMLDivElement>(null);
     const textareaRef = useRef<HTMLTextAreaElement>(null);
 
-    const fetchData = useCallback(async (isInitialLoad = false) => {
+    const scrollToBottom = useCallback(() => {
+        setTimeout(() => {
+            viewportRef.current?.scrollTo({ top: viewportRef.current.scrollHeight, behavior: 'smooth' });
+        }, 100);
+    }, []);
+
+    const fetchData = useCallback(async () => {
         if (user?.uid && ticketId) {
-            if (isInitialLoad) setLoading(true);
+            setLoading(true);
             try {
                 const [ticketData, messagesData] = await Promise.all([
                     getTicketById(user.uid, ticketId),
-                    getTicketMessages(user.uid, ticketId)
+                    getPaginatedTicketMessages(user.uid, ticketId, MESSAGES_PER_PAGE)
                 ]);
+                
                 setTicket(ticketData);
-                setMessages(messagesData);
+                // Messages are fetched newest to oldest, so we reverse for display
+                setMessages(messagesData.messages.reverse());
+                setLastMessageDoc(messagesData.nextCursor);
+                setHasMore(messagesData.hasMore);
             } catch (error) {
                 toast({ title: "Error", description: "Could not fetch ticket details.", variant: "destructive" });
                 router.push('/support');
             } finally {
-                if (isInitialLoad) setLoading(false);
+                setLoading(false);
+                setIsInitialLoad(false);
             }
         }
     }, [user, ticketId, toast, router]);
 
+    const handleLoadMore = useCallback(async () => {
+        if (loadingMore || !hasMore || !user?.uid || !ticketId || !lastMessageDoc) return;
+    
+        setLoadingMore(true);
+        try {
+            const { messages: newMessages, nextCursor, hasMore: newHasMore } = await getPaginatedTicketMessages(user.uid, ticketId, MESSAGES_PER_PAGE, lastMessageDoc);
+            
+            const viewport = viewportRef.current;
+            const oldScrollHeight = viewport?.scrollHeight || 0;
+    
+            setMessages(prev => [...newMessages.reverse(), ...prev]);
+            setLastMessageDoc(nextCursor);
+            setHasMore(newHasMore);
+    
+            if (viewport) {
+                requestAnimationFrame(() => {
+                    viewport.scrollTop = viewport.scrollHeight - oldScrollHeight;
+                });
+            }
+        } catch (error) {
+            toast({ title: "Error", description: "Could not load older messages.", variant: "destructive" });
+        } finally {
+            setLoadingMore(false);
+        }
+    }, [loadingMore, hasMore, user, ticketId, lastMessageDoc, toast]);
+    
     useEffect(() => {
-        fetchData(true);
+        fetchData();
     }, [fetchData]);
 
-    // Fetch suggestions when messages change
-     useEffect(() => {
-        const fetchSuggestions = async () => {
-            const lastMessage = messages[messages.length - 1];
-            if (lastMessage && lastMessage.sender === 'agent') {
-                setSuggestionsLoading(true);
-                setSuggestedReplies([]);
-                try {
-                    const result = await getSuggestedReplies({ lastMessage: lastMessage.content });
-                    setSuggestedReplies(result.suggestions);
-                } catch (error) {
-                    // Fail silently, suggestions are a non-critical enhancement
-                    console.error("Failed to fetch suggestions:", error);
-                } finally {
-                    setSuggestionsLoading(false);
+    // Scroll to bottom on initial load
+    useEffect(() => {
+        if (!loading && messages.length > 0) {
+            setTimeout(() => {
+                const viewport = viewportRef.current;
+                if (viewport) {
+                    viewport.scrollTop = viewport.scrollHeight;
                 }
-            } else {
-                setSuggestedReplies([]);
+            }, 100);
+        }
+    }, [loading]);
+
+    useEffect(() => {
+        const viewport = viewportRef.current;
+        const handleScroll = () => {
+            if (viewport && viewport.scrollTop === 0 && hasMore && !loadingMore) {
+                handleLoadMore();
             }
         };
 
-        if (messages.length > 0) {
-            fetchSuggestions();
-        }
-    }, [messages]);
+        viewport?.addEventListener('scroll', handleScroll);
+        return () => viewport?.removeEventListener('scroll', handleScroll);
+    }, [hasMore, loadingMore, handleLoadMore]);
 
-
-    useEffect(() => {
-        if (scrollAreaRef.current) {
-            scrollAreaRef.current.scrollTo({ top: scrollAreaRef.current.scrollHeight, behavior: 'smooth' });
+    const fetchLatestMessagesAndScroll = useCallback(async () => {
+        if (user?.uid && ticketId) {
+            const messagesData = await getPaginatedTicketMessages(user.uid, ticketId, MESSAGES_PER_PAGE);
+            setMessages(messagesData.messages.reverse());
+            setLastMessageDoc(messagesData.nextCursor);
+            setHasMore(messagesData.hasMore);
+            scrollToBottom();
         }
-    }, [messages]);
+    }, [user, ticketId, scrollToBottom]);
 
     const handleSendMessage = async () => {
         if (!user || !ticketId || !newMessage.trim()) return;
@@ -136,7 +182,7 @@ export default function TicketDetailPage() {
                 sender: 'user',
             };
             await addMessageToTicket(user.uid, ticketId, userMessage);
-            await fetchData(); 
+            await fetchLatestMessagesAndScroll();
             
             setIsAgentReplying(true);
             setTimeout(async () => {
@@ -147,7 +193,7 @@ export default function TicketDetailPage() {
                         sender: 'agent',
                     };
                     await addMessageToTicket(user.uid, ticketId, agentReply);
-                    await fetchData();
+                    await fetchLatestMessagesAndScroll();
                 } catch (error) {
                     console.error("Failed to simulate agent reply:", error);
                 } finally {
@@ -167,8 +213,8 @@ export default function TicketDetailPage() {
         if (!user || !ticketId || !ticket) return;
         try {
             await updateDocument(user.uid, 'tickets', ticketId, { status: 'Closed' });
+            setTicket(prev => prev ? { ...prev, status: 'Closed' } : null);
             toast({ title: "Ticket Closed", description: "This support ticket has been marked as closed."});
-            fetchData();
         } catch (error) {
             toast({ title: "Error", description: "Failed to close ticket.", variant: "destructive"});
         }
@@ -192,6 +238,13 @@ export default function TicketDetailPage() {
     const handleSuggestionClick = (suggestion: string) => {
         setNewMessage(suggestion);
         textareaRef.current?.focus();
+    };
+    
+    const handleAttachmentClick = () => {
+        toast({
+            title: "Coming Soon!",
+            description: "The ability to add attachments will be available in a future update.",
+        });
     };
 
     if (loading) {
@@ -240,45 +293,55 @@ export default function TicketDetailPage() {
                     </div>
                 </CardHeader>
                 <CardContent>
-                    <ScrollArea className="h-[450px] space-y-6 p-4 border rounded-md" ref={scrollAreaRef}>
-                       {messages.map((message, index) => (
-                           <div key={message.id || index} className={cn("flex items-end gap-3", message.sender === 'user' ? 'justify-end' : 'justify-start')}>
-                                {message.sender === 'agent' && (
+                    <ScrollArea className="h-[450px] border rounded-md" viewportRef={viewportRef}>
+                       <div className="p-4 space-y-4">
+                            {loadingMore && (
+                                <div className="flex justify-center py-2">
+                                    <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+                                </div>
+                            )}
+                            {!isInitialLoad && !hasMore && (
+                                <p className="text-center text-xs text-muted-foreground">You've reached the beginning of the conversation.</p>
+                            )}
+                            {messages.map((message, index) => (
+                               <div key={message.id || index} className={cn("flex items-end gap-3", message.sender === 'user' ? 'justify-end' : 'justify-start')}>
+                                   {message.sender === 'agent' && (
+                                       <Avatar className="h-8 w-8">
+                                           <AvatarImage src="https://placehold.co/40x40.png" data-ai-hint="support agent" />
+                                           <AvatarFallback>S</AvatarFallback>
+                                       </Avatar>
+                                   )}
+                                  <div className={cn(
+                                      "max-w-md p-3 rounded-lg",
+                                      message.sender === 'user' ? 'bg-primary text-primary-foreground' : 'bg-muted'
+                                  )}>
+                                      <p className="text-sm whitespace-pre-wrap">{message.content}</p>
+                                      <p className="text-xs opacity-70 mt-2 text-right">
+                                          {format(new Date(message.createdAt), "p")}
+                                      </p>
+                                  </div>
+                                   {message.sender === 'user' && (
+                                       <Avatar className="h-8 w-8">
+                                           <AvatarImage src={user?.photoURL || ''} />
+                                           <AvatarFallback>{user?.displayName?.[0]}</AvatarFallback>
+                                       </Avatar>
+                                   )}
+                               </div>
+                           ))}
+                           {isAgentReplying && (
+                                <div className="flex items-end gap-3 justify-start">
                                     <Avatar className="h-8 w-8">
                                         <AvatarImage src="https://placehold.co/40x40.png" data-ai-hint="support agent" />
                                         <AvatarFallback>S</AvatarFallback>
                                     </Avatar>
-                                )}
-                               <div className={cn(
-                                   "max-w-md p-3 rounded-lg",
-                                   message.sender === 'user' ? 'bg-primary text-primary-foreground' : 'bg-muted'
-                               )}>
-                                   <p className="text-sm whitespace-pre-wrap">{message.content}</p>
-                                   <p className="text-xs opacity-70 mt-2 text-right">
-                                       {format(new Date(message.createdAt), "p")}
-                                   </p>
-                               </div>
-                                {message.sender === 'user' && (
-                                    <Avatar className="h-8 w-8">
-                                        <AvatarImage src={user?.photoURL || ''} />
-                                        <AvatarFallback>{user?.displayName?.[0]}</AvatarFallback>
-                                    </Avatar>
-                                )}
-                           </div>
-                       ))}
-                       {isAgentReplying && (
-                            <div className="flex items-end gap-3 justify-start">
-                                <Avatar className="h-8 w-8">
-                                    <AvatarImage src="https://placehold.co/40x40.png" data-ai-hint="support agent" />
-                                    <AvatarFallback>S</AvatarFallback>
-                                </Avatar>
-                                <div className="bg-muted px-4 py-3 rounded-lg flex items-center gap-1">
-                                    <span className="h-2 w-2 rounded-full bg-muted-foreground animate-pulse delay-0"></span>
-                                    <span className="h-2 w-2 rounded-full bg-muted-foreground animate-pulse delay-150"></span>
-                                    <span className="h-2 w-2 rounded-full bg-muted-foreground animate-pulse delay-300"></span>
+                                    <div className="bg-muted px-4 py-3 rounded-lg flex items-center gap-1">
+                                        <span className="h-2 w-2 rounded-full bg-muted-foreground animate-pulse delay-0"></span>
+                                        <span className="h-2 w-2 rounded-full bg-muted-foreground animate-pulse delay-150"></span>
+                                        <span className="h-2 w-2 rounded-full bg-muted-foreground animate-pulse delay-300"></span>
+                                    </div>
                                 </div>
-                            </div>
-                        )}
+                            )}
+                       </div>
                     </ScrollArea>
                 </CardContent>
 
@@ -306,6 +369,10 @@ export default function TicketDetailPage() {
                 <CardFooter className="pt-4 border-t">
                     {ticket.status !== 'Closed' ? (
                         <div className="w-full flex items-center gap-2">
+                             <Button onClick={handleAttachmentClick} size="icon" variant="ghost" className="shrink-0" disabled={sending || isAgentReplying || enhancingReply}>
+                                <Paperclip className="h-4 w-4" />
+                                <span className="sr-only">Add attachment</span>
+                            </Button>
                             <Textarea 
                                 ref={textareaRef}
                                 placeholder="Type your reply..." 

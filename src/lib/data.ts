@@ -1,5 +1,5 @@
 'use client';
-import { collection, getDocs, addDoc, doc, deleteDoc, updateDoc, writeBatch, getDoc, serverTimestamp } from "firebase/firestore";
+import { collection, getDocs, addDoc, doc, deleteDoc, updateDoc, writeBatch, getDoc, serverTimestamp, query, orderBy, limit, startAfter, type DocumentSnapshot } from "firebase/firestore";
 import { db } from "./firebase";
 import { format, subMonths, startOfMonth, endOfMonth } from 'date-fns';
 
@@ -39,7 +39,17 @@ async function getDocument<T>(userId: string, collectionName: string, docId: str
     const docRef = doc(db, 'users', userId, collectionName, docId);
     const docSnap = await getDoc(docRef);
     if (docSnap.exists()) {
-        return { id: docSnap.id, ...docSnap.data() } as T;
+        const data = docSnap.data();
+        // Convert Firestore Timestamps to ISO strings
+        const convertedData: any = {};
+        for (const key in data) {
+            if (data[key] && typeof data[key].toDate === 'function') {
+                convertedData[key] = data[key].toDate().toISOString();
+            } else {
+                convertedData[key] = data[key];
+            }
+        }
+        return { id: docSnap.id, ...convertedData } as T;
     } else {
         return null;
     }
@@ -171,29 +181,57 @@ export const getTradingData = async (userId: string) => {
 // Support Ticket functions
 export const getTickets = (userId: string) => getCollectionData<Ticket>(userId, 'tickets');
 export const getTicketById = (userId: string, ticketId: string) => getDocument<Ticket>(userId, 'tickets', ticketId);
-export const getTicketMessages = (userId: string, ticketId: string) => getCollectionData<TicketMessage>(userId, 'tickets', [ticketId, 'messages']);
+
+export async function getPaginatedTicketMessages(userId: string, ticketId: string, pageLimit: number, lastVisible: DocumentSnapshot | null = null) {
+    if (!userId || !ticketId) return { messages: [], nextCursor: null, hasMore: false };
+
+    const messagesRef = collection(db, 'users', userId, 'tickets', ticketId, 'messages');
+    
+    let q;
+    if (lastVisible) {
+        q = query(messagesRef, orderBy('createdAt', 'desc'), startAfter(lastVisible), limit(pageLimit));
+    } else {
+        q = query(messagesRef, orderBy('createdAt', 'desc'), limit(pageLimit));
+    }
+    
+    const snapshot = await getDocs(q);
+    
+    const messages = snapshot.docs.map(doc => {
+        const data = doc.data();
+        return { 
+            id: doc.id, 
+            ...data,
+            createdAt: data.createdAt.toDate ? data.createdAt.toDate().toISOString() : data.createdAt,
+        } as TicketMessage
+    });
+    
+    const nextCursor = snapshot.docs[snapshot.docs.length - 1] || null;
+    const hasMore = snapshot.docs.length === pageLimit;
+
+    return { messages, nextCursor, hasMore };
+}
+
 
 export const addTicketAndFirstMessage = async (userId: string, ticketData: Omit<Ticket, 'id' | 'createdAt' | 'updatedAt' | 'status'>, firstMessage: string) => {
     if (!userId) throw new Error("User not authenticated");
     
     const batch = writeBatch(db);
-    const now = new Date().toISOString();
-
+    
     // Create ticket document
     const ticketRef = doc(collection(db, 'users', userId, 'tickets'));
-    const newTicket: Omit<Ticket, 'id'> = {
+    const newTicket = {
         ...ticketData,
         status: 'Open',
-        createdAt: now,
-        updatedAt: now,
+        createdAt: serverTimestamp(),
+        updatedAt: serverTimestamp(),
     };
     batch.set(ticketRef, newTicket);
 
     // Create first message in subcollection
     const messageRef = doc(collection(ticketRef, 'messages'));
-    const newMessage: Omit<TicketMessage, 'id'> = {
+    const newMessage: Omit<TicketMessage, 'id' | 'createdAt'> & {createdAt: any} = {
         content: firstMessage,
-        createdAt: now,
+        createdAt: serverTimestamp(),
         sender: 'user',
     };
     batch.set(messageRef, newMessage);
@@ -202,28 +240,30 @@ export const addTicketAndFirstMessage = async (userId: string, ticketData: Omit<
     return ticketRef.id;
 }
 
-export const addMessageToTicket = async (userId: string, ticketId: string, messageData: Omit<TicketMessage, 'id'>) => {
+export const addMessageToTicket = async (userId: string, ticketId: string, messageData: Omit<TicketMessage, 'id'|'createdAt'>) => {
     if (!userId) throw new Error("User not authenticated");
 
     const batch = writeBatch(db);
-    const now = new Date().toISOString();
-
+    
     // Add new message to subcollection
     const ticketRef = doc(db, 'users', userId, 'tickets', ticketId);
     const messageRef = doc(collection(ticketRef, 'messages'));
-    batch.set(messageRef, { ...messageData, createdAt: now });
+    batch.set(messageRef, { ...messageData, createdAt: serverTimestamp() });
 
     // Update ticket's 'updatedAt' timestamp
-    batch.update(ticketRef, { updatedAt: now });
+    batch.update(ticketRef, { updatedAt: serverTimestamp() });
 
     await batch.commit();
 }
 
 
 // Generic CRUD operations
-export const addDocument = async <T>(userId: string, collectionName: string, data: T) => {
+export const addDocument = async <T extends { [key: string]: any }>(userId: string, collectionName: string, data: T) => {
     if (!userId) throw new Error("User not authenticated");
     const colRef = collection(db, 'users', userId, collectionName);
+    // Convert string dates back to Date objects if needed, for consistency
+    if(data.date && typeof data.date === 'string') data.date = new Date(data.date);
+    if(data.dueDate && typeof data.dueDate === 'string') data.dueDate = new Date(data.dueDate);
     return await addDoc(colRef, data as any);
 };
 
