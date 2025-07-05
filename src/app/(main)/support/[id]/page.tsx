@@ -352,7 +352,7 @@ export default function TicketDetailPage() {
                     </div>
                 </header>
 
-                <ScrollArea className="flex-grow" viewportRef={viewportRef}>
+                <ScrollArea className="flex-grow min-h-0" viewportRef={viewportRef}>
                     <div className="p-4 space-y-4">
                         {loadingMore && (
                             <div className="flex justify-center py-2">
