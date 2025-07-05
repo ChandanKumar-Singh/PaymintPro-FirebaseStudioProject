@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription, SheetTrigger } from '@/components/ui/sheet';
 import { Menu } from 'lucide-react';
 import Link from 'next/link';
 
@@ -41,6 +41,10 @@ export function MobileNav() {
         </Button>
       </SheetTrigger>
       <SheetContent side="right">
+        <SheetHeader className="sr-only">
+            <SheetTitle>Mobile Navigation</SheetTitle>
+            <SheetDescription>A list of links to navigate the site.</SheetDescription>
+        </SheetHeader>
         <div className="grid gap-4 p-4">
           <Link href="/" className="mb-4" onClick={() => setOpen(false)}>
             <Logo />
