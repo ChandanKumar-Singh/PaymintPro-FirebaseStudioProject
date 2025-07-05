@@ -31,8 +31,8 @@ export default function LegalLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="flex flex-col min-h-screen bg-background">
-      <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+    <div className="flex flex-col min-h-screen bg-background mx-auto w-full">
+      <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60  px-4">
         <div className="container flex h-16 items-center justify-between">
           <Link href="/" aria-label="Home">
             <Logo />
@@ -41,13 +41,13 @@ export default function LegalLayout({
       </header>
 
       <main className="flex-1">
-        <div className="container py-12 md:py-16 lg:py-20">
+        <div className="container py-12 md:py-16 lg:py-20 px-4 mx-auto">
             {children}
         </div>
       </main>
 
       <footer className="bg-muted border-t">
-        <div className="container py-12 lg:py-16">
+        <div className="container py-12 lg:py-16 px-4">
           <div className="grid gap-10 lg:grid-cols-4">
             <div className="space-y-4">
               <Logo />
