@@ -10,22 +10,6 @@ import {
 import {
   ChartContainer
 } from '@/components/ui/chart';
-import { useEffect, useState } from 'react';
-
-const initialData = [
-  { name: 'Jan', total: 0 },
-  { name: 'Feb', total: 0 },
-  { name: 'Mar', total: 0 },
-  { name: 'Apr', total: 0 },
-  { name: 'May', total: 0 },
-  { name: 'Jun', total: 0 },
-  { name: 'Jul', total: 0 },
-  { name: 'Aug', total: 0 },
-  { name: 'Sep', total: 0 },
-  { name: 'Oct', total: 0 },
-  { name: 'Nov', total: 0 },
-  { name: 'Dec', total: 0 },
-];
 
 const chartConfig = {
   total: {
@@ -34,17 +18,11 @@ const chartConfig = {
   },
 };
 
-export function TransactionChart() {
-  const [data, setData] = useState(initialData);
+interface TransactionChartProps {
+    data: { name: string; total: number }[];
+}
 
-  useEffect(() => {
-    // This runs only on the client, after hydration, avoiding the mismatch.
-    setData(initialData.map(item => ({
-      ...item,
-      total: Math.floor(Math.random() * 5000) + 1000,
-    })));
-  }, []);
-
+export function TransactionChart({ data }: TransactionChartProps) {
   return (
     <Card>
       <CardHeader>

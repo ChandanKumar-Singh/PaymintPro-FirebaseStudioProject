@@ -1,5 +1,5 @@
 'use client';
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import {
@@ -22,14 +22,18 @@ export default function TransactionsPage() {
     const [transactions, setTransactions] = useState<Transaction[]>([]);
     const [loading, setLoading] = useState(true);
 
-    useEffect(() => {
-        if(user?.uid) {
-            getTransactions(user.uid).then(data => {
-                setTransactions(data);
-                setLoading(false);
-            })
-        }
+    const fetchData = useCallback(async () => {
+      if(user?.uid) {
+          setLoading(true);
+          const data = await getTransactions(user.uid);
+          setTransactions(data);
+          setLoading(false);
+      }
     }, [user]);
+
+    useEffect(() => {
+        fetchData();
+    }, [fetchData]);
 
     return (
       <div className="space-y-6">
@@ -78,7 +82,7 @@ export default function TransactionsPage() {
                 </CardContent>
             </Card>
         ) : (
-             <TransactionsTable initialTransactions={transactions} />
+             <TransactionsTable transactions={transactions} onSuccess={fetchData} />
         )}
       </div>
     );

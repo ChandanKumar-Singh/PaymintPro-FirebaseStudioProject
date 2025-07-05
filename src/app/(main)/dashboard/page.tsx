@@ -8,8 +8,8 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { Button } from '@/components/ui/button';
 import { DateRangePicker } from '@/components/date-range-picker';
 import { DollarSign, Users, CreditCard, Activity, ChevronDown } from 'lucide-react';
-import { getDashboardStats, getRecentSales, getCards, type Sale, type CardData } from '@/lib/data';
-import { useEffect, useState } from 'react';
+import { getDashboardStats, getRecentSales, getCards, getOverviewData, type Sale, type CardData } from '@/lib/data';
+import { useEffect, useState, useCallback } from 'react';
 import { useAuth } from '@/components/auth-provider';
 import { Skeleton } from '@/components/ui/skeleton';
 
@@ -20,31 +20,43 @@ type Stats = {
   activeNow: { value: number; change: number; };
 } | null;
 
+type OverviewData = { name: string; total: number }[];
+
 
 export default function DashboardPage() {
   const { user } = useAuth();
   const [stats, setStats] = useState<Stats>(null);
   const [recentSales, setRecentSales] = useState<Sale[]>([]);
   const [cards, setCards] = useState<CardData[]>([]);
+  const [overviewData, setOverviewData] = useState<OverviewData>([]);
   const [loading, setLoading] = useState(true);
   
-  useEffect(() => {
+  const fetchData = useCallback(async () => {
     if (user?.uid) {
-      const fetchData = async () => {
         setLoading(true);
-        const [statsData, salesData, cardsData] = await Promise.all([
-          getDashboardStats(user.uid),
-          getRecentSales(user.uid),
-          getCards(user.uid),
+        const [statsData, salesData, cardsData, overview] = await Promise.all([
+            getDashboardStats(user.uid),
+            getRecentSales(user.uid),
+            getCards(user.uid),
+            getOverviewData(user.uid)
         ]);
         setStats(statsData);
         setRecentSales(salesData);
         setCards(cardsData);
+        setOverviewData(overview);
         setLoading(false);
-      }
-      fetchData();
     }
   }, [user]);
+
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]);
+
+  const formatChange = (change: number) => {
+    if (change === null || isNaN(change)) return '...';
+    const sign = change >= 0 ? '+' : '';
+    return `${sign}${change.toFixed(1)}%`;
+  }
 
   return (
     <div className="space-y-6">
@@ -92,19 +104,19 @@ export default function DashboardPage() {
             <StatCard
               title="Total Revenue"
               value={stats ? stats.totalRevenue.value.toLocaleString('en-US', { style: 'currency', currency: 'USD' }) : '$0.00'}
-              change={stats ? `+${stats.totalRevenue.change}% from last month` : '...'}
+              change={stats ? `${formatChange(stats.totalRevenue.change)} from last month` : '...'}
               icon={DollarSign}
             />
             <StatCard
               title="Subscriptions"
               value={stats ? `+${stats.subscriptions.value.toLocaleString()}` : '+0'}
-              change={stats ? `+${stats.subscriptions.change}% from last month` : '...'}
+              change={stats ? `${formatChange(stats.subscriptions.change)} from last month` : '...'}
               icon={Users}
             />
             <StatCard
               title="Sales"
               value={stats ? `+${stats.sales.value.toLocaleString()}`: '+0'}
-              change={stats ? `+${stats.sales.change}% from last month`: '...'}
+              change={stats ? `${formatChange(stats.sales.change)} from last month`: '...'}
               icon={CreditCard}
             />
             <StatCard
@@ -117,7 +129,7 @@ export default function DashboardPage() {
 
           <div className="grid grid-cols-1 lg:grid-cols-7 gap-6">
             <div className="lg:col-span-4">
-              <TransactionChart />
+              <TransactionChart data={overviewData} />
             </div>
             <div className="lg:col-span-3">
               <RecentTransactions sales={recentSales} />

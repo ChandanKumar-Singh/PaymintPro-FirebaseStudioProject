@@ -1,17 +1,15 @@
 'use client';
 import { collection, getDocs, addDoc, doc, deleteDoc, updateDoc, writeBatch } from "firebase/firestore";
 import { db } from "./firebase";
+import { format, subMonths, startOfMonth, endOfMonth } from 'date-fns';
 
-// This file now contains functions to interact with Firestore.
-// Each function requires a userId to ensure data is user-specific.
-
-// Type definitions remain the same
+// Type definitions
 export type Sale = { id?: string; name: string; email: string; amount: number; avatar: string; dataAiHint: string; };
-export type Transaction = { id?: string; customer: string; email: string; type: "Sale" | "Refund" | "Subscription"; status: "Success" | "Processing" | "Declined"; date: string; amount: number; };
+export type Transaction = { id?: string; customer: string; email: string; type: "Sale" | "Refund" | "Subscription" | "Expense"; status: "Success" | "Processing" | "Declined"; date: string; amount: number; category: string; };
 export type Account = { id?: string; name: string; bank: string; accountNumber: string; balance: number; type: 'Checking' | 'Savings' | 'Investment'; };
 export type AccountTransaction = { id?: string; description: string; date: string; amount: number; status: "Completed" | "Pending" | "Failed"; };
 export type CardData = { id?: string; brand: 'visa' | 'mastercard'; number: string; holder: string; expiry: string; status: 'Active' | 'Inactive'; type: 'Physical' | 'Virtual'; };
-export type CardTransaction = { id?: string; description: string; date: string; amount: number; };
+export type CardTransaction = { id?: string; description:string; date: string; amount: number; };
 export type Payment = { id?: string; recipient: string; date: string; amount: number; status: 'Upcoming' | 'Completed' | 'Failed'; };
 export type Budget = { id?: string; name: string; spent: number; total: number; };
 export type Invoice = { id?: string; customer: string; invoiceNumber: string; date: string; dueDate: string; amount: number; status: 'Paid' | 'Overdue' | 'Sent' | 'Draft'; };
@@ -32,15 +30,96 @@ async function getCollectionData<T>(userId: string, collectionName: string): Pro
 export const getDashboardStats = async (userId: string) => {
     if (!userId) return null;
     const transactions = await getCollectionData<Transaction>(userId, 'transactions');
-    const totalRevenue = transactions.reduce((sum, tx) => sum + tx.amount, 0);
-    const salesCount = transactions.filter(tx => tx.type === 'Sale').length;
+    const lastMonth = subMonths(new Date(), 1);
+    
+    const currentMonthTxs = transactions.filter(tx => new Date(tx.date) >= startOfMonth(new Date()));
+    const lastMonthTxs = transactions.filter(tx => new Date(tx.date) >= startOfMonth(lastMonth) && new Date(tx.date) <= endOfMonth(lastMonth));
+
+    const totalRevenue = currentMonthTxs.filter(tx => tx.amount > 0).reduce((sum, tx) => sum + tx.amount, 0);
+    const lastMonthRevenue = lastMonthTxs.filter(tx => tx.amount > 0).reduce((sum, tx) => sum + tx.amount, 0);
+
+    const subscriptions = currentMonthTxs.filter(tx => tx.type === 'Subscription').length;
+    const lastMonthSubscriptions = lastMonthTxs.filter(tx => tx.type === 'Subscription').length;
+    
+    const sales = currentMonthTxs.filter(tx => tx.type === 'Sale').length;
+    const lastMonthSales = lastMonthTxs.filter(tx => tx.type === 'Sale').length;
+
+    const calculateChange = (current: number, previous: number) => {
+        if (previous === 0) return current > 0 ? 100 : 0;
+        return ((current - previous) / previous) * 100;
+    }
+
     return {
-        totalRevenue: { value: totalRevenue, change: 20.1 },
-        subscriptions: { value: 2350, change: 180.1 },
-        sales: { value: salesCount, change: 19 },
-        activeNow: { value: 573, change: 201 }
+        totalRevenue: { value: totalRevenue, change: calculateChange(totalRevenue, lastMonthRevenue) },
+        subscriptions: { value: subscriptions, change: calculateChange(subscriptions, lastMonthSubscriptions) },
+        sales: { value: sales, change: calculateChange(sales, lastMonthSales) },
+        activeNow: { value: 573, change: 201 } // Simulated
     };
 };
+
+export const getOverviewData = async (userId: string) => {
+    if (!userId) return [];
+    const transactions = await getCollectionData<Transaction>(userId, 'transactions');
+    const monthlyTotals: { [key: string]: number } = {};
+
+    transactions.forEach(tx => {
+        if(tx.amount > 0) { // Only count revenue
+            const month = format(new Date(tx.date), 'MMM');
+            monthlyTotals[month] = (monthlyTotals[month] || 0) + tx.amount;
+        }
+    });
+
+    const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    return monthNames.map(name => ({
+        name,
+        total: monthlyTotals[name] || 0,
+    }));
+}
+
+export const getSpendingByCategory = async (userId: string) => {
+    if(!userId) return [];
+    const transactions = await getCollectionData<Transaction>(userId, 'transactions');
+    const spending: { [key: string]: number } = {};
+    transactions.forEach(tx => {
+        if (tx.amount < 0) { // Only expenses
+            spending[tx.category] = (spending[tx.category] || 0) + Math.abs(tx.amount);
+        }
+    });
+    return Object.entries(spending).map(([name, value]) => ({ name, value }));
+};
+
+export const getIncomeExpenseData = async (userId: string) => {
+    if (!userId) return [];
+    const transactions = await getCollectionData<Transaction>(userId, 'transactions');
+    const monthlyData: { [key: string]: { income: number, expense: number } } = {};
+
+    transactions.forEach(tx => {
+        const month = format(new Date(tx.date), 'MMM');
+        if (!monthlyData[month]) {
+            monthlyData[month] = { income: 0, expense: 0 };
+        }
+        if (tx.amount > 0) {
+            monthlyData[month].income += tx.amount;
+        } else {
+            monthlyData[month].expense += Math.abs(tx.amount);
+        }
+    });
+    
+    const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    return monthNames.map(name => ({
+        month: name,
+        income: monthlyData[name]?.income || 0,
+        expense: monthlyData[name]?.expense || 0,
+    }));
+};
+
+export const getCashflowData = async (userId: string) => {
+    if (!userId) return [];
+    const incomeExpense = await getIncomeExpenseData(userId);
+    return incomeExpense.map(d => ({ name: d.month, cashflow: d.income - d.expense }));
+}
+
+
 export const getRecentSales = (userId: string) => getCollectionData<Sale>(userId, 'sales');
 export const getTransactions = (userId: string) => getCollectionData<Transaction>(userId, 'transactions');
 export const getAccounts = (userId: string) => getCollectionData<Account>(userId, 'accounts');

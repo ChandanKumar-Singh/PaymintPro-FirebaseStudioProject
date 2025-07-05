@@ -12,11 +12,16 @@ const salesData: Omit<Sale, 'id'>[] = [
   { name: 'Sofia Davis', email: 'sofia.davis@email.com', amount: 39.0, avatar: 'https://placehold.co/40x40.png', dataAiHint: 'woman avatar' },
 ];
 const transactionsData: Omit<Transaction, 'id'>[] = [
-  { customer: "Liam Johnson", email: "liam@example.com", type: "Sale", status: "Success", date: "2023-06-23", amount: 250.00 },
-  { customer: "Olivia Smith", email: "olivia@example.com", type: "Refund", status: "Declined", date: "2023-06-24", amount: 150.00, },
-  { customer: "Noah Williams", email: "noah@example.com", type: "Subscription", status: "Success", date: "2023-06-25", amount: 350.00, },
-  { customer: "Emma Brown", email: "emma@example.com", type: "Sale", status: "Processing", date: "2023-06-25", amount: 450.00, },
-  { customer: "James Jones", email: "james@example.com", type: "Sale", status: "Success", date: "2023-06-26", amount: 550.00, },
+  { customer: "Liam Johnson", email: "liam@example.com", type: "Sale", status: "Success", date: "2023-06-23", amount: 250.00, category: 'Software' },
+  { customer: "Olivia Smith", email: "olivia@example.com", type: "Refund", status: "Success", date: "2023-06-24", amount: -150.00, category: 'Software' },
+  { customer: "Noah Williams", email: "noah@example.com", type: "Subscription", status: "Success", date: "2023-06-25", amount: 350.00, category: 'SaaS' },
+  { customer: "Emma Brown", email: "emma@example.com", type: "Sale", status: "Success", date: "2023-05-12", amount: 450.00, category: 'Consulting' },
+  { customer: "James Jones", email: "james@example.com", type: "Sale", status: "Success", date: "2023-05-26", amount: 550.00, category: 'Hardware' },
+  { customer: "Adobe", email: "contact@adobe.com", type: "Expense", status: "Success", date: "2023-06-01", amount: -54.99, category: 'Software' },
+  { customer: "Figma", email: "support@figma.com", type: "Expense", status: "Success", date: "2023-06-15", amount: -15.00, category: 'Software' },
+  { customer: "Staples", email: "orders@staples.com", type: "Expense", status: "Success", date: "2023-05-02", amount: -42.80, category: 'Office Supplies' },
+  { customer: "Upwork", email: "payments@upwork.com", type: "Sale", status: "Success", date: "2023-04-22", amount: 1200.00, category: 'Consulting' },
+  { customer: "Delta Airlines", email: "noreply@delta.com", type: "Expense", status: "Success", date: "2023-04-10", amount: -450.00, category: 'Travel' },
 ];
 const accountsData: Omit<Account, 'id'>[] = [
   { name: "Primary Checking", bank: "Capital One", accountNumber: "**** **** **** 1234", balance: 10530.00, type: 'Checking' },
@@ -42,8 +47,9 @@ const paymentsData: Omit<Payment, 'id'>[] = [
   { recipient: 'Con Edison', date: '2024-07-22', amount: 85.70, status: 'Completed' },
 ];
 const budgetsData: Omit<Budget, 'id'>[] = [
-    { name: 'Groceries', spent: 450.75, total: 800 },
-    { name: 'Dining Out', spent: 210.50, total: 300 },
+    { name: 'Software', spent: 450.75, total: 1000 },
+    { name: 'Marketing', spent: 210.50, total: 500 },
+    { name: 'Travel', spent: 750.00, total: 1500 },
 ];
 const invoicesData: Omit<Invoice, 'id'>[] = [
   { customer: 'Acme Inc.', invoiceNumber: 'INV-007', date: '2024-07-15', dueDate: '2024-08-14', amount: 12000.00, status: 'Paid' },
