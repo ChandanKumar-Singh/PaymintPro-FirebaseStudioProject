@@ -4,7 +4,9 @@ import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { useState } from "react";
 import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
-import { auth } from "@/lib/firebase";
+import { doc, setDoc } from "firebase/firestore";
+import { auth, db } from "@/lib/firebase";
+import { seedDatabase } from "@/lib/seed";
 
 import { Button } from "@/components/ui/button"
 import {
@@ -32,17 +34,32 @@ export default function RegisterPage() {
         e.preventDefault();
         setIsLoading(true);
         try {
+            // 1. Create user in Firebase Auth
             const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-            await updateProfile(userCredential.user, {
+            const user = userCredential.user;
+
+            // 2. Update their auth profile displayName
+            await updateProfile(user, {
               displayName: `${firstName} ${lastName}`.trim()
             });
             
-            toast({
-                title: "Account Created",
-                description: "You have been successfully registered. Please log in.",
+            // 3. Create a user document in Firestore to store app-specific data
+            await setDoc(doc(db, "users", user.uid), {
+                uid: user.uid,
+                email: user.email,
+                displayName: `${firstName} ${lastName}`.trim(),
+                photoURL: user.photoURL,
+                createdAt: new Date().toISOString(),
             });
-            // In a real app, you might want to automatically log the user in
-            // and maybe seed their database with initial data here.
+
+            // 4. Seed the database with sample data for the new user
+            await seedDatabase(user.uid);
+
+            toast({
+                title: "Account Created & Sample Data Added",
+                description: "You have been successfully registered. Please log in to see your new dashboard.",
+            });
+            
             router.push('/login');
         } catch (error: any) {
             let errorMessage = "An unknown error occurred.";
