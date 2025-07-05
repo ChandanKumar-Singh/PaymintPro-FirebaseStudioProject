@@ -39,24 +39,26 @@ export function TicketList({ tickets }: TicketListProps) {
             <ScrollArea className="flex-1">
                 <div className="p-2 space-y-1">
                     {tickets.map(ticket => (
-                        <Link key={ticket.id} href={`/support/${ticket.id}`} legacyBehavior>
-                            <a className={cn(
+                        <Link
+                            key={ticket.id}
+                            href={`/support/${ticket.id}`}
+                            className={cn(
                                 "block p-3 rounded-lg hover:bg-muted cursor-pointer",
                                 activeTicketId === ticket.id && "bg-muted"
-                            )}>
-                                <div className="flex justify-between items-start">
-                                    <div className="flex items-center gap-3">
-                                        <span className={cn("h-2.5 w-2.5 rounded-full", getStatusColor(ticket.status))}></span>
-                                        <h3 className="font-semibold text-sm truncate pr-4">{ticket.subject}</h3>
-                                    </div>
-                                    <p className="text-xs text-muted-foreground whitespace-nowrap">
-                                        {formatDistanceToNow(new Date(ticket.updatedAt), { addSuffix: true })}
-                                    </p>
+                            )}
+                        >
+                            <div className="flex justify-between items-start">
+                                <div className="flex items-center gap-3">
+                                    <span className={cn("h-2.5 w-2.5 rounded-full", getStatusColor(ticket.status))}></span>
+                                    <h3 className="font-semibold text-sm truncate pr-4">{ticket.subject}</h3>
                                 </div>
-                                <p className="text-sm text-muted-foreground mt-1 line-clamp-2">
-                                    Department: {ticket.department} &bull; Priority: {ticket.priority}
+                                <p className="text-xs text-muted-foreground whitespace-nowrap">
+                                    {formatDistanceToNow(new Date(ticket.updatedAt), { addSuffix: true })}
                                 </p>
-                            </a>
+                            </div>
+                            <p className="text-sm text-muted-foreground mt-1 line-clamp-2">
+                                Department: {ticket.department} &bull; Priority: {ticket.priority}
+                            </p>
                         </Link>
                     ))}
                 </div>
