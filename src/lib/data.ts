@@ -17,7 +17,20 @@ export type PortfolioItem = { id?: string; symbol: string; name: string; shares:
 export type WatchlistItem = { id?: string; symbol: string; name: string; price: number; change: number };
 export type MarketNewsItem = { id?: string; source: string; title: string; time: string };
 export type Ticket = { id?: string; subject: string; department: string; priority: 'Low' | 'Medium' | 'High'; status: 'Open' | 'In Progress' | 'Closed'; createdAt: string; updatedAt: string; };
-export type TicketMessage = { id?: string; content: string; createdAt: string; sender: 'user' | 'agent'; agentName?: string; };
+export type TicketMessage = {
+  id?: string;
+  content: string;
+  createdAt: string;
+  sender: 'user' | 'agent';
+  agentName?: string;
+  attachment?: {
+    name: string;
+    size: number;
+    url: string;
+    status: 'sending' | 'uploaded' | 'failed';
+    error?: string;
+  };
+};
 
 
 // Generic function to fetch a collection
@@ -201,7 +214,7 @@ export async function getPaginatedTicketMessages(userId: string, ticketId: strin
         return { 
             id: doc.id, 
             ...data,
-            createdAt: data.createdAt.toDate ? data.createdAt.toDate().toISOString() : data.createdAt,
+            createdAt: data.createdAt?.toDate ? data.createdAt.toDate().toISOString() : new Date().toISOString(),
         } as TicketMessage
     });
     
@@ -240,7 +253,7 @@ export const addTicketAndFirstMessage = async (userId: string, ticketData: Omit<
     return ticketRef.id;
 }
 
-export const addMessageToTicket = async (userId: string, ticketId: string, messageData: Omit<TicketMessage, 'id'|'createdAt'>) => {
+export const addMessageToTicket = async (userId: string, ticketId: string, messageData: Omit<TicketMessage, 'id'|'createdAt'| 'attachment'>) => {
     if (!userId) throw new Error("User not authenticated");
 
     const batch = writeBatch(db);
