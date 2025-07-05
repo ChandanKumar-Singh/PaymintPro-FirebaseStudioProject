@@ -1,7 +1,7 @@
 'use client';
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { useAuth } from '@/components/auth-provider';
-import { getTicketById, getTicketMessages, addMessageToTicket, type Ticket, type TicketMessage } from '@/lib/data';
+import { getTicketById, getTicketMessages, addMessageToTicket, updateDocument, type Ticket, type TicketMessage } from '@/lib/data';
 import { useParams, useRouter } from 'next/navigation';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
@@ -29,6 +29,19 @@ const getStatusBadge = (status: string) => {
     }
 };
 
+const getPriorityBadge = (priority: string) => {
+    switch (priority) {
+        case 'High':
+            return <Badge variant="destructive">High</Badge>;
+        case 'Medium':
+            return <Badge variant="outline" className="bg-amber-100 text-amber-800 border-amber-200">Medium</Badge>;
+        case 'Low':
+            return <Badge variant="outline">Low</Badge>;
+        default:
+            return <Badge variant="secondary">{priority}</Badge>;
+    }
+}
+
 export default function TicketDetailPage() {
     const { user } = useAuth();
     const params = useParams();
@@ -41,12 +54,13 @@ export default function TicketDetailPage() {
     const [newMessage, setNewMessage] = useState('');
     const [loading, setLoading] = useState(true);
     const [sending, setSending] = useState(false);
+    const [isAgentReplying, setIsAgentReplying] = useState(false);
 
     const scrollAreaRef = useRef<HTMLDivElement>(null);
 
     const fetchData = useCallback(async () => {
         if (user?.uid && ticketId) {
-            setLoading(true);
+            // Don't set loading to true on refetch
             try {
                 const [ticketData, messagesData] = await Promise.all([
                     getTicketById(user.uid, ticketId),
@@ -68,9 +82,8 @@ export default function TicketDetailPage() {
     }, [fetchData]);
 
     useEffect(() => {
-        // Scroll to bottom when new messages are loaded
         if (scrollAreaRef.current) {
-            scrollAreaRef.current.scrollTo({ top: scrollAreaRef.current.scrollHeight });
+            scrollAreaRef.current.scrollTo({ top: scrollAreaRef.current.scrollHeight, behavior: 'smooth' });
         }
     }, [messages]);
 
@@ -78,21 +91,54 @@ export default function TicketDetailPage() {
         if (!user || !ticketId || !newMessage.trim()) return;
 
         setSending(true);
+        const userMessageContent = newMessage;
+        setNewMessage(''); // Clear input immediately
+
         try {
-            const message: Omit<TicketMessage, 'id'> = {
-                content: newMessage,
+            const userMessage: Omit<TicketMessage, 'id'> = {
+                content: userMessageContent,
                 createdAt: new Date().toISOString(),
                 sender: 'user',
             };
-            await addMessageToTicket(user.uid, ticketId, message);
-            setNewMessage('');
-            await fetchData(); // Refresh data
+            await addMessageToTicket(user.uid, ticketId, userMessage);
+            await fetchData(); // Refresh to show user message
+            
+            // Simulate agent reply
+            setIsAgentReplying(true);
+            setTimeout(async () => {
+                try {
+                    const agentReply: Omit<TicketMessage, 'id'> = {
+                        content: "Thanks for reaching out! We've received your message and an agent will review it shortly. Please allow up to 24 hours for a detailed response.",
+                        createdAt: new Date().toISOString(),
+                        sender: 'agent',
+                    };
+                    await addMessageToTicket(user.uid, ticketId, agentReply);
+                    await fetchData(); // Refresh to show agent message
+                } catch (error) {
+                    // Silently fail agent reply simulation if needed, or add specific toast
+                } finally {
+                    setIsAgentReplying(false);
+                }
+            }, 2500);
+
         } catch (error) {
             toast({ title: "Error", description: "Could not send message.", variant: "destructive" });
+            setNewMessage(userMessageContent); // Restore message on error
         } finally {
             setSending(false);
         }
     };
+    
+    const handleCloseTicket = async () => {
+        if (!user || !ticketId || !ticket) return;
+        try {
+            await updateDocument(user.uid, 'tickets', ticketId, { status: 'Closed' });
+            toast({ title: "Ticket Closed", description: "This support ticket has been marked as closed."});
+            fetchData();
+        } catch (error) {
+            toast({ title: "Error", description: "Failed to close ticket.", variant: "destructive"});
+        }
+    }
 
     if (loading) {
         return (
@@ -121,20 +167,28 @@ export default function TicketDetailPage() {
 
             <Card>
                 <CardHeader>
-                    <div className="flex justify-between items-start">
+                    <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-4">
                         <div>
                             <CardTitle className="text-2xl">{ticket.subject}</CardTitle>
                             <CardDescription>
-                                Ticket #{ticket.id?.slice(0, 8)} opened on {format(new Date(ticket.createdAt), "PPP")}
+                                Ticket #{ticket.id?.slice(0, 8)} &bull; Department: {ticket.department} &bull; Opened: {format(new Date(ticket.createdAt), "PPP")}
                             </CardDescription>
                         </div>
-                        {getStatusBadge(ticket.status)}
+                        <div className="flex flex-col items-start sm:items-end gap-2">
+                             <div className="flex items-center gap-2">
+                                {getPriorityBadge(ticket.priority)}
+                                {getStatusBadge(ticket.status)}
+                            </div>
+                            {ticket.status !== 'Closed' && (
+                                <Button variant="outline" size="sm" onClick={handleCloseTicket}>Close Ticket</Button>
+                            )}
+                        </div>
                     </div>
                 </CardHeader>
                 <CardContent>
                     <ScrollArea className="h-[450px] space-y-6 p-4 border rounded-md" ref={scrollAreaRef}>
-                       {messages.map(message => (
-                           <div key={message.id} className={cn("flex items-end gap-3", message.sender === 'user' ? 'justify-end' : 'justify-start')}>
+                       {messages.map((message, index) => (
+                           <div key={message.id || index} className={cn("flex items-end gap-3", message.sender === 'user' ? 'justify-end' : 'justify-start')}>
                                 {message.sender === 'agent' && (
                                     <Avatar className="h-8 w-8">
                                         <AvatarImage src="https://placehold.co/40x40.png" data-ai-hint="support agent" />
@@ -145,7 +199,7 @@ export default function TicketDetailPage() {
                                    "max-w-md p-3 rounded-lg",
                                    message.sender === 'user' ? 'bg-primary text-primary-foreground' : 'bg-muted'
                                )}>
-                                   <p className="text-sm">{message.content}</p>
+                                   <p className="text-sm whitespace-pre-wrap">{message.content}</p>
                                    <p className="text-xs opacity-70 mt-2 text-right">
                                        {format(new Date(message.createdAt), "p")}
                                    </p>
@@ -158,10 +212,23 @@ export default function TicketDetailPage() {
                                 )}
                            </div>
                        ))}
+                       {isAgentReplying && (
+                            <div className="flex items-end gap-3 justify-start">
+                                <Avatar className="h-8 w-8">
+                                    <AvatarImage src="https://placehold.co/40x40.png" data-ai-hint="support agent" />
+                                    <AvatarFallback>S</AvatarFallback>
+                                </Avatar>
+                                <div className="bg-muted px-4 py-3 rounded-lg flex items-center gap-1">
+                                    <span className="h-2 w-2 rounded-full bg-muted-foreground animate-pulse delay-0"></span>
+                                    <span className="h-2 w-2 rounded-full bg-muted-foreground animate-pulse delay-150"></span>
+                                    <span className="h-2 w-2 rounded-full bg-muted-foreground animate-pulse delay-300"></span>
+                                </div>
+                            </div>
+                        )}
                     </ScrollArea>
                 </CardContent>
-                {ticket.status !== 'Closed' && (
-                    <CardFooter className="pt-4 border-t">
+                <CardFooter className="pt-4 border-t">
+                    {ticket.status !== 'Closed' ? (
                         <div className="w-full flex items-center gap-2">
                             <Textarea 
                                 placeholder="Type your reply..." 
@@ -173,14 +240,16 @@ export default function TicketDetailPage() {
                                         handleSendMessage();
                                     }
                                 }}
-                                disabled={sending}
+                                disabled={sending || isAgentReplying}
                             />
-                            <Button onClick={handleSendMessage} disabled={sending || !newMessage.trim()} size="icon">
+                            <Button onClick={handleSendMessage} disabled={sending || !newMessage.trim() || isAgentReplying} size="icon">
                                 <Send className="h-4 w-4" />
                             </Button>
                         </div>
-                    </CardFooter>
-                )}
+                    ) : (
+                         <p className="text-sm text-muted-foreground w-full text-center">This ticket has been closed. To reopen it, please create a new ticket.</p>
+                    )}
+                </CardFooter>
             </Card>
         </div>
     );
