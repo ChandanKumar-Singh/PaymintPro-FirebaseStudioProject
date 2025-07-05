@@ -5,7 +5,7 @@ import { getTicketById, getTicketMessages, addMessageToTicket, updateDocument, t
 import { useParams, useRouter } from 'next/navigation';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Send } from 'lucide-react';
+import { ArrowLeft, Send, Sparkles, Loader2 } from 'lucide-react';
 import Link from 'next/link';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -15,6 +15,9 @@ import { useToast } from '@/hooks/use-toast';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { cn } from '@/lib/utils';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { getSuggestedReplies } from '@/ai/flows/suggest-replies';
+import { enhanceReply } from '@/ai/flows/enhance-reply';
+
 
 const getStatusBadge = (status: string) => {
     switch (status) {
@@ -55,12 +58,17 @@ export default function TicketDetailPage() {
     const [loading, setLoading] = useState(true);
     const [sending, setSending] = useState(false);
     const [isAgentReplying, setIsAgentReplying] = useState(false);
+    const [suggestedReplies, setSuggestedReplies] = useState<string[]>([]);
+    const [suggestionsLoading, setSuggestionsLoading] = useState(false);
+    const [enhancingReply, setEnhancingReply] = useState(false);
+
 
     const scrollAreaRef = useRef<HTMLDivElement>(null);
+    const textareaRef = useRef<HTMLTextAreaElement>(null);
 
-    const fetchData = useCallback(async () => {
+    const fetchData = useCallback(async (isInitialLoad = false) => {
         if (user?.uid && ticketId) {
-            // Don't set loading to true on refetch
+            if (isInitialLoad) setLoading(true);
             try {
                 const [ticketData, messagesData] = await Promise.all([
                     getTicketById(user.uid, ticketId),
@@ -72,14 +80,41 @@ export default function TicketDetailPage() {
                 toast({ title: "Error", description: "Could not fetch ticket details.", variant: "destructive" });
                 router.push('/support');
             } finally {
-                setLoading(false);
+                if (isInitialLoad) setLoading(false);
             }
         }
     }, [user, ticketId, toast, router]);
 
     useEffect(() => {
-        fetchData();
+        fetchData(true);
     }, [fetchData]);
+
+    // Fetch suggestions when messages change
+     useEffect(() => {
+        const fetchSuggestions = async () => {
+            const lastMessage = messages[messages.length - 1];
+            if (lastMessage && lastMessage.sender === 'agent') {
+                setSuggestionsLoading(true);
+                setSuggestedReplies([]);
+                try {
+                    const result = await getSuggestedReplies({ lastMessage: lastMessage.content });
+                    setSuggestedReplies(result.suggestions);
+                } catch (error) {
+                    // Fail silently, suggestions are a non-critical enhancement
+                    console.error("Failed to fetch suggestions:", error);
+                } finally {
+                    setSuggestionsLoading(false);
+                }
+            } else {
+                setSuggestedReplies([]);
+            }
+        };
+
+        if (messages.length > 0) {
+            fetchSuggestions();
+        }
+    }, [messages]);
+
 
     useEffect(() => {
         if (scrollAreaRef.current) {
@@ -92,7 +127,7 @@ export default function TicketDetailPage() {
 
         setSending(true);
         const userMessageContent = newMessage;
-        setNewMessage(''); // Clear input immediately
+        setNewMessage(''); 
 
         try {
             const userMessage: Omit<TicketMessage, 'id'> = {
@@ -101,9 +136,8 @@ export default function TicketDetailPage() {
                 sender: 'user',
             };
             await addMessageToTicket(user.uid, ticketId, userMessage);
-            await fetchData(); // Refresh to show user message
+            await fetchData(); 
             
-            // Simulate agent reply
             setIsAgentReplying(true);
             setTimeout(async () => {
                 try {
@@ -113,9 +147,9 @@ export default function TicketDetailPage() {
                         sender: 'agent',
                     };
                     await addMessageToTicket(user.uid, ticketId, agentReply);
-                    await fetchData(); // Refresh to show agent message
+                    await fetchData();
                 } catch (error) {
-                    // Silently fail agent reply simulation if needed, or add specific toast
+                    console.error("Failed to simulate agent reply:", error);
                 } finally {
                     setIsAgentReplying(false);
                 }
@@ -123,7 +157,7 @@ export default function TicketDetailPage() {
 
         } catch (error) {
             toast({ title: "Error", description: "Could not send message.", variant: "destructive" });
-            setNewMessage(userMessageContent); // Restore message on error
+            setNewMessage(userMessageContent);
         } finally {
             setSending(false);
         }
@@ -139,6 +173,26 @@ export default function TicketDetailPage() {
             toast({ title: "Error", description: "Failed to close ticket.", variant: "destructive"});
         }
     }
+
+    const handleEnhanceReply = async () => {
+        if (!newMessage.trim()) return;
+        setEnhancingReply(true);
+        try {
+            const conversationContext = messages.slice(-4).map(m => `${m.sender === 'user' ? 'You' : 'Agent'}: ${m.content}`).join('\n');
+            const result = await enhanceReply({ conversation: conversationContext, draft: newMessage });
+            setNewMessage(result.enhancedReply);
+        } catch (error) {
+            toast({ title: "Error", description: "Could not enhance reply. Please try again.", variant: "destructive"});
+        } finally {
+            setEnhancingReply(false);
+            textareaRef.current?.focus();
+        }
+    }
+
+    const handleSuggestionClick = (suggestion: string) => {
+        setNewMessage(suggestion);
+        textareaRef.current?.focus();
+    };
 
     if (loading) {
         return (
@@ -227,10 +281,33 @@ export default function TicketDetailPage() {
                         )}
                     </ScrollArea>
                 </CardContent>
+
+                {ticket.status !== 'Closed' && (
+                    <CardContent className="pt-2">
+                        {suggestionsLoading ? (
+                            <div className="flex items-center gap-2">
+                                <Skeleton className="h-8 w-32" />
+                                <Skeleton className="h-8 w-40" />
+                                <Skeleton className="h-8 w-28" />
+                            </div>
+                        ) : suggestedReplies.length > 0 && (
+                            <div className="flex flex-wrap items-center gap-2">
+                                <p className="text-sm text-muted-foreground mr-2">Suggestions:</p>
+                                {suggestedReplies.map((reply, i) => (
+                                    <Button key={i} variant="outline" size="sm" onClick={() => handleSuggestionClick(reply)}>
+                                        {reply}
+                                    </Button>
+                                ))}
+                            </div>
+                        )}
+                    </CardContent>
+                )}
+                
                 <CardFooter className="pt-4 border-t">
                     {ticket.status !== 'Closed' ? (
                         <div className="w-full flex items-center gap-2">
                             <Textarea 
+                                ref={textareaRef}
                                 placeholder="Type your reply..." 
                                 value={newMessage}
                                 onChange={(e) => setNewMessage(e.target.value)}
@@ -240,10 +317,17 @@ export default function TicketDetailPage() {
                                         handleSendMessage();
                                     }
                                 }}
-                                disabled={sending || isAgentReplying}
+                                disabled={sending || isAgentReplying || enhancingReply}
+                                rows={1}
+                                className="min-h-[40px] max-h-[200px]"
                             />
-                            <Button onClick={handleSendMessage} disabled={sending || !newMessage.trim() || isAgentReplying} size="icon">
+                            <Button onClick={handleEnhanceReply} disabled={sending || isAgentReplying || enhancingReply || !newMessage.trim()} size="icon" variant="ghost">
+                                {enhancingReply ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
+                                <span className="sr-only">Enhance with AI</span>
+                            </Button>
+                            <Button onClick={handleSendMessage} disabled={sending || !newMessage.trim() || isAgentReplying || enhancingReply} size="icon">
                                 <Send className="h-4 w-4" />
+                                <span className="sr-only">Send Message</span>
                             </Button>
                         </div>
                     ) : (
