@@ -7,8 +7,10 @@ import { Button } from '@/components/ui/button';
 import { Sparkles, Loader2 } from 'lucide-react';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { askFinancialAdvisor } from '@/ai/flows/financial-advice';
+import { useAuth } from '@/components/auth-provider';
 
 export default function AdvisorPage() {
+    const { user } = useAuth();
     const [query, setQuery] = useState('');
     const [response, setResponse] = useState('');
     const [isLoading, setIsLoading] = useState(false);
@@ -16,12 +18,16 @@ export default function AdvisorPage() {
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+        if (!user) {
+            setError('You must be logged in to use the AI Advisor.');
+            return;
+        }
         setIsLoading(true);
         setError('');
         setResponse('');
         
         try {
-            const result = await askFinancialAdvisor(query);
+            const result = await askFinancialAdvisor(query, user.uid);
             setResponse(result.advice);
         } catch (err) {
             setError('Sorry, I couldn\'t fetch advice right now. Please try again later.');
