@@ -21,7 +21,7 @@ export default function AccountsPage() {
         setAccounts(accountsData);
         setTransactions(transactionsData);
         setLoading(false);
-      })
+      }).catch(console.error);
     }
   }, [user]);
 

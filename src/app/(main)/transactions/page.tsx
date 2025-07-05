@@ -1,6 +1,7 @@
 'use client';
 import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -68,12 +69,11 @@ export default function TransactionsPage() {
         {loading ? (
              <Card>
                 <CardHeader>
-                    <Skeleton className="h-6 w-48" />
-                    <Skeleton className="h-4 w-64" />
+                    <Skeleton className="h-10 w-48" />
                 </CardHeader>
                 <CardContent>
                     <div className="space-y-4">
-                        {[...Array(5)].map((_, i) => <Skeleton key={i} className="h-12 w-full" />)}
+                        {[...Array(8)].map((_, i) => <Skeleton key={i} className="h-12 w-full" />)}
                     </div>
                 </CardContent>
             </Card>

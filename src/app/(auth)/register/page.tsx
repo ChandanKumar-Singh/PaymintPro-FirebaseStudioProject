@@ -34,12 +34,15 @@ export default function RegisterPage() {
         try {
             const userCredential = await createUserWithEmailAndPassword(auth, email, password);
             await updateProfile(userCredential.user, {
-              displayName: `${firstName} ${lastName}`
+              displayName: `${firstName} ${lastName}`.trim()
             });
+            
             toast({
                 title: "Account Created",
                 description: "You have been successfully registered. Please log in.",
             });
+            // In a real app, you might want to automatically log the user in
+            // and maybe seed their database with initial data here.
             router.push('/login');
         } catch (error: any) {
             let errorMessage = "An unknown error occurred.";
