@@ -19,21 +19,19 @@ const getStatusColor = (status: string) => {
 
 interface TicketListProps {
     tickets: Ticket[];
+    onRefresh: () => void;
 }
 
-export function TicketList({ tickets }: TicketListProps) {
+export function TicketList({ tickets, onRefresh }: TicketListProps) {
     const params = useParams();
     const activeTicketId = params.id as string;
     
-    // This is a placeholder since the fetch logic is in the layout
-    const refetchTickets = () => {};
-
     return (
         <div className="flex flex-col h-full">
             <div className="p-4 border-b">
                 <div className="flex justify-between items-center">
                     <h2 className="text-xl font-bold">Inbox</h2>
-                    <NewTicketDialog onSuccess={refetchTickets} />
+                    <NewTicketDialog onSuccess={onRefresh} />
                 </div>
             </div>
             <ScrollArea className="flex-1">

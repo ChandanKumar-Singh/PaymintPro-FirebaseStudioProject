@@ -15,6 +15,7 @@ export default function SupportLayout({ children }: { children: React.ReactNode 
             setLoading(true);
             try {
                 const userTickets = await getTickets(user.uid);
+                userTickets.sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime());
                 setTickets(userTickets);
             } catch (error) {
                 console.error("Failed to fetch tickets for layout", error);
@@ -39,7 +40,7 @@ export default function SupportLayout({ children }: { children: React.ReactNode 
                         <Skeleton className="h-16 w-full" />
                     </div>
                 ) : (
-                    <TicketList tickets={tickets} />
+                    <TicketList tickets={tickets} onRefresh={fetchTickets} />
                 )}
             </div>
             <div className="flex-1 min-w-0">

@@ -39,7 +39,7 @@ export default function SupportPage() {
                         <Skeleton className="h-16 w-full" />
                     </div>
                 ) : (
-                    <TicketList tickets={tickets} />
+                    <TicketList tickets={tickets} onRefresh={fetchTickets} />
                 )}
             </div>
             {/* Desktop View: Show a placeholder */}
