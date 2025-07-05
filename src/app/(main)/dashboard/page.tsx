@@ -1,3 +1,4 @@
+'use client';
 import { StatCard } from '@/components/stat-card';
 import { TransactionChart } from '@/components/transaction-chart';
 import { RecentTransactions } from '@/components/recent-transactions';
@@ -7,8 +8,24 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { Button } from '@/components/ui/button';
 import { DateRangePicker } from '@/components/date-range-picker';
 import { DollarSign, Users, CreditCard, Activity, ChevronDown } from 'lucide-react';
+import { getDashboardStats } from '@/lib/data';
+import { useEffect, useState } from 'react';
+
+type Stats = {
+  totalRevenue: { value: number; change: number; };
+  subscriptions: { value: number; change: number; };
+  sales: { value: number; change: number; };
+  activeNow: { value: number; change: number; };
+} | null;
+
 
 export default function DashboardPage() {
+  const [stats, setStats] = useState<Stats>(null);
+  
+  useEffect(() => {
+    getDashboardStats().then(data => setStats(data));
+  }, []);
+
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-4">
@@ -39,26 +56,26 @@ export default function DashboardPage() {
       <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
         <StatCard
           title="Total Revenue"
-          value="$45,231.89"
-          change="+20.1% from last month"
+          value={stats ? stats.totalRevenue.value.toLocaleString('en-US', { style: 'currency', currency: 'USD' }) : '$0.00'}
+          change={stats ? `+${stats.totalRevenue.change}% from last month` : '...'}
           icon={DollarSign}
         />
         <StatCard
           title="Subscriptions"
-          value="+2350"
-          change="+180.1% from last month"
+          value={stats ? `+${stats.subscriptions.value.toLocaleString()}` : '+0'}
+          change={stats ? `+${stats.subscriptions.change}% from last month` : '...'}
           icon={Users}
         />
         <StatCard
           title="Sales"
-          value="+12,234"
-          change="+19% from last month"
+          value={stats ? `+${stats.sales.value.toLocaleString()}`: '+0'}
+          change={stats ? `+${stats.sales.change}% from last month`: '...'}
           icon={CreditCard}
         />
         <StatCard
           title="Active Now"
-          value="+573"
-          change="+201 since last hour"
+          value={stats ? `+${stats.activeNow.value}`: '+0'}
+          change={stats ? `+${stats.activeNow.change} since last hour`: '...'}
           icon={Activity}
         />
       </div>
