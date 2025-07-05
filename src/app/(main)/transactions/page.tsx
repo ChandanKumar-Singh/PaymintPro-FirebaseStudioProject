@@ -1,4 +1,5 @@
-import React from 'react';
+'use client';
+import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button"
 import {
   DropdownMenu,
@@ -10,12 +11,24 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { Download, ListFilter } from "lucide-react"
 import { DateRangePicker } from "@/components/date-range-picker"
-import { getTransactions } from '@/lib/data';
+import { getTransactions, type Transaction } from '@/lib/data';
 import { TransactionsTable } from '@/components/transactions-table';
+import { useAuth } from '@/components/auth-provider';
+import { Skeleton } from '@/components/ui/skeleton';
 
+export default function TransactionsPage() {
+    const { user } = useAuth();
+    const [transactions, setTransactions] = useState<Transaction[]>([]);
+    const [loading, setLoading] = useState(true);
 
-export default async function TransactionsPage() {
-    const transactions = await getTransactions();
+    useEffect(() => {
+        if(user?.uid) {
+            getTransactions(user.uid).then(data => {
+                setTransactions(data);
+                setLoading(false);
+            })
+        }
+    }, [user]);
 
     return (
       <div className="space-y-6">
@@ -52,7 +65,21 @@ export default async function TransactionsPage() {
                 </div>
             </div>
         </div>
-        <TransactionsTable initialTransactions={transactions} />
+        {loading ? (
+             <Card>
+                <CardHeader>
+                    <Skeleton className="h-6 w-48" />
+                    <Skeleton className="h-4 w-64" />
+                </CardHeader>
+                <CardContent>
+                    <div className="space-y-4">
+                        {[...Array(5)].map((_, i) => <Skeleton key={i} className="h-12 w-full" />)}
+                    </div>
+                </CardContent>
+            </Card>
+        ) : (
+             <TransactionsTable initialTransactions={transactions} />
+        )}
       </div>
     );
 }

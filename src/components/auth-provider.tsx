@@ -2,9 +2,8 @@
 
 import { createContext, useContext, useEffect, useState } from 'react';
 import { onAuthStateChanged, User } from 'firebase/auth';
-import { auth, firebaseConfig } from '@/lib/firebase';
+import { auth } from '@/lib/firebase';
 import { usePathname, useRouter } from 'next/navigation';
-import { AlertTriangle } from 'lucide-react';
 
 function FullScreenLoader() {
     return (
@@ -16,26 +15,6 @@ function FullScreenLoader() {
         </div>
     );
 }
-
-function FirebaseConfigError() {
-    return (
-        <div className="flex h-screen w-screen items-center justify-center bg-background p-4">
-            <div className="w-full max-w-md rounded-lg border-2 border-dashed border-destructive p-8 text-center">
-                <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-destructive/10">
-                    <AlertTriangle className="h-6 w-6 text-destructive" />
-                </div>
-                <h1 className="mt-4 text-2xl font-bold text-destructive">Firebase Configuration Missing</h1>
-                <p className="mt-4 text-muted-foreground">
-                    Your Firebase API Key is not configured correctly. Please open the <strong>.env</strong> file in the root of your project and replace the placeholder values with your actual Firebase project credentials.
-                </p>
-                <p className="mt-2 text-sm text-muted-foreground">
-                    You can find these in your Firebase Console under Project Settings {'>'} General {'>'} Your apps.
-                </p>
-            </div>
-        </div>
-    );
-}
-
 
 interface AuthContextType {
   user: User | null;
@@ -50,23 +29,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const pathname = usePathname();
 
-  const isConfigInvalid = !firebaseConfig.apiKey || firebaseConfig.apiKey === 'your_api_key_here' || !auth;
-
   useEffect(() => {
-    if (isConfigInvalid || !auth) {
-        setLoading(false);
-        return;
-    }
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       setUser(user);
       setLoading(false);
     });
 
     return () => unsubscribe();
-  }, [isConfigInvalid]);
+  }, []);
 
   useEffect(() => {
-    if (loading || isConfigInvalid) return;
+    if (loading) return;
 
     const isAuthRoute = ['/login', '/register', '/forgot-password'].some(route => pathname.startsWith(route));
     const isPublicRoute = ['/', '/terms', '/privacy'].some(route => pathname.startsWith(route)) || isAuthRoute;
@@ -78,12 +51,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     if (user && isAuthRoute) {
       router.push('/dashboard');
     }
-  }, [user, loading, pathname, router, isConfigInvalid]);
+  }, [user, loading, pathname, router]);
 
-  if (isConfigInvalid) {
-      return <FirebaseConfigError />;
-  }
-  
   if (loading && !['/', '/terms', '/privacy'].some(route => pathname.startsWith(route))) {
     return <FullScreenLoader />;
   }

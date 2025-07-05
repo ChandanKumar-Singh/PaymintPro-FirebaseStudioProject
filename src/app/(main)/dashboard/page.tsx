@@ -8,8 +8,9 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { Button } from '@/components/ui/button';
 import { DateRangePicker } from '@/components/date-range-picker';
 import { DollarSign, Users, CreditCard, Activity, ChevronDown } from 'lucide-react';
-import { getDashboardStats, getRecentSales, getCards, Sale, CardData } from '@/lib/data';
+import { getDashboardStats, getRecentSales, getCards, type Sale, type CardData } from '@/lib/data';
 import { useEffect, useState } from 'react';
+import { useAuth } from '@/components/auth-provider';
 
 type Stats = {
   totalRevenue: { value: number; change: number; };
@@ -20,21 +21,35 @@ type Stats = {
 
 
 export default function DashboardPage() {
+  const { user } = useAuth();
   const [stats, setStats] = useState<Stats>(null);
   const [recentSales, setRecentSales] = useState<Sale[]>([]);
   const [cards, setCards] = useState<CardData[]>([]);
+  const [loading, setLoading] = useState(true);
   
   useEffect(() => {
-    getDashboardStats().then(data => setStats(data));
-    getRecentSales().then(data => setRecentSales(data));
-    getCards().then(data => setCards(data));
-  }, []);
+    if (user?.uid) {
+      const fetchData = async () => {
+        setLoading(true);
+        const [statsData, salesData, cardsData] = await Promise.all([
+          getDashboardStats(user.uid),
+          getRecentSales(user.uid),
+          getCards(user.uid),
+        ]);
+        setStats(statsData);
+        setRecentSales(salesData);
+        setCards(cardsData);
+        setLoading(false);
+      }
+      fetchData();
+    }
+  }, [user]);
 
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-4">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Welcome back, Olivia!</h1>
+          <h1 className="text-3xl font-bold tracking-tight">Welcome back, {user?.displayName?.split(' ')[0] || 'Olivia'}!</h1>
           <p className="text-muted-foreground">
             Here's your financial overview for today.
           </p>

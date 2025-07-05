@@ -15,7 +15,10 @@ import { Badge } from "@/components/ui/badge";
 import { Setup2FADialog } from "@/components/dialogs/setup-2fa-dialog";
 import { ChangePlanDialog } from "@/components/dialogs/change-plan-dialog";
 import { UpdatePaymentDialog } from "@/components/dialogs/update-payment-dialog";
-import { Download } from "lucide-react";
+import { Download, Bot, Loader2 } from "lucide-react";
+import { seedDatabase } from "@/lib/seed";
+import { useAuth } from "@/components/auth-provider";
+import { useState } from "react";
 
 const billingHistory = [
     { id: 'bill_1', date: '2024-07-01', amount: 20.00, description: 'Pro Plan - Monthly' },
@@ -33,6 +36,8 @@ export default function SettingsPage() {
     const searchParams = useSearchParams();
     const tab = searchParams.get('tab') || 'profile';
     const { toast } = useToast();
+    const { user } = useAuth();
+    const [isSeeding, setIsSeeding] = useState(false);
 
     const handleSaveChanges = () => {
         toast({
@@ -41,15 +46,41 @@ export default function SettingsPage() {
         });
     }
 
+    const handleSeedDatabase = async () => {
+        if (!user) {
+            toast({ title: "Error", description: "You must be logged in to seed the database.", variant: "destructive" });
+            return;
+        }
+        setIsSeeding(true);
+        try {
+            await seedDatabase(user.uid);
+            toast({
+                title: "Database Seeded",
+                description: "Your database has been populated with sample data. Please refresh the page.",
+            });
+        } catch (error) {
+             toast({
+                title: "Seeding Failed",
+                description: "An error occurred while seeding the database.",
+                variant: "destructive"
+            });
+            console.error(error);
+        } finally {
+            setIsSeeding(false);
+        }
+
+    }
+
     return (
         <div className="space-y-6">
             <h1 className="text-3xl font-bold tracking-tight">Settings</h1>
             <Tabs defaultValue={tab} className="w-full">
-                <TabsList className="grid w-full grid-cols-1 sm:grid-cols-2 md:grid-cols-4">
+                <TabsList className="grid w-full grid-cols-1 sm:grid-cols-2 md:grid-cols-5">
                     <TabsTrigger value="profile">Profile</TabsTrigger>
                     <TabsTrigger value="notifications">Notifications</TabsTrigger>
                     <TabsTrigger value="security">Security</TabsTrigger>
                     <TabsTrigger value="billing">Billing</TabsTrigger>
+                    <TabsTrigger value="developer">Developer</TabsTrigger>
                 </TabsList>
                 <div className="mt-6">
                     <TabsContent value="profile">
@@ -267,6 +298,26 @@ export default function SettingsPage() {
                                         </Table>
                                     </CardContent>
                                 </Card>
+                            </CardContent>
+                        </Card>
+                    </TabsContent>
+                     <TabsContent value="developer">
+                        <Card>
+                            <CardHeader>
+                                <CardTitle>Developer</CardTitle>
+                                <CardDescription>Actions for development and testing.</CardDescription>
+                            </CardHeader>
+                            <CardContent>
+                                <div className="flex items-center justify-between p-4 border rounded-lg">
+                                    <div>
+                                        <p className="font-medium">Seed Database</p>
+                                        <p className="text-sm text-muted-foreground">Populate your Firestore database with sample data.</p>
+                                    </div>
+                                    <Button variant="outline" onClick={handleSeedDatabase} disabled={isSeeding}>
+                                        {isSeeding ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Bot className="mr-2 h-4 w-4" />}
+                                        {isSeeding ? "Seeding..." : "Seed Data"}
+                                    </Button>
+                                </div>
                             </CardContent>
                         </Card>
                     </TabsContent>
