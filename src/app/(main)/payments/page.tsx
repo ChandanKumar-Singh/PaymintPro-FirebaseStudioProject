@@ -9,18 +9,11 @@ import { Badge } from "@/components/ui/badge";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { NewPaymentDialog } from "@/components/dialogs/new-payment-dialog";
 import { ConfirmDialog } from "@/components/dialogs/confirm-dialog";
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useToast } from "@/hooks/use-toast";
-
-const initialPayments = [
-  { id: 'pay_1', recipient: 'Rent', date: '2024-08-01', amount: 2200.00, status: 'Upcoming' },
-  { id: 'pay_2', recipient: 'AT&T', date: '2024-07-28', amount: 120.55, status: 'Upcoming' },
-  { id: 'pay_3', recipient: 'Con Edison', date: '2024-07-22', amount: 85.70, status: 'Completed' },
-  { id: 'pay_4', recipient: 'Amex Credit Card', date: '2024-07-20', amount: 540.23, status: 'Completed' },
-  { id: 'pay_5', recipient: 'Spotify', date: '2024-07-15', amount: 10.99, status: 'Completed' },
-  { id: 'pay_6', recipient: 'Insurance Premium', date: '2024-07-10', amount: 250.00, status: 'Failed' },
-  { id: 'pay_7', recipient: 'Car Payment', date: '2024-07-05', amount: 450.00, status: 'Completed' },
-];
+import { useAuth } from "@/components/auth-provider";
+import { getPayments, deleteDocument, updateDocument, type Payment } from "@/lib/data";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const getStatusBadge = (status: string) => {
   switch (status) {
@@ -35,13 +28,30 @@ const getStatusBadge = (status: string) => {
   }
 };
 
+type ActionType = 'cancel' | 'retry';
+
 export default function PaymentsPage() {
-    const [payments, setPayments] = useState(initialPayments);
+    const { user } = useAuth();
+    const [payments, setPayments] = useState<Payment[]>([]);
+    const [loading, setLoading] = useState(true);
     const [confirmOpen, setConfirmOpen] = useState(false);
-    const [selectedPayment, setSelectedPayment] = useState<{id: string, action: 'cancel' | 'retry'} | null>(null);
+    const [selectedPayment, setSelectedPayment] = useState<{id: string, action: ActionType} | null>(null);
     const { toast } = useToast();
 
-    const handleActionClick = (paymentId: string, action: 'cancel' | 'retry') => {
+    const fetchPayments = useCallback(async () => {
+        if(user?.uid) {
+            setLoading(true);
+            const userPayments = await getPayments(user.uid);
+            setPayments(userPayments);
+            setLoading(false);
+        }
+    }, [user]);
+
+    useEffect(() => {
+        fetchPayments();
+    }, [fetchPayments]);
+
+    const handleActionClick = (paymentId: string, action: ActionType) => {
         setSelectedPayment({id: paymentId, action});
         setConfirmOpen(true);
     }
@@ -53,22 +63,27 @@ export default function PaymentsPage() {
         });
     }
 
-    const handleConfirmAction = () => {
-        if (!selectedPayment) return;
+    const handleConfirmAction = async () => {
+        if (!selectedPayment || !user?.uid) return;
 
-        if (selectedPayment.action === 'cancel') {
-            setPayments(payments.filter(p => p.id !== selectedPayment.id));
-             toast({ title: "Payment Canceled", description: "The upcoming payment has been canceled." });
-        } else if (selectedPayment.action === 'retry') {
-            setPayments(payments.map(p => p.id === selectedPayment.id ? {...p, status: 'Upcoming'} : p));
-             toast({ title: "Payment Retried", description: "The failed payment will be retried." });
+        try {
+            if (selectedPayment.action === 'cancel') {
+                await deleteDocument(user.uid, 'payments', selectedPayment.id);
+                toast({ title: "Payment Canceled", description: "The upcoming payment has been canceled." });
+            } else if (selectedPayment.action === 'retry') {
+                await updateDocument(user.uid, 'payments', selectedPayment.id, { status: 'Upcoming' });
+                toast({ title: "Payment Retried", description: "The failed payment will be retried." });
+            }
+            await fetchPayments();
+        } catch (error) {
+             toast({ title: "Error", description: "The action could not be completed.", variant: 'destructive'});
         }
        
         setConfirmOpen(false);
         setSelectedPayment(null);
     }
 
-    const PaymentsTable = ({ data }: { data: (typeof initialPayments) }) => (
+    const PaymentsTable = ({ data }: { data: Payment[] }) => (
         <Table>
             <TableHeader>
                 <TableRow>
@@ -98,8 +113,8 @@ export default function PaymentsPage() {
                                 </DropdownMenuTrigger>
                                 <DropdownMenuContent align="end">
                                     <DropdownMenuItem onClick={handleViewDetails}>View Details</DropdownMenuItem>
-                                    {payment.status === 'Upcoming' && <DropdownMenuItem onClick={() => handleActionClick(payment.id, 'cancel')}>Cancel Payment</DropdownMenuItem>}
-                                    {payment.status === 'Failed' && <DropdownMenuItem onClick={() => handleActionClick(payment.id, 'retry')}>Retry Payment</DropdownMenuItem>}
+                                    {payment.status === 'Upcoming' && <DropdownMenuItem onClick={() => handleActionClick(payment.id!, 'cancel')}>Cancel Payment</DropdownMenuItem>}
+                                    {payment.status === 'Failed' && <DropdownMenuItem onClick={() => handleActionClick(payment.id!, 'retry')}>Retry Payment</DropdownMenuItem>}
                                 </DropdownMenuContent>
                             </DropdownMenu>
                         </TableCell>
@@ -109,9 +124,26 @@ export default function PaymentsPage() {
         </Table>
     );
 
-    const upcomingPayments = payments.filter(p => p.status === 'Upcoming');
-    const completedPayments = payments.filter(p => p.status === 'Completed');
-    const failedPayments = payments.filter(p => p.status === 'Failed');
+    const renderTabContent = (status: 'Upcoming' | 'Completed' | 'Failed') => {
+        const filteredPayments = payments.filter(p => p.status === status);
+        return (
+            <Card>
+                <CardHeader>
+                    <CardTitle>{status} Payments</CardTitle>
+                    <CardDescription>
+                        {
+                            status === 'Upcoming' ? "These are your scheduled and upcoming payments." :
+                            status === 'Completed' ? "These payments have been successfully processed." :
+                            "These payments could not be processed."
+                        }
+                    </CardDescription>
+                </CardHeader>
+                <CardContent>
+                    {loading ? <Skeleton className="h-48 w-full" /> : <PaymentsTable data={filteredPayments} />}
+                </CardContent>
+            </Card>
+        )
+    }
 
     return (
         <div className="space-y-6">
@@ -124,7 +156,7 @@ export default function PaymentsPage() {
             />
             <div className="flex justify-between items-center">
                 <h1 className="text-3xl font-bold tracking-tight">Payments</h1>
-                <NewPaymentDialog />
+                <NewPaymentDialog onSuccess={fetchPayments}/>
             </div>
 
             <Tabs defaultValue="upcoming">
@@ -134,39 +166,9 @@ export default function PaymentsPage() {
                     <TabsTrigger value="failed">Failed</TabsTrigger>
                 </TabsList>
                 <div className="mt-4">
-                    <TabsContent value="upcoming">
-                        <Card>
-                            <CardHeader>
-                                <CardTitle>Upcoming Payments</CardTitle>
-                                <CardDescription>These are your scheduled and upcoming payments.</CardDescription>
-                            </CardHeader>
-                            <CardContent>
-                                <PaymentsTable data={upcomingPayments} />
-                            </CardContent>
-                        </Card>
-                    </TabsContent>
-                    <TabsContent value="completed">
-                        <Card>
-                            <CardHeader>
-                                <CardTitle>Completed Payments</CardTitle>
-                                <CardDescription>These payments have been successfully processed.</CardDescription>
-                            </CardHeader>
-                            <CardContent>
-                                <PaymentsTable data={completedPayments} />
-                            </CardContent>
-                        </Card>
-                    </TabsContent>
-                    <TabsContent value="failed">
-                        <Card>
-                            <CardHeader>
-                                <CardTitle>Failed Payments</CardTitle>
-                                <CardDescription>These payments could not be processed.</CardDescription>
-                            </CardHeader>
-                            <CardContent>
-                                <PaymentsTable data={failedPayments} />
-                            </CardContent>
-                        </Card>
-                    </TabsContent>
+                    <TabsContent value="upcoming">{renderTabContent('Upcoming')}</TabsContent>
+                    <TabsContent value="completed">{renderTabContent('Completed')}</TabsContent>
+                    <TabsContent value="failed">{renderTabContent('Failed')}</TabsContent>
                 </div>
             </Tabs>
         </div>

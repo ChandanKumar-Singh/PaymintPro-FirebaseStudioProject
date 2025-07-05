@@ -1,18 +1,19 @@
 'use client';
-
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { DatePicker } from "@/components/date-picker";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Trash2, PlusCircle } from "lucide-react";
+import { Trash2, PlusCircle, Loader2 } from "lucide-react";
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { useRouter } from "next/navigation";
-
+import { useAuth } from "@/components/auth-provider";
+import { addDocument } from "@/lib/data";
+import { format } from 'date-fns';
 
 interface LineItem {
   id: number;
@@ -22,11 +23,16 @@ interface LineItem {
 }
 
 export default function NewInvoicePage() {
+    const { user } = useAuth();
+    const router = useRouter();
+    const { toast } = useToast();
+    const [customer, setCustomer] = useState('');
+    const [invoiceDate, setInvoiceDate] = useState<Date | undefined>(new Date());
+    const [dueDate, setDueDate] = useState<Date | undefined>();
     const [lineItems, setLineItems] = useState<LineItem[]>([
         { id: 1, description: '', quantity: 1, price: 0 }
     ]);
-    const { toast } = useToast();
-    const router = useRouter();
+    const [loading, setLoading] = useState(false);
 
     const handleAddItem = () => {
         setLineItems([...lineItems, { id: Date.now(), description: '', quantity: 1, price: 0 }]);
@@ -44,20 +50,39 @@ export default function NewInvoicePage() {
     const tax = subtotal * 0.08; // Example tax rate
     const total = subtotal + tax;
 
-    const handleSendInvoice = () => {
-        toast({
-            title: "Invoice Sent",
-            description: "The new invoice has been created and sent successfully.",
-        });
-        router.push('/invoicing');
-    }
-    
-    const handleSaveDraft = () => {
-        toast({
-            title: "Draft Saved",
-            description: "The invoice has been saved as a draft.",
-        });
-         router.push('/invoicing');
+    const handleCreateInvoice = async (status: 'Sent' | 'Draft') => {
+        if(!user) {
+            toast({ title: "Authentication Error", description: "You must be logged in to create an invoice.", variant: "destructive" });
+            return;
+        }
+        if(!customer || !invoiceDate || !dueDate || lineItems.some(item => !item.description || item.price <= 0)) {
+            toast({ title: "Missing Information", description: "Please fill all required fields.", variant: "destructive" });
+            return;
+        }
+
+        setLoading(true);
+        try {
+            const newInvoice = {
+                customer,
+                invoiceNumber: `INV-${Math.floor(Math.random() * 9000) + 1000}`,
+                date: format(invoiceDate, 'yyyy-MM-dd'),
+                dueDate: format(dueDate, 'yyyy-MM-dd'),
+                amount: total,
+                status,
+                // In a real app, line items would be a subcollection
+            };
+            await addDocument(user.uid, 'invoices', newInvoice);
+
+            toast({
+                title: status === 'Sent' ? "Invoice Sent" : "Draft Saved",
+                description: `The invoice has been successfully ${status === 'Sent' ? 'created and sent' : 'saved as a draft'}.`,
+            });
+            router.push('/invoicing');
+        } catch (error) {
+            toast({ title: "Error", description: "Failed to create invoice.", variant: "destructive" });
+        } finally {
+            setLoading(false);
+        }
     }
 
     return (
@@ -65,8 +90,14 @@ export default function NewInvoicePage() {
             <div className="flex justify-between items-center">
                 <h1 className="text-3xl font-bold tracking-tight">Create New Invoice</h1>
                 <div className="flex gap-2">
-                    <Button variant="outline" onClick={handleSaveDraft}>Save as Draft</Button>
-                    <Button onClick={handleSendInvoice}>Send Invoice</Button>
+                    <Button variant="outline" onClick={() => handleCreateInvoice('Draft')} disabled={loading}>
+                        {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                        Save as Draft
+                    </Button>
+                    <Button onClick={() => handleCreateInvoice('Sent')} disabled={loading}>
+                        {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                        Send Invoice
+                    </Button>
                 </div>
             </div>
 
@@ -79,25 +110,25 @@ export default function NewInvoicePage() {
                         <CardContent className="space-y-4">
                             <div className="space-y-2">
                                 <Label htmlFor="customer">Customer</Label>
-                                <Select>
+                                <Select onValueChange={setCustomer} value={customer}>
                                     <SelectTrigger id="customer">
                                         <SelectValue placeholder="Select a customer" />
                                     </SelectTrigger>
                                     <SelectContent>
-                                        <SelectItem value="acme">Acme Inc.</SelectItem>
-                                        <SelectItem value="stark">Stark Industries</SelectItem>
-                                        <SelectItem value="wayne">Wayne Enterprises</SelectItem>
+                                        <SelectItem value="Acme Inc.">Acme Inc.</SelectItem>
+                                        <SelectItem value="Stark Industries">Stark Industries</SelectItem>
+                                        <SelectItem value="Wayne Enterprises">Wayne Enterprises</SelectItem>
                                     </SelectContent>
                                 </Select>
                             </div>
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                 <div className="space-y-2">
                                     <Label htmlFor="invoice-date">Invoice Date</Label>
-                                    <DatePicker />
+                                    <DatePicker date={invoiceDate} setDate={setInvoiceDate} />
                                 </div>
                                 <div className="space-y-2">
                                     <Label htmlFor="due-date">Due Date</Label>
-                                    <DatePicker />
+                                    <DatePicker date={dueDate} setDate={setDueDate} />
                                 </div>
                             </div>
                         </CardContent>

@@ -2,6 +2,8 @@
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
+import { Loader2 } from "lucide-react";
+import { useState } from "react";
 
 interface TradeOrderDialogProps {
     open: boolean;
@@ -11,18 +13,28 @@ interface TradeOrderDialogProps {
         symbol: string;
         shares: number;
         price: number;
-    }
+    },
+    onConfirm: () => Promise<void>;
 }
 
-export function TradeOrderDialog({ open, onOpenChange, tradeDetails }: TradeOrderDialogProps) {
+export function TradeOrderDialog({ open, onOpenChange, tradeDetails, onConfirm }: TradeOrderDialogProps) {
     const { toast } = useToast();
+    const [loading, setLoading] = useState(false);
 
-    const handleConfirmTrade = () => {
-        toast({
-            title: `Trade Executed`,
-            description: `Successfully ${tradeDetails.action === 'Buy' ? 'bought' : 'sold'} ${tradeDetails.shares} shares of ${tradeDetails.symbol}.`,
-        });
-        onOpenChange(false);
+    const handleConfirmTrade = async () => {
+        setLoading(true);
+        try {
+            await onConfirm();
+            toast({
+                title: `Trade Executed`,
+                description: `Successfully ${tradeDetails.action === 'Buy' ? 'bought' : 'sold'} ${tradeDetails.shares} shares of ${tradeDetails.symbol}.`,
+            });
+            onOpenChange(false);
+        } catch(error) {
+             toast({ title: "Error", description: "Trade could not be executed.", variant: 'destructive'});
+        } finally {
+            setLoading(false);
+        }
     }
     
     const estimatedValue = tradeDetails.shares * tradeDetails.price;
@@ -63,7 +75,9 @@ export function TradeOrderDialog({ open, onOpenChange, tradeDetails }: TradeOrde
                     <Button 
                         onClick={handleConfirmTrade} 
                         className={tradeDetails.action === 'Sell' ? 'bg-destructive hover:bg-destructive/90' : ''}
+                        disabled={loading}
                     >
+                        {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                         Confirm {tradeDetails.action}
                     </Button>
                 </DialogFooter>

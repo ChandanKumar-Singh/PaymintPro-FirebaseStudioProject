@@ -1,5 +1,4 @@
 'use client';
-
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -9,18 +8,15 @@ import { cn } from '@/lib/utils';
 import { useState } from 'react';
 import { ConfirmDialog } from './dialogs/confirm-dialog';
 import { useToast } from '@/hooks/use-toast';
+import { useAuth } from './auth-provider';
+import { deleteDocument, type CardData } from '@/lib/data';
 
-interface CreditCardDisplayProps {
-  id: string;
-  brand: 'visa' | 'mastercard';
-  number: string;
-  holder: string;
-  expiry: string;
-  status: 'Active' | 'Inactive';
-  type: 'Physical' | 'Virtual';
+interface CreditCardDisplayProps extends CardData {
+  onDeleted: () => void;
 }
 
-export function CreditCardDisplay({ id, brand, number, holder, expiry, status, type }: CreditCardDisplayProps) {
+export function CreditCardDisplay({ id, brand, number, holder, expiry, status, type, onDeleted }: CreditCardDisplayProps) {
+  const { user } = useAuth();
   const [confirmOpen, setConfirmOpen] = useState(false);
   const { toast } = useToast();
 
@@ -37,14 +33,24 @@ export function CreditCardDisplay({ id, brand, number, holder, expiry, status, t
       mastercard: 'mastercard logo'
   }
 
-  const handleDelete = () => {
-    // In a real app, you would call an API to delete the card
-    toast({
-        title: "Card Removed",
-        description: "The card has been successfully removed.",
-    });
-    setConfirmOpen(false);
-    // You would also need to update the state in the parent component
+  const handleDelete = async () => {
+    if(!user?.uid || !id) return;
+    try {
+        await deleteDocument(user.uid, 'cards', id);
+        toast({
+            title: "Card Removed",
+            description: "The card has been successfully removed.",
+        });
+        onDeleted();
+    } catch (error) {
+        toast({
+            title: "Error",
+            description: "Failed to remove card.",
+            variant: "destructive",
+        })
+    } finally {
+        setConfirmOpen(false);
+    }
   }
 
   const handleSettings = () => {

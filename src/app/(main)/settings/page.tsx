@@ -1,5 +1,4 @@
 'use client';
-
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -18,7 +17,9 @@ import { UpdatePaymentDialog } from "@/components/dialogs/update-payment-dialog"
 import { Download, Bot, Loader2 } from "lucide-react";
 import { seedDatabase } from "@/lib/seed";
 import { useAuth } from "@/components/auth-provider";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { updateProfile } from "firebase/auth";
+import { auth } from "@/lib/firebase";
 
 const billingHistory = [
     { id: 'bill_1', date: '2024-07-01', amount: 20.00, description: 'Pro Plan - Monthly' },
@@ -38,12 +39,35 @@ export default function SettingsPage() {
     const { toast } = useToast();
     const { user } = useAuth();
     const [isSeeding, setIsSeeding] = useState(false);
+    const [firstName, setFirstName] = useState('');
+    const [lastName, setLastName] = useState('');
+    const [email, setEmail] = useState('');
+    const [isSaving, setIsSaving] = useState(false);
 
-    const handleSaveChanges = () => {
-        toast({
-            title: "Settings Saved",
-            description: "Your changes have been saved successfully.",
-        });
+    useEffect(() => {
+        if(user) {
+            const nameParts = user.displayName?.split(' ') || ['', ''];
+            setFirstName(nameParts[0] || '');
+            setLastName(nameParts.slice(1).join(' ') || '');
+            setEmail(user.email || '');
+        }
+    }, [user]);
+
+    const handleSaveChanges = async () => {
+        if (!user) return;
+        setIsSaving(true);
+        try {
+            const newDisplayName = `${firstName} ${lastName}`.trim();
+            await updateProfile(user, { displayName: newDisplayName });
+            toast({
+                title: "Settings Saved",
+                description: "Your changes have been saved successfully.",
+            });
+        } catch (error) {
+             toast({ title: "Error", description: "Failed to save settings.", variant: "destructive" });
+        } finally {
+            setIsSaving(false);
+        }
     }
 
     const handleSeedDatabase = async () => {
@@ -92,29 +116,32 @@ export default function SettingsPage() {
                             <CardContent className="space-y-6">
                                 <div className="flex items-center space-x-4">
                                     <Avatar className="h-20 w-20">
-                                        <AvatarImage src="https://placehold.co/80x80.png" data-ai-hint="woman avatar" />
-                                        <AvatarFallback>OM</AvatarFallback>
+                                        <AvatarImage src={user?.photoURL || "https://placehold.co/80x80.png"} data-ai-hint="woman avatar" />
+                                        <AvatarFallback>{firstName[0]}{lastName[0]}</AvatarFallback>
                                     </Avatar>
                                     <Button variant="outline">Change Photo</Button>
                                 </div>
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     <div className="space-y-2">
                                         <Label htmlFor="firstname">First Name</Label>
-                                        <Input id="firstname" defaultValue="Olivia" />
+                                        <Input id="firstname" value={firstName} onChange={e => setFirstName(e.target.value)} />
                                     </div>
                                     <div className="space-y-2">
                                         <Label htmlFor="lastname">Last Name</Label>
-                                        <Input id="lastname" defaultValue="Martin" />
+                                        <Input id="lastname" value={lastName} onChange={e => setLastName(e.target.value)} />
                                     </div>
                                 </div>
                                 <div className="space-y-2">
                                     <Label htmlFor="email">Email</Label>
-                                    <Input id="email" type="email" defaultValue="olivia.martin@email.com" />
+                                    <Input id="email" type="email" value={email} disabled />
                                 </div>
                             </CardContent>
                             <CardFooter className="border-t px-6 py-4">
                                 <div className="flex justify-end w-full">
-                                    <Button onClick={handleSaveChanges}>Save Changes</Button>
+                                    <Button onClick={handleSaveChanges} disabled={isSaving}>
+                                        {isSaving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                                        Save Changes
+                                    </Button>
                                 </div>
                             </CardFooter>
                         </Card>
@@ -160,7 +187,7 @@ export default function SettingsPage() {
                             </CardContent>
                             <CardFooter className="border-t px-6 py-4">
                                 <div className="flex justify-end w-full">
-                                    <Button onClick={handleSaveChanges}>Save Changes</Button>
+                                    <Button onClick={() => toast({ title: "Settings Saved" })}>Save Changes</Button>
                                 </div>
                             </CardFooter>
                         </Card>
@@ -187,7 +214,7 @@ export default function SettingsPage() {
                                         <Input id="confirm-password" type="password" />
                                     </div>
                                     <div className="flex justify-end items-end w-full col-span-full">
-                                        <Button onClick={() => { }}>Save Changes</Button>
+                                        <Button onClick={() => toast({ title: "Password Changed (Simulated)" })}>Save Changes</Button>
                                     </div>
                                 </div>
                                 <Separator />
@@ -226,11 +253,6 @@ export default function SettingsPage() {
                                     </Table>
                                 </div>
                             </CardContent>
-                            <CardFooter className="border-t px-6 py-4">
-                                <div className="flex justify-end w-full">
-                                    <Button onClick={handleSaveChanges}>Save Changes</Button>
-                                </div>
-                            </CardFooter>
                         </Card>
                     </TabsContent>
                     <TabsContent value="billing">

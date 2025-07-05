@@ -1,37 +1,62 @@
 'use client';
-
-import { Button } from "@/components/ui/button";
+import { useEffect, useState, useCallback } from 'react';
 import { CreditCardDisplay } from "@/components/credit-card-display";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { AddCardDialog } from "@/components/dialogs/add-card-dialog";
-
-const cards = [
-    { id: 'card-1', brand: 'visa', number: '**** **** **** 1234', holder: 'Olivia Martin', expiry: '08/28', status: 'Active', type: 'Physical' },
-    { id: 'card-2', brand: 'mastercard', number: '**** **** **** 5678', holder: 'Olivia Martin', expiry: '11/26', status: 'Active', type: 'Virtual' },
-    { id: 'card-3', brand: 'visa', number: '**** **** **** 9012', holder: 'Olivia Martin', expiry: '04/25', status: 'Inactive', type: 'Physical' },
-] as const;
-
-const cardTransactions = [
-  { id: 'txn_c1', description: 'Amazon Purchase', date: '2024-07-25', amount: -78.50 },
-  { id: 'txn_c2', description: 'Netflix Subscription', date: '2024-07-24', amount: -15.99 },
-  { id: 'txn_c3', description: 'Starbucks', date: '2024-07-23', amount: -5.75 },
-  { id: 'txn_c4', description: 'Gas Station', date: '2024-07-22', amount: -55.20 },
-  { id: 'txn_c5', description: 'Apple Store', date: '2024-07-21', amount: -999.00 },
-];
-
+import { useAuth } from '@/components/auth-provider';
+import { getCards, getCardTransactions, type CardData, type CardTransaction } from '@/lib/data';
+import { Skeleton } from '@/components/ui/skeleton';
 
 export default function CardsPage() {
+    const { user } = useAuth();
+    const [cards, setCards] = useState<CardData[]>([]);
+    const [transactions, setTransactions] = useState<CardTransaction[]>([]);
+    const [loading, setLoading] = useState(true);
+
+    const fetchData = useCallback(async () => {
+        if(user?.uid) {
+            setLoading(true);
+            const [cardsData, transactionsData] = await Promise.all([
+                getCards(user.uid),
+                getCardTransactions(user.uid)
+            ]);
+            setCards(cardsData);
+            setTransactions(transactionsData);
+            setLoading(false);
+        }
+    }, [user]);
+
+    useEffect(() => {
+        fetchData();
+    }, [fetchData]);
+
+    if(loading) {
+        return (
+            <div className="space-y-6">
+                <div className="flex justify-between items-center">
+                    <Skeleton className="h-10 w-48" />
+                    <Skeleton className="h-10 w-36" />
+                </div>
+                <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                    <Skeleton className="h-64 w-full" />
+                    <Skeleton className="h-64 w-full" />
+                </div>
+                <Skeleton className="h-96 w-full" />
+            </div>
+        )
+    }
+
     return (
         <div className="space-y-6">
             <div className="flex justify-between items-center">
                 <h1 className="text-3xl font-bold tracking-tight">My Cards</h1>
-                <AddCardDialog />
+                <AddCardDialog onSuccess={fetchData} />
             </div>
             
             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
                 {cards.map(card => (
-                    <CreditCardDisplay key={card.id} {...card} />
+                    <CreditCardDisplay key={card.id} {...card} onDeleted={fetchData} />
                 ))}
             </div>
 
@@ -50,7 +75,7 @@ export default function CardsPage() {
                             </TableRow>
                         </TableHeader>
                         <TableBody>
-                            {cardTransactions.map((tx) => (
+                            {transactions.map((tx) => (
                                 <TableRow key={tx.id}>
                                     <TableCell className="font-medium">{tx.description}</TableCell>
                                     <TableCell>{new Date(tx.date).toLocaleDateString('en-US', { month: 'long', day: 'numeric' })}</TableCell>

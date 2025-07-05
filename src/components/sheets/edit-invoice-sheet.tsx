@@ -1,5 +1,4 @@
 'use client';
-
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -8,16 +7,22 @@ import { Sheet, SheetContent, SheetDescription, SheetFooter, SheetHeader, SheetT
 import { useToast } from "@/hooks/use-toast";
 import { useEffect, useState } from "react";
 import { DatePicker } from "../date-picker";
+import { useAuth } from "../auth-provider";
+import { updateDocument, type Invoice } from "@/lib/data";
+import { Loader2 } from "lucide-react";
 
 interface EditInvoiceSheetProps {
     open: boolean;
     onOpenChange: (open: boolean) => void;
-    invoice: { id: string; customer: string; invoiceNumber: string; date: string; dueDate: string; amount: number; status: string; } | null;
+    invoice: Invoice | null;
+    onSuccess: () => void;
 }
 
-export function EditInvoiceSheet({ open, onOpenChange, invoice }: EditInvoiceSheetProps) {
+export function EditInvoiceSheet({ open, onOpenChange, invoice, onSuccess }: EditInvoiceSheetProps) {
+    const { user } = useAuth();
     const [customer, setCustomer] = useState('');
     const [status, setStatus] = useState('');
+    const [loading, setLoading] = useState(false);
     const { toast } = useToast();
 
     useEffect(() => {
@@ -27,12 +32,22 @@ export function EditInvoiceSheet({ open, onOpenChange, invoice }: EditInvoiceShe
         }
     }, [invoice]);
 
-    const handleSaveChanges = () => {
-        toast({
-            title: "Invoice Updated",
-            description: "The invoice details have been saved.",
-        });
-        onOpenChange(false);
+    const handleSaveChanges = async () => {
+        if (!invoice || !user?.uid) return;
+        setLoading(true);
+        try {
+            await updateDocument(user.uid, 'invoices', invoice.id!, { customer, status });
+            toast({
+                title: "Invoice Updated",
+                description: "The invoice details have been saved.",
+            });
+            onSuccess();
+            onOpenChange(false);
+        } catch (error) {
+             toast({ title: "Error", description: "Failed to update invoice.", variant: "destructive"});
+        } finally {
+            setLoading(false);
+        }
     }
 
     if (!invoice) return null;
@@ -68,17 +83,20 @@ export function EditInvoiceSheet({ open, onOpenChange, invoice }: EditInvoiceShe
                                 <SelectValue placeholder="Select status" />
                             </SelectTrigger>
                             <SelectContent>
-                                <SelectItem value="paid">Paid</SelectItem>
-                                <SelectItem value="sent">Sent</SelectItem>
-                                <SelectItem value="overdue">Overdue</SelectItem>
-                                <SelectItem value="draft">Draft</SelectItem>
+                                <SelectItem value="Paid">Paid</SelectItem>
+                                <SelectItem value="Sent">Sent</SelectItem>
+                                <SelectItem value="Overdue">Overdue</SelectItem>
+                                <SelectItem value="Draft">Draft</SelectItem>
                             </SelectContent>
                         </Select>
                     </div>
                 </div>
                 <SheetFooter>
                     <Button variant="outline" onClick={() => onOpenChange(false)}>Cancel</Button>
-                    <Button type="submit" onClick={handleSaveChanges}>Save Changes</Button>
+                    <Button type="submit" onClick={handleSaveChanges} disabled={loading}>
+                        {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                        Save Changes
+                    </Button>
                 </SheetFooter>
             </SheetContent>
         </Sheet>

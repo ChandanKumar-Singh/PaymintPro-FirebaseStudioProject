@@ -6,16 +6,23 @@ import { Label } from "@/components/ui/label";
 import { Sheet, SheetContent, SheetDescription, SheetFooter, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { useToast } from "@/hooks/use-toast";
 import { useEffect, useState } from "react";
+import { useAuth } from "@/components/auth-provider";
+import { updateDocument, type Budget } from "@/lib/data";
+import { Loader2 } from "lucide-react";
+
 
 interface EditBudgetSheetProps {
     open: boolean;
     onOpenChange: (open: boolean) => void;
-    budget: { id: string, name: string; spent: number; total: number; } | null;
+    budget: Budget | null;
+    onSuccess: () => void;
 }
 
-export function EditBudgetSheet({ open, onOpenChange, budget }: EditBudgetSheetProps) {
+export function EditBudgetSheet({ open, onOpenChange, budget, onSuccess }: EditBudgetSheetProps) {
+    const { user } = useAuth();
     const [name, setName] = useState('');
     const [total, setTotal] = useState(0);
+    const [loading, setLoading] = useState(false);
     const { toast } = useToast();
 
     useEffect(() => {
@@ -25,12 +32,22 @@ export function EditBudgetSheet({ open, onOpenChange, budget }: EditBudgetSheetP
         }
     }, [budget]);
 
-    const handleSaveChanges = () => {
-        toast({
-            title: "Budget Updated",
-            description: "Your budget has been successfully updated.",
-        });
-        onOpenChange(false);
+    const handleSaveChanges = async () => {
+        if (!budget || !user?.uid) return;
+        setLoading(true);
+        try {
+            await updateDocument(user.uid, 'budgets', budget.id!, { name, total });
+            toast({
+                title: "Budget Updated",
+                description: "Your budget has been successfully updated.",
+            });
+            onSuccess();
+            onOpenChange(false);
+        } catch (error) {
+             toast({ title: "Error", description: "Failed to update budget.", variant: 'destructive' });
+        } finally {
+            setLoading(false);
+        }
     }
 
     if (!budget) return null;
@@ -56,7 +73,10 @@ export function EditBudgetSheet({ open, onOpenChange, budget }: EditBudgetSheetP
                 </div>
                 <SheetFooter>
                     <Button variant="outline" onClick={() => onOpenChange(false)}>Cancel</Button>
-                    <Button type="submit" onClick={handleSaveChanges}>Save Changes</Button>
+                    <Button type="submit" onClick={handleSaveChanges} disabled={loading}>
+                        {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                        Save Changes
+                    </Button>
                 </SheetFooter>
             </SheetContent>
         </Sheet>
