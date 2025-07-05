@@ -7,31 +7,49 @@ import { Sheet, SheetContent, SheetDescription, SheetFooter, SheetHeader, SheetT
 import { useToast } from "@/hooks/use-toast";
 import { useEffect, useState } from "react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
+import { useAuth } from "../auth-provider";
+import { updateDocument, type Account } from "@/lib/data";
+import { Loader2 } from "lucide-react";
+
 
 interface EditAccountSheetProps {
     open: boolean;
     onOpenChange: (open: boolean) => void;
-    account: { id: string; name: string; bank: string; accountNumber: string; balance: number; type: string; } | null;
+    account: Account | null;
+    onSuccess: () => void;
 }
 
-export function EditAccountSheet({ open, onOpenChange, account }: EditAccountSheetProps) {
+export function EditAccountSheet({ open, onOpenChange, account, onSuccess }: EditAccountSheetProps) {
+    const { user } = useAuth();
     const [name, setName] = useState('');
-    const [bank, setBank] = useState('');
+    const [type, setType] = useState('');
+    const [loading, setLoading] = useState(false);
     const { toast } = useToast();
 
     useEffect(() => {
         if (account) {
             setName(account.name);
-            setBank(account.bank);
+            setType(account.type);
         }
     }, [account]);
 
-    const handleSaveChanges = () => {
-        toast({
-            title: "Account Updated",
-            description: "Your account details have been saved.",
-        });
-        onOpenChange(false);
+    const handleSaveChanges = async () => {
+        if (!account || !user?.uid) return;
+        setLoading(true);
+
+        try {
+            await updateDocument(user.uid, 'accounts', account.id!, { name, type });
+            toast({
+                title: "Account Updated",
+                description: "Your account details have been saved.",
+            });
+            onSuccess();
+            onOpenChange(false);
+        } catch (error) {
+            toast({ title: "Error", description: "Failed to update account.", variant: "destructive" });
+        } finally {
+            setLoading(false);
+        }
     }
 
     if (!account) return null;
@@ -52,25 +70,28 @@ export function EditAccountSheet({ open, onOpenChange, account }: EditAccountShe
                     </div>
                      <div className="space-y-2">
                         <Label htmlFor="bank-name">Bank</Label>
-                        <Input id="bank-name" value={bank} onChange={(e) => setBank(e.target.value)} disabled/>
+                        <Input id="bank-name" value={account.bank} disabled/>
                     </div>
                     <div className="space-y-2">
                         <Label htmlFor="account-type">Account Type</Label>
-                        <Select defaultValue={account.type.toLowerCase()}>
+                        <Select value={type} onValueChange={(value) => setType(value)}>
                             <SelectTrigger id="account-type">
                                 <SelectValue placeholder="Select account type" />
                             </SelectTrigger>
                             <SelectContent>
-                                <SelectItem value="checking">Checking</SelectItem>
-                                <SelectItem value="savings">Savings</SelectItem>
-                                <SelectItem value="investment">Investment</SelectItem>
+                                <SelectItem value="Checking">Checking</SelectItem>
+                                <SelectItem value="Savings">Savings</SelectItem>
+                                <SelectItem value="Investment">Investment</SelectItem>
                             </SelectContent>
                         </Select>
                     </div>
                 </div>
                 <SheetFooter>
                     <Button variant="outline" onClick={() => onOpenChange(false)}>Cancel</Button>
-                    <Button type="submit" onClick={handleSaveChanges}>Save Changes</Button>
+                    <Button type="submit" onClick={handleSaveChanges} disabled={loading}>
+                        {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                        Save Changes
+                    </Button>
                 </SheetFooter>
             </SheetContent>
         </Sheet>

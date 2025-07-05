@@ -1,5 +1,5 @@
 'use client';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { getAccounts, getRecentAccountTransactions, type Account, type AccountTransaction } from '@/lib/data';
 import { AccountsClient } from '@/components/accounts-client';
 import { useAuth } from '@/components/auth-provider';
@@ -11,19 +11,27 @@ export default function AccountsPage() {
   const [transactions, setTransactions] = useState<AccountTransaction[]>([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    if (user?.uid) {
-      setLoading(true);
-      Promise.all([
-        getAccounts(user.uid),
-        getRecentAccountTransactions(user.uid)
-      ]).then(([accountsData, transactionsData]) => {
-        setAccounts(accountsData);
-        setTransactions(transactionsData);
-        setLoading(false);
-      }).catch(console.error);
-    }
+  const fetchData = useCallback(async () => {
+      if (user?.uid) {
+        setLoading(true);
+        try {
+            const [accountsData, transactionsData] = await Promise.all([
+                getAccounts(user.uid),
+                getRecentAccountTransactions(user.uid)
+            ]);
+            setAccounts(accountsData);
+            setTransactions(transactionsData);
+        } catch (error) {
+            console.error("Failed to fetch account data:", error);
+        } finally {
+            setLoading(false);
+        }
+      }
   }, [user]);
+
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]);
 
   if(loading) {
     return (
@@ -44,6 +52,6 @@ export default function AccountsPage() {
   }
 
   return (
-    <AccountsClient initialAccounts={accounts} initialTransactions={transactions} />
+    <AccountsClient accounts={accounts} transactions={transactions} onDataRefresh={fetchData} />
   );
 }

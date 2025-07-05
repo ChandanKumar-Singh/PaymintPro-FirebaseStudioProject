@@ -10,20 +10,21 @@ import { AddAccountDialog } from '@/components/dialogs/add-account-dialog';
 import { ConfirmDialog } from '@/components/dialogs/confirm-dialog';
 import { useToast } from '@/hooks/use-toast';
 import { EditAccountSheet } from '@/components/sheets/edit-account-sheet';
-import { type Account, type AccountTransaction } from '@/lib/data';
+import { deleteDocument, type Account, type AccountTransaction } from '@/lib/data';
+import { useAuth } from './auth-provider';
 
 const getStatusBadge = (status: string) => {
     return <Badge variant="default" className="bg-green-100 text-green-800 border-green-200 hover:bg-green-100">Completed</Badge>;
 };
 
 interface AccountsClientProps {
-    initialAccounts: Account[];
-    initialTransactions: AccountTransaction[];
+    accounts: Account[];
+    transactions: AccountTransaction[];
+    onDataRefresh: () => void;
 }
 
-export function AccountsClient({ initialAccounts, initialTransactions }: AccountsClientProps) {
-  const [accounts, setAccounts] = useState(initialAccounts);
-  const [transactions, setTransactions] = useState(initialTransactions);
+export function AccountsClient({ accounts, transactions, onDataRefresh }: AccountsClientProps) {
+  const { user } = useAuth();
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [editSheetOpen, setEditSheetOpen] = useState(false);
   const [selectedAccount, setSelectedAccount] = useState<Account | null>(null);
@@ -46,15 +47,25 @@ export function AccountsClient({ initialAccounts, initialTransactions }: Account
     });
   }
 
-  const handleRemoveConfirm = () => {
-    if (!selectedAccount) return;
-    setAccounts(accounts.filter(acc => acc.id !== selectedAccount.id));
-    toast({
-        title: "Account Removed",
-        description: "The account has been successfully removed.",
-    });
-    setConfirmOpen(false);
-    setSelectedAccount(null);
+  const handleRemoveConfirm = async () => {
+    if (!selectedAccount || !user?.uid) return;
+    try {
+        await deleteDocument(user.uid, 'accounts', selectedAccount.id!);
+        toast({
+            title: "Account Removed",
+            description: "The account has been successfully removed.",
+        });
+        onDataRefresh();
+    } catch (error) {
+        toast({
+            title: "Error",
+            description: "Failed to remove account.",
+            variant: 'destructive',
+        });
+    } finally {
+        setConfirmOpen(false);
+        setSelectedAccount(null);
+    }
   }
 
   return (
@@ -70,10 +81,11 @@ export function AccountsClient({ initialAccounts, initialTransactions }: Account
         open={editSheetOpen}
         onOpenChange={setEditSheetOpen}
         account={selectedAccount}
+        onSuccess={onDataRefresh}
       />
       <div className="flex justify-between items-center">
         <h1 className="text-3xl font-bold tracking-tight">Accounts</h1>
-        <AddAccountDialog />
+        <AddAccountDialog onSuccess={onDataRefresh} />
       </div>
 
       <div className="space-y-4">
