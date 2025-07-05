@@ -7,6 +7,8 @@ import { AddCardDialog } from "@/components/dialogs/add-card-dialog";
 import { useAuth } from '@/components/auth-provider';
 import { getCards, getCardTransactions, type CardData, type CardTransaction } from '@/lib/data';
 import { Skeleton } from '@/components/ui/skeleton';
+import { EmptyState } from '@/components/empty-state';
+import { CreditCard } from 'lucide-react';
 
 export default function CardsPage() {
     const { user } = useAuth();
@@ -54,40 +56,51 @@ export default function CardsPage() {
                 <AddCardDialog onSuccess={fetchData} />
             </div>
             
-            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-                {cards.map(card => (
-                    <CreditCardDisplay key={card.id} {...card} onDeleted={fetchData} />
-                ))}
-            </div>
+            {cards.length === 0 ? (
+                 <EmptyState
+                    icon={CreditCard}
+                    title="No cards added"
+                    description="Add your credit or debit card to see it here."
+                    actionButton={<AddCardDialog onSuccess={fetchData} />}
+                />
+            ) : (
+                <>
+                <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                    {cards.map(card => (
+                        <CreditCardDisplay key={card.id} {...card} onDeleted={fetchData} />
+                    ))}
+                </div>
 
-            <Card>
-                <CardHeader>
-                    <CardTitle>Card Transactions</CardTitle>
-                    <CardDescription>Recent transactions across all your cards.</CardDescription>
-                </CardHeader>
-                <CardContent>
-                    <Table>
-                        <TableHeader>
-                            <TableRow>
-                                <TableHead>Description</TableHead>
-                                <TableHead>Date</TableHead>
-                                <TableHead className="text-right">Amount</TableHead>
-                            </TableRow>
-                        </TableHeader>
-                        <TableBody>
-                            {transactions.map((tx) => (
-                                <TableRow key={tx.id}>
-                                    <TableCell className="font-medium">{tx.description}</TableCell>
-                                    <TableCell>{new Date(tx.date).toLocaleDateString('en-US', { month: 'long', day: 'numeric' })}</TableCell>
-                                    <TableCell className="text-right font-medium">
-                                        {tx.amount.toLocaleString('en-US', { style: 'currency', currency: 'USD' })}
-                                    </TableCell>
+                <Card>
+                    <CardHeader>
+                        <CardTitle>Card Transactions</CardTitle>
+                        <CardDescription>Recent transactions across all your cards.</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                        <Table>
+                            <TableHeader>
+                                <TableRow>
+                                    <TableHead>Description</TableHead>
+                                    <TableHead>Date</TableHead>
+                                    <TableHead className="text-right">Amount</TableHead>
                                 </TableRow>
-                            ))}
-                        </TableBody>
-                    </Table>
-                </CardContent>
-            </Card>
+                            </TableHeader>
+                            <TableBody>
+                                {transactions.map((tx) => (
+                                    <TableRow key={tx.id}>
+                                        <TableCell className="font-medium">{tx.description}</TableCell>
+                                        <TableCell>{new Date(tx.date).toLocaleDateString('en-US', { month: 'long', day: 'numeric' })}</TableCell>
+                                        <TableCell className="text-right font-medium">
+                                            {tx.amount.toLocaleString('en-US', { style: 'currency', currency: 'USD' })}
+                                        </TableCell>
+                                    </TableRow>
+                                ))}
+                            </TableBody>
+                        </Table>
+                    </CardContent>
+                </Card>
+                </>
+            )}
         </div>
     );
 }

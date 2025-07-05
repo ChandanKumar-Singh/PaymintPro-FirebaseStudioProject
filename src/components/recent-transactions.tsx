@@ -8,10 +8,10 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import Link from 'next/link';
 import { Button } from './ui/button';
-import { type Sale } from '@/lib/data';
+import { type Transaction } from '@/lib/data';
 
 interface RecentTransactionsProps {
-  sales: Sale[];
+  sales: Transaction[];
   totalSalesThisMonth: number;
 }
 
@@ -32,15 +32,15 @@ export function RecentTransactions({ sales, totalSalesThisMonth }: RecentTransac
       <CardContent>
         <div className="space-y-6">
           {sales.map((sale) => (
-            <div key={sale.email} className="flex items-center gap-4">
+            <div key={sale.id} className="flex items-center gap-4">
               <Avatar className="h-9 w-9">
-                <AvatarImage src={sale.avatar} alt={sale.name} data-ai-hint={sale.dataAiHint} />
+                <AvatarImage src={sale.avatar} alt={sale.customer} data-ai-hint={sale.dataAiHint} />
                 <AvatarFallback>
-                  {sale.name.split(' ').map((n) => n[0]).join('')}
+                  {sale.customer.split(' ').map((n) => n[0]).join('')}
                 </AvatarFallback>
               </Avatar>
               <div className="flex-1">
-                <p className="text-sm font-medium leading-none">{sale.name}</p>
+                <p className="text-sm font-medium leading-none">{sale.customer}</p>
                 <p className="text-sm text-muted-foreground">{sale.email}</p>
               </div>
               <div className="font-medium">

@@ -3,8 +3,10 @@
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { useState } from "react";
-import { signInWithEmailAndPassword } from "firebase/auth";
-import { auth } from "@/lib/firebase";
+import { signInWithEmailAndPassword, GoogleAuthProvider, signInWithPopup } from "firebase/auth";
+import { auth, db } from "@/lib/firebase";
+import { doc, getDoc, setDoc } from "firebase/firestore";
+import { seedDatabase } from "@/lib/seed";
 
 import { Button } from "@/components/ui/button"
 import {
@@ -26,6 +28,7 @@ export default function LoginPage() {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [isLoading, setIsLoading] = useState(false);
+    const [isGoogleLoading, setIsGoogleLoading] = useState(false);
 
     const handleLogin = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -44,6 +47,7 @@ export default function LoginPage() {
                 switch (error.code) {
                     case 'auth/user-not-found':
                     case 'auth/wrong-password':
+                    case 'auth/invalid-credential':
                         errorMessage = "Invalid email or password.";
                         break;
                     case 'auth/invalid-email':
@@ -61,6 +65,49 @@ export default function LoginPage() {
             });
         } finally {
             setIsLoading(false);
+        }
+    }
+
+    const handleGoogleLogin = async () => {
+        setIsGoogleLoading(true);
+        try {
+            const provider = new GoogleAuthProvider();
+            const result = await signInWithPopup(auth, provider);
+            const user = result.user;
+
+            // Check if user document already exists
+            const userDocRef = doc(db, "users", user.uid);
+            const userDoc = await getDoc(userDocRef);
+
+            if (!userDoc.exists()) {
+                // New user via Google: create user doc and seed database
+                 await setDoc(userDocRef, {
+                    uid: user.uid,
+                    email: user.email,
+                    displayName: user.displayName,
+                    photoURL: user.photoURL,
+                    createdAt: new Date().toISOString(),
+                });
+                await seedDatabase(user.uid);
+                toast({
+                    title: "Welcome! Sample Data Added",
+                    description: "Your account has been created and populated with sample data.",
+                });
+            } else {
+                 toast({
+                    title: "Login Successful",
+                    description: "Welcome back!",
+                });
+            }
+             // The AuthProvider will handle the redirect
+        } catch (error: any) {
+             toast({
+                title: "Google Login Failed",
+                description: "Could not log in with Google. Please try again.",
+                variant: "destructive",
+            });
+        } finally {
+            setIsGoogleLoading(false);
         }
     }
 
@@ -83,7 +130,7 @@ export default function LoginPage() {
                         required
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
-                        disabled={isLoading}
+                        disabled={isLoading || isGoogleLoading}
                     />
                 </div>
                 <div className="grid gap-2">
@@ -99,18 +146,19 @@ export default function LoginPage() {
                     <Input id="password" type="password" required 
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
-                        disabled={isLoading}
+                        disabled={isLoading || isGoogleLoading}
                     />
                 </div>
-                <Button type="submit" className="w-full" disabled={isLoading}>
+                <Button type="submit" className="w-full" disabled={isLoading || isGoogleLoading}>
                     {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                     Login
                 </Button>
             </form>
             <Separator className="my-6" />
              <div className="grid gap-4">
-                <Button variant="outline" className="w-full" disabled={isLoading}>
-                    Login with Google
+                <Button variant="outline" className="w-full" onClick={handleGoogleLogin} disabled={isLoading || isGoogleLoading}>
+                    {isGoogleLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                    {isGoogleLoading ? 'Redirecting...' : 'Login with Google'}
                 </Button>
                  <div className="mt-4 text-center text-sm">
                     Don&apos;t have an account?{" "}

@@ -1,19 +1,12 @@
 'use client';
 import { collection, writeBatch, doc } from "firebase/firestore";
 import { db } from "./firebase";
-import { type Sale, type Transaction, type Account, type AccountTransaction, type CardData, type CardTransaction, type Payment, type Budget, type Invoice, type PortfolioItem, type WatchlistItem, type MarketNewsItem } from "./data";
+import { type Transaction, type Account, type AccountTransaction, type CardData, type CardTransaction, type Payment, type Budget, type Invoice, type PortfolioItem, type WatchlistItem, type MarketNewsItem } from "./data";
 
 // Sample Data
-const salesData: Omit<Sale, 'id'>[] = [
-  { name: 'Olivia Martin', email: 'olivia.martin@email.com', amount: 1999.0, avatar: 'https://placehold.co/40x40.png', dataAiHint: 'woman avatar' },
-  { name: 'Jackson Lee', email: 'jackson.lee@email.com', amount: 39.0, avatar: 'https://placehold.co/40x40.png', dataAiHint: 'man avatar' },
-  { name: 'Isabella Nguyen', email: 'isabella.nguyen@email.com', amount: 299.0, avatar: 'https://placehold.co/40x40.png', dataAiHint: 'woman avatar' },
-  { name: 'William Kim', email: 'will@email.com', amount: 99.0, avatar: 'https://placehold.co/40x40.png', dataAiHint: 'man avatar' },
-  { name: 'Sofia Davis', email: 'sofia.davis@email.com', amount: 39.0, avatar: 'https://placehold.co/40x40.png', dataAiHint: 'woman avatar' },
-];
 const transactionsData: Omit<Transaction, 'id'>[] = [
-  { customer: "Liam Johnson", email: "liam@example.com", type: "Sale", status: "Success", date: "2023-06-23", amount: 250.00, category: 'Software' },
-  { customer: "Olivia Smith", email: "olivia@example.com", type: "Refund", status: "Success", date: "2023-06-24", amount: -150.00, category: 'Software' },
+  { customer: "Liam Johnson", email: "liam@example.com", type: "Sale", status: "Success", date: "2023-06-23", amount: 250.00, category: 'Software', avatar: 'https://placehold.co/40x40.png', dataAiHint: 'man avatar' },
+  { customer: "Olivia Smith", email: "olivia@example.com", type: "Sale", status: "Success", date: "2023-07-12", amount: 150.00, category: 'Design', avatar: 'https://placehold.co/40x40.png', dataAiHint: 'woman avatar' },
   { customer: "Noah Williams", email: "noah@example.com", type: "Subscription", status: "Success", date: "2023-06-25", amount: 350.00, category: 'SaaS' },
   { customer: "Emma Brown", email: "emma@example.com", type: "Sale", status: "Success", date: "2023-05-12", amount: 450.00, category: 'Consulting' },
   { customer: "James Jones", email: "james@example.com", type: "Sale", status: "Success", date: "2023-05-26", amount: 550.00, category: 'Hardware' },
@@ -22,6 +15,7 @@ const transactionsData: Omit<Transaction, 'id'>[] = [
   { customer: "Staples", email: "orders@staples.com", type: "Expense", status: "Success", date: "2023-05-02", amount: -42.80, category: 'Office Supplies' },
   { customer: "Upwork", email: "payments@upwork.com", type: "Sale", status: "Success", date: "2023-04-22", amount: 1200.00, category: 'Consulting' },
   { customer: "Delta Airlines", email: "noreply@delta.com", type: "Expense", status: "Success", date: "2023-04-10", amount: -450.00, category: 'Travel' },
+  { customer: "Isabella Nguyen", email: 'isabella.nguyen@email.com', type: "Sale", status: "Success", date: '2023-07-28', amount: 299.0, category: 'Software', avatar: 'https://placehold.co/40x40.png', dataAiHint: 'woman avatar' },
 ];
 const accountsData: Omit<Account, 'id'>[] = [
   { name: "Primary Checking", bank: "Capital One", accountNumber: "**** **** **** 1234", balance: 10530.00, type: 'Checking' },
@@ -71,7 +65,6 @@ const addCollectionToBatch = (batch: ReturnType<typeof writeBatch>, userId: stri
 export const seedDatabase = async (userId: string) => {
     const batch = writeBatch(db);
 
-    addCollectionToBatch(batch, userId, 'sales', salesData);
     addCollectionToBatch(batch, userId, 'transactions', transactionsData);
     addCollectionToBatch(batch, userId, 'accounts', accountsData);
     addCollectionToBatch(batch, userId, 'accountTransactions', accountTransactionsData);

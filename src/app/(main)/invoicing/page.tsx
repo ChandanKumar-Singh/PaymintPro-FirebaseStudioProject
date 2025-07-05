@@ -4,7 +4,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { MoreHorizontal, PlusCircle, FileWarning, FileClock, FileCheck } from "lucide-react";
+import { MoreHorizontal, PlusCircle, FileWarning, FileClock, FileCheck, FileText } from "lucide-react";
 import { StatCard } from "@/components/stat-card";
 import Link from "next/link";
 import { useState, useEffect, useCallback, useMemo } from "react";
@@ -15,6 +15,7 @@ import { useAuth } from "@/components/auth-provider";
 import { getInvoices, deleteDocument, type Invoice } from '@/lib/data';
 import { Skeleton } from "@/components/ui/skeleton";
 import { subDays } from "date-fns";
+import { EmptyState } from "@/components/empty-state";
 
 const getStatusBadge = (status: string) => {
   switch (status) {
@@ -154,6 +155,20 @@ export default function InvoicingPage() {
                          <div className="space-y-4">
                             {[...Array(5)].map((_, i) => <Skeleton key={i} className="h-12 w-full" />)}
                         </div>
+                    ) : invoices.length === 0 ? (
+                        <EmptyState 
+                            icon={FileText}
+                            title="No invoices created"
+                            description="Create your first invoice to get started."
+                            actionButton={
+                                <Button asChild>
+                                    <Link href="/invoicing/new">
+                                        <PlusCircle className="mr-2 h-4 w-4" />
+                                        Create Invoice
+                                    </Link>
+                                </Button>
+                            }
+                        />
                     ) : (
                         <Table>
                             <TableHeader>

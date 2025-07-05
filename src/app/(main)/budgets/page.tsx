@@ -3,7 +3,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { Card, CardHeader, CardTitle, CardContent, CardFooter } from '@/components/ui/card';
 import { Progress } from "@/components/ui/progress";
 import { AddBudgetDialog } from '@/components/dialogs/add-budget-dialog';
-import { MoreHorizontal } from 'lucide-react';
+import { MoreHorizontal, Target } from 'lucide-react';
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from '@/components/ui/dropdown-menu';
 import { Button } from '@/components/ui/button';
 import { EditBudgetSheet } from '@/components/sheets/edit-budget-sheet';
@@ -12,6 +12,7 @@ import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/components/auth-provider';
 import { getBudgets, deleteDocument, type Budget } from '@/lib/data';
 import { Skeleton } from '@/components/ui/skeleton';
+import { EmptyState } from '@/components/empty-state';
 
 export default function BudgetsPage() {
     const { user } = useAuth();
@@ -91,6 +92,13 @@ export default function BudgetsPage() {
                 <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
                     {[...Array(3)].map((_, i) => <Skeleton key={i} className="h-48 w-full" />)}
                 </div>
+            ) : budgets.length === 0 ? (
+                 <EmptyState
+                    icon={Target}
+                    title="No budgets created"
+                    description="Get started by creating a new budget to track your spending."
+                    actionButton={<AddBudgetDialog onSuccess={fetchBudgets} />}
+                />
             ) : (
                 <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
                     {budgets.map(budget => {

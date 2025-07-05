@@ -83,46 +83,57 @@ export default function PaymentsPage() {
         setSelectedPayment(null);
     }
 
-    const PaymentsTable = ({ data }: { data: Payment[] }) => (
-        <Table>
-            <TableHeader>
-                <TableRow>
-                    <TableHead>Recipient</TableHead>
-                    <TableHead>Date</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead className="text-right">Amount</TableHead>
-                    <TableHead className="w-[50px]"></TableHead>
-                </TableRow>
-            </TableHeader>
-            <TableBody>
-                {data.map((payment) => (
-                    <TableRow key={payment.id}>
-                        <TableCell className="font-medium">{payment.recipient}</TableCell>
-                        <TableCell>{new Date(payment.date).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}</TableCell>
-                        <TableCell>{getStatusBadge(payment.status)}</TableCell>
-                        <TableCell className="text-right font-medium">
-                            {payment.amount.toLocaleString('en-US', { style: 'currency', currency: 'USD' })}
-                        </TableCell>
-                        <TableCell>
-                            <DropdownMenu>
-                                <DropdownMenuTrigger asChild>
-                                    <Button variant="ghost" className="h-8 w-8 p-0">
-                                        <span className="sr-only">Open menu</span>
-                                        <MoreHorizontal className="h-4 w-4" />
-                                    </Button>
-                                </DropdownMenuTrigger>
-                                <DropdownMenuContent align="end">
-                                    <DropdownMenuItem onClick={handleViewDetails}>View Details</DropdownMenuItem>
-                                    {payment.status === 'Upcoming' && <DropdownMenuItem onClick={() => handleActionClick(payment.id!, 'cancel')}>Cancel Payment</DropdownMenuItem>}
-                                    {payment.status === 'Failed' && <DropdownMenuItem onClick={() => handleActionClick(payment.id!, 'retry')}>Retry Payment</DropdownMenuItem>}
-                                </DropdownMenuContent>
-                            </DropdownMenu>
-                        </TableCell>
+    const PaymentsTable = ({ data }: { data: Payment[] }) => {
+        if (data.length === 0) {
+            return (
+                <div className="flex flex-col items-center justify-center text-center p-8 h-48">
+                    <p className="font-semibold">No payments here</p>
+                    <p className="text-sm text-muted-foreground">There are no payments with this status.</p>
+                </div>
+            )
+        }
+
+        return (
+            <Table>
+                <TableHeader>
+                    <TableRow>
+                        <TableHead>Recipient</TableHead>
+                        <TableHead>Date</TableHead>
+                        <TableHead>Status</TableHead>
+                        <TableHead className="text-right">Amount</TableHead>
+                        <TableHead className="w-[50px]"></TableHead>
                     </TableRow>
-                ))}
-            </TableBody>
-        </Table>
-    );
+                </TableHeader>
+                <TableBody>
+                    {data.map((payment) => (
+                        <TableRow key={payment.id}>
+                            <TableCell className="font-medium">{payment.recipient}</TableCell>
+                            <TableCell>{new Date(payment.date).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}</TableCell>
+                            <TableCell>{getStatusBadge(payment.status)}</TableCell>
+                            <TableCell className="text-right font-medium">
+                                {payment.amount.toLocaleString('en-US', { style: 'currency', currency: 'USD' })}
+                            </TableCell>
+                            <TableCell>
+                                <DropdownMenu>
+                                    <DropdownMenuTrigger asChild>
+                                        <Button variant="ghost" className="h-8 w-8 p-0">
+                                            <span className="sr-only">Open menu</span>
+                                            <MoreHorizontal className="h-4 w-4" />
+                                        </Button>
+                                    </DropdownMenuTrigger>
+                                    <DropdownMenuContent align="end">
+                                        <DropdownMenuItem onClick={handleViewDetails}>View Details</DropdownMenuItem>
+                                        {payment.status === 'Upcoming' && <DropdownMenuItem onClick={() => handleActionClick(payment.id!, 'cancel')}>Cancel Payment</DropdownMenuItem>}
+                                        {payment.status === 'Failed' && <DropdownMenuItem onClick={() => handleActionClick(payment.id!, 'retry')}>Retry Payment</DropdownMenuItem>}
+                                    </DropdownMenuContent>
+                                </DropdownMenu>
+                            </TableCell>
+                        </TableRow>
+                    ))}
+                </TableBody>
+            </Table>
+        );
+    }
 
     const renderTabContent = (status: 'Upcoming' | 'Completed' | 'Failed') => {
         const filteredPayments = payments.filter(p => p.status === status);

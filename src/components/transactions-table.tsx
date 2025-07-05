@@ -82,6 +82,7 @@ export function TransactionsTable({ transactions, onSuccess }: { transactions: T
                 open={editSheetOpen}
                 onOpenChange={setEditSheetOpen}
                 transaction={selectedTransaction}
+                onSuccess={onSuccess}
             />
             <ConfirmDialog 
                 open={confirmDeleteOpen}

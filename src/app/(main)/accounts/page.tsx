@@ -7,12 +7,13 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { Banknote, MoreHorizontal } from "lucide-react";
+import { Banknote, MoreHorizontal, Landmark } from "lucide-react";
 import { AddAccountDialog } from '@/components/dialogs/add-account-dialog';
 import { ConfirmDialog } from '@/components/dialogs/confirm-dialog';
 import { useToast } from '@/hooks/use-toast';
 import { EditAccountSheet } from '@/components/sheets/edit-account-sheet';
 import { getAccounts, getRecentAccountTransactions, deleteDocument, type Account, type AccountTransaction } from '@/lib/data';
+import { EmptyState } from '@/components/empty-state';
 
 const getStatusBadge = (status: string) => {
     return <Badge variant="default" className="bg-green-100 text-green-800 border-green-200 hover:bg-green-100">Completed</Badge>;
@@ -127,78 +128,88 @@ export default function AccountsPage() {
         <AddAccountDialog onSuccess={fetchData} />
       </div>
 
-      <div className="space-y-4">
-        <h2 className="text-xl font-semibold">Connected Accounts</h2>
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {accounts.map((account) => (
-            <Card key={account.id}>
-              <CardHeader>
-                <div className="flex justify-between items-start">
-                  <div className="flex items-center gap-4">
-                    <div className="p-3 bg-muted rounded-lg">
-                      <Banknote className="h-6 w-6 text-muted-foreground" />
+      {accounts.length === 0 ? (
+        <EmptyState
+          icon={Landmark}
+          title="No accounts connected"
+          description="Get started by adding your first bank account to track your finances."
+          actionButton={<AddAccountDialog onSuccess={fetchData} />}
+        />
+      ) : (
+        <>
+          <div className="space-y-4">
+            <h2 className="text-xl font-semibold">Connected Accounts</h2>
+            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+              {accounts.map((account) => (
+                <Card key={account.id}>
+                  <CardHeader>
+                    <div className="flex justify-between items-start">
+                      <div className="flex items-center gap-4">
+                        <div className="p-3 bg-muted rounded-lg">
+                          <Banknote className="h-6 w-6 text-muted-foreground" />
+                        </div>
+                        <div>
+                          <CardTitle className="text-lg">{account.name}</CardTitle>
+                          <CardDescription>{account.bank} - {account.accountNumber}</CardDescription>
+                        </div>
+                      </div>
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button variant="ghost" className="h-8 w-8 p-0">
+                            <span className="sr-only">Open menu</span>
+                            <MoreHorizontal className="h-4 w-4" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                          <DropdownMenuItem onClick={() => handleEditClick(account)}>Edit</DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => handleSetDefault(account)}>Set as Default</DropdownMenuItem>
+                          <DropdownMenuItem className="text-destructive focus:text-destructive" onClick={() => handleRemoveClick(account)}>Remove Account</DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
                     </div>
-                    <div>
-                      <CardTitle className="text-lg">{account.name}</CardTitle>
-                      <CardDescription>{account.bank} - {account.accountNumber}</CardDescription>
-                    </div>
-                  </div>
-                   <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" className="h-8 w-8 p-0">
-                        <span className="sr-only">Open menu</span>
-                        <MoreHorizontal className="h-4 w-4" />
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                      <DropdownMenuItem onClick={() => handleEditClick(account)}>Edit</DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => handleSetDefault(account)}>Set as Default</DropdownMenuItem>
-                      <DropdownMenuItem className="text-destructive focus:text-destructive" onClick={() => handleRemoveClick(account)}>Remove Account</DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                </div>
-              </CardHeader>
-              <CardContent>
-                <p className="text-2xl font-bold">
-                  {account.balance.toLocaleString('en-US', { style: 'currency', currency: 'USD' })}
-                </p>
-                <p className="text-xs text-muted-foreground">Current Balance</p>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-      </div>
-
-      <Card>
-        <CardHeader>
-          <CardTitle>Recent Transactions</CardTitle>
-          <CardDescription>Recent activity on your primary account.</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Description</TableHead>
-                <TableHead>Date</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead className="text-right">Amount</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {transactions.map((transaction) => (
-                <TableRow key={transaction.id}>
-                  <TableCell className="font-medium">{transaction.description}</TableCell>
-                  <TableCell>{new Date(transaction.date).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}</TableCell>
-                  <TableCell>{getStatusBadge(transaction.status)}</TableCell>
-                  <TableCell className={`text-right font-medium ${transaction.amount > 0 ? 'text-green-600' : 'text-foreground'}`}>
-                    {transaction.amount < 0 && '-'}{transaction.amount.toLocaleString('en-US', { style: 'currency', currency: 'USD' }).replace('-', '')}
-                  </TableCell>
-                </TableRow>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-2xl font-bold">
+                      {account.balance.toLocaleString('en-US', { style: 'currency', currency: 'USD' })}
+                    </p>
+                    <p className="text-xs text-muted-foreground">Current Balance</p>
+                  </CardContent>
+                </Card>
               ))}
-            </TableBody>
-          </Table>
-        </CardContent>
-      </Card>
+            </div>
+          </div>
+          <Card>
+            <CardHeader>
+              <CardTitle>Recent Transactions</CardTitle>
+              <CardDescription>Recent activity on your primary account.</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Description</TableHead>
+                    <TableHead>Date</TableHead>
+                    <TableHead>Status</TableHead>
+                    <TableHead className="text-right">Amount</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {transactions.map((transaction) => (
+                    <TableRow key={transaction.id}>
+                      <TableCell className="font-medium">{transaction.description}</TableCell>
+                      <TableCell>{new Date(transaction.date).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}</TableCell>
+                      <TableCell>{getStatusBadge(transaction.status)}</TableCell>
+                      <TableCell className={`text-right font-medium ${transaction.amount > 0 ? 'text-green-600' : 'text-foreground'}`}>
+                        {transaction.amount < 0 && '-'}{transaction.amount.toLocaleString('en-US', { style: 'currency', currency: 'USD' }).replace('-', '')}
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </CardContent>
+          </Card>
+        </>
+      )}
     </div>
   );
 }

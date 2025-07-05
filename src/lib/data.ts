@@ -4,8 +4,7 @@ import { db } from "./firebase";
 import { format, subMonths, startOfMonth, endOfMonth } from 'date-fns';
 
 // Type definitions
-export type Sale = { id?: string; name: string; email: string; amount: number; avatar: string; dataAiHint: string; };
-export type Transaction = { id?: string; customer: string; email: string; type: "Sale" | "Refund" | "Subscription" | "Expense"; status: "Success" | "Processing" | "Declined"; date: string; amount: number; category: string; };
+export type Transaction = { id?: string; customer: string; email: string; type: "Sale" | "Refund" | "Subscription" | "Expense"; status: "Success" | "Processing" | "Declined"; date: string; amount: number; category: string; avatar?: string; dataAiHint?: string; };
 export type Account = { id?: string; name: string; bank: string; accountNumber: string; balance: number; type: 'Checking' | 'Savings' | 'Investment'; };
 export type AccountTransaction = { id?: string; description: string; date: string; amount: number; status: "Completed" | "Pending" | "Failed"; };
 export type CardData = { id?: string; brand: 'visa' | 'mastercard'; number: string; holder: string; expiry: string; status: 'Active' | 'Inactive'; type: 'Physical' | 'Virtual'; };
@@ -49,12 +48,19 @@ export const getDashboardStats = async (userId: string) => {
         return ((current - previous) / previous) * 100;
     }
 
-    return {
+    const stats = {
         totalRevenue: { value: totalRevenue, change: calculateChange(totalRevenue, lastMonthRevenue) },
         subscriptions: { value: subscriptions, change: calculateChange(subscriptions, lastMonthSubscriptions) },
         sales: { value: sales, change: calculateChange(sales, lastMonthSales) },
         activeNow: { value: 573, change: 201 } // Simulated
     };
+
+    const recentSales = transactions
+        .filter(tx => tx.type === 'Sale')
+        .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+        .slice(0, 5);
+    
+    return { stats, recentSales };
 };
 
 export const getOverviewData = async (userId: string) => {
@@ -119,8 +125,6 @@ export const getCashflowData = async (userId: string) => {
     return incomeExpense.map(d => ({ name: d.month, cashflow: d.income - d.expense }));
 }
 
-
-export const getRecentSales = (userId: string) => getCollectionData<Sale>(userId, 'sales');
 export const getTransactions = (userId: string) => getCollectionData<Transaction>(userId, 'transactions');
 export const getAccounts = (userId: string) => getCollectionData<Account>(userId, 'accounts');
 export const getRecentAccountTransactions = (userId: string) => getCollectionData<AccountTransaction>(userId, 'accountTransactions');

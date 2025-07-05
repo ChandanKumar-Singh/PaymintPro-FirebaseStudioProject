@@ -8,7 +8,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { Button } from '@/components/ui/button';
 import { DateRangePicker } from '@/components/date-range-picker';
 import { DollarSign, Users, CreditCard, Activity, ChevronDown } from 'lucide-react';
-import { getDashboardStats, getRecentSales, getCards, getOverviewData, type Sale, type CardData } from '@/lib/data';
+import { getDashboardStats, getCards, getOverviewData, type Transaction, type CardData } from '@/lib/data';
 import { useEffect, useState, useCallback } from 'react';
 import { useAuth } from '@/components/auth-provider';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -18,15 +18,15 @@ type Stats = {
   subscriptions: { value: number; change: number; };
   sales: { value: number; change: number; };
   activeNow: { value: number; change: number; };
-} | null;
+};
 
 type OverviewData = { name: string; total: number }[];
 
 
 export default function DashboardPage() {
   const { user } = useAuth();
-  const [stats, setStats] = useState<Stats>(null);
-  const [recentSales, setRecentSales] = useState<Sale[]>([]);
+  const [stats, setStats] = useState<Stats | null>(null);
+  const [recentSales, setRecentSales] = useState<Transaction[]>([]);
   const [cards, setCards] = useState<CardData[]>([]);
   const [overviewData, setOverviewData] = useState<OverviewData>([]);
   const [loading, setLoading] = useState(true);
@@ -34,14 +34,17 @@ export default function DashboardPage() {
   const fetchData = useCallback(async () => {
     if (user?.uid) {
         setLoading(true);
-        const [statsData, salesData, cardsData, overview] = await Promise.all([
+        const [dashboardData, cardsData, overview] = await Promise.all([
             getDashboardStats(user.uid),
-            getRecentSales(user.uid),
             getCards(user.uid),
             getOverviewData(user.uid)
         ]);
-        setStats(statsData);
-        setRecentSales(salesData);
+
+        if (dashboardData) {
+          setStats(dashboardData.stats);
+          setRecentSales(dashboardData.recentSales);
+        }
+        
         setCards(cardsData);
         setOverviewData(overview);
         setLoading(false);
