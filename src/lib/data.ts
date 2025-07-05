@@ -1,5 +1,5 @@
 'use client';
-import { collection, getDocs, addDoc, doc, deleteDoc, updateDoc, query, orderBy, limit, writeBatch } from "firebase/firestore";
+import { collection, getDocs, addDoc, doc, deleteDoc, updateDoc, writeBatch } from "firebase/firestore";
 import { db } from "./firebase";
 
 // This file now contains functions to interact with Firestore.
@@ -69,13 +69,13 @@ export const getTradingData = async (userId: string) => {
 export const addDocument = async <T>(userId: string, collectionName: string, data: T) => {
     if (!userId) throw new Error("User not authenticated");
     const colRef = collection(db, 'users', userId, collectionName);
-    return await addDoc(colRef, data);
+    return await addDoc(colRef, data as any);
 };
 
 export const updateDocument = async <T>(userId: string, collectionName: string, docId: string, data: Partial<T>) => {
     if (!userId) throw new Error("User not authenticated");
     const docRef = doc(db, 'users', userId, collectionName, docId);
-    return await updateDoc(docRef, data);
+    return await updateDoc(docRef, data as any);
 };
 
 export const deleteDocument = async (userId: string, collectionName: string, docId: string) => {

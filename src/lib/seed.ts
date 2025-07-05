@@ -1,5 +1,5 @@
 'use client';
-import { collection, writeBatch } from "firebase/firestore";
+import { collection, writeBatch, doc } from "firebase/firestore";
 import { db } from "./firebase";
 import { type Sale, type Transaction, type Account, type AccountTransaction, type CardData, type CardTransaction, type Payment, type Budget, type Invoice, type PortfolioItem, type WatchlistItem, type MarketNewsItem } from "./data";
 
@@ -55,9 +55,9 @@ const marketNewsData: Omit<MarketNewsItem, 'id'>[] = [ { source: "Bloomberg", ti
 
 // Function to add a collection to a batch
 const addCollectionToBatch = (batch: ReturnType<typeof writeBatch>, userId: string, collectionName: string, data: any[]) => {
-    const collectionRef = collection(db, 'users', userId, collectionName);
+    const userDocRef = doc(db, 'users', userId);
     data.forEach(item => {
-        const docRef = collectionRef.doc();
+        const docRef = doc(collection(userDocRef, collectionName));
         batch.set(docRef, item);
     });
 };
