@@ -9,13 +9,13 @@
 import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
 
-export const EnhanceReplyInputSchema = z.object({
+const EnhanceReplyInputSchema = z.object({
   conversation: z.string().describe('The last few messages in the support conversation for context.'),
   draft: z.string().describe("The user's drafted reply to be enhanced."),
 });
 export type EnhanceReplyInput = z.infer<typeof EnhanceReplyInputSchema>;
 
-export const EnhanceReplyOutputSchema = z.object({
+const EnhanceReplyOutputSchema = z.object({
   enhancedReply: z.string().describe('The AI-enhanced, polished version of the user\'s reply.'),
 });
 export type EnhanceReplyOutput = z.infer<typeof EnhanceReplyOutputSchema>;

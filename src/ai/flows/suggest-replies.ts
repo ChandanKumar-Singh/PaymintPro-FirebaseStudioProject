@@ -9,12 +9,12 @@
 import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
 
-export const SuggestRepliesInputSchema = z.object({
+const SuggestRepliesInputSchema = z.object({
   lastMessage: z.string().describe("The last message sent by the support agent."),
 });
 export type SuggestRepliesInput = z.infer<typeof SuggestRepliesInputSchema>;
 
-export const SuggestRepliesOutputSchema = z.object({
+const SuggestRepliesOutputSchema = z.object({
   suggestions: z.array(z.string())
     .max(3)
     .describe('An array of up to 3 short, relevant reply suggestions for the user.'),
