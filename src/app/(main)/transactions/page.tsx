@@ -1,5 +1,5 @@
 'use client';
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import {
@@ -21,6 +21,7 @@ export default function TransactionsPage() {
     const { user } = useAuth();
     const [transactions, setTransactions] = useState<Transaction[]>([]);
     const [loading, setLoading] = useState(true);
+    const [statusFilters, setStatusFilters] = useState<string[]>(['Success', 'Processing', 'Declined']);
 
     const fetchData = useCallback(async () => {
       if(user?.uid) {
@@ -34,6 +35,33 @@ export default function TransactionsPage() {
     useEffect(() => {
         fetchData();
     }, [fetchData]);
+
+    const handleStatusFilterChange = (status: string, checked: boolean) => {
+        setStatusFilters(prev => 
+            checked ? [...prev, status] : prev.filter(s => s !== status)
+        );
+    };
+
+    const filteredTransactions = useMemo(() => {
+        return transactions.filter(t => statusFilters.includes(t.status));
+    }, [transactions, statusFilters]);
+
+    const handleDownloadCSV = () => {
+        const headers = ['ID', 'Customer', 'Email', 'Type', 'Status', 'Date', 'Amount', 'Category'];
+        const rows = filteredTransactions.map(tx => 
+            [tx.id, tx.customer, tx.email, tx.type, tx.status, tx.date, tx.amount, tx.category].join(',')
+        );
+        const csvContent = "data:text/csv;charset=utf-8," + [headers.join(','), ...rows].join('\n');
+        const encodedUri = encodeURI(csvContent);
+        const link = document.createElement("a");
+        link.setAttribute("href", encodedUri);
+        link.setAttribute("download", "transactions.csv");
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    };
+
+    const allStatuses = ['Success', 'Processing', 'Declined'];
 
     return (
       <div className="space-y-6">
@@ -52,18 +80,18 @@ export default function TransactionsPage() {
                       <DropdownMenuContent align="end">
                         <DropdownMenuLabel>Filter by status</DropdownMenuLabel>
                         <DropdownMenuSeparator />
-                        <DropdownMenuCheckboxItem checked>
-                          Success
-                        </DropdownMenuCheckboxItem>
-                        <DropdownMenuCheckboxItem>
-                          Processing
-                        </DropdownMenuCheckboxItem>
-                        <DropdownMenuCheckboxItem>
-                          Declined
-                        </DropdownMenuCheckboxItem>
+                        {allStatuses.map(status => (
+                            <DropdownMenuCheckboxItem 
+                                key={status}
+                                checked={statusFilters.includes(status)}
+                                onCheckedChange={(checked) => handleStatusFilterChange(status, !!checked)}
+                            >
+                                {status}
+                            </DropdownMenuCheckboxItem>
+                        ))}
                       </DropdownMenuContent>
                     </DropdownMenu>
-                    <Button variant="outline">
+                    <Button variant="outline" onClick={handleDownloadCSV}>
                         <Download className="mr-2 h-4 w-4" />
                         Download
                     </Button>
@@ -82,7 +110,7 @@ export default function TransactionsPage() {
                 </CardContent>
             </Card>
         ) : (
-             <TransactionsTable transactions={transactions} onSuccess={fetchData} />
+             <TransactionsTable transactions={filteredTransactions} onSuccess={fetchData} />
         )}
       </div>
     );

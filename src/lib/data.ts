@@ -1,5 +1,5 @@
 'use client';
-import { collection, getDocs, addDoc, doc, deleteDoc, updateDoc, writeBatch } from "firebase/firestore";
+import { collection, getDocs, addDoc, doc, deleteDoc, updateDoc, writeBatch, getDoc, serverTimestamp } from "firebase/firestore";
 import { db } from "./firebase";
 import { format, subMonths, startOfMonth, endOfMonth } from 'date-fns';
 
@@ -16,14 +16,35 @@ export type StockDataPoint = { name: string; price: number };
 export type PortfolioItem = { id?: string; symbol: string; name: string; shares: number; value: number; change: number };
 export type WatchlistItem = { id?: string; symbol: string; name: string; price: number; change: number };
 export type MarketNewsItem = { id?: string; source: string; title: string; time: string };
+export type Ticket = { id?: string; subject: string; department: string; priority: 'Low' | 'Medium' | 'High'; status: 'Open' | 'In Progress' | 'Closed'; createdAt: string; updatedAt: string; };
+export type TicketMessage = { id?: string; content: string; createdAt: string; sender: 'user' | 'agent'; agentName?: string; };
+
 
 // Generic function to fetch a collection
-async function getCollectionData<T>(userId: string, collectionName: string): Promise<T[]> {
+async function getCollectionData<T>(userId: string, collectionName: string, subCollectionPath: string[] = []): Promise<T[]> {
     if (!userId) return [];
-    const colRef = collection(db, 'users', userId, collectionName);
+    let colRef;
+    if(subCollectionPath.length > 0) {
+        colRef = collection(db, 'users', userId, collectionName, ...subCollectionPath);
+    } else {
+        colRef = collection(db, 'users', userId, collectionName);
+    }
     const snapshot = await getDocs(colRef);
     return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as T));
 }
+
+// Generic function to fetch a single document
+async function getDocument<T>(userId: string, collectionName: string, docId: string): Promise<T | null> {
+    if (!userId || !docId) return null;
+    const docRef = doc(db, 'users', userId, collectionName, docId);
+    const docSnap = await getDoc(docRef);
+    if (docSnap.exists()) {
+        return { id: docSnap.id, ...docSnap.data() } as T;
+    } else {
+        return null;
+    }
+}
+
 
 // Specific data fetching functions
 export const getDashboardStats = async (userId: string) => {
@@ -145,6 +166,57 @@ export const getTradingData = async (userId: string) => {
         watchlist,
         marketNews,
     }
+};
+
+// Support Ticket functions
+export const getTickets = (userId: string) => getCollectionData<Ticket>(userId, 'tickets');
+export const getTicketById = (userId: string, ticketId: string) => getDocument<Ticket>(userId, 'tickets', ticketId);
+export const getTicketMessages = (userId: string, ticketId: string) => getCollectionData<TicketMessage>(userId, 'tickets', [ticketId, 'messages']);
+
+export const addTicketAndFirstMessage = async (userId: string, ticketData: Omit<Ticket, 'id' | 'createdAt' | 'updatedAt' | 'status'>, firstMessage: string) => {
+    if (!userId) throw new Error("User not authenticated");
+    
+    const batch = writeBatch(db);
+    const now = new Date().toISOString();
+
+    // Create ticket document
+    const ticketRef = doc(collection(db, 'users', userId, 'tickets'));
+    const newTicket: Omit<Ticket, 'id'> = {
+        ...ticketData,
+        status: 'Open',
+        createdAt: now,
+        updatedAt: now,
+    };
+    batch.set(ticketRef, newTicket);
+
+    // Create first message in subcollection
+    const messageRef = doc(collection(ticketRef, 'messages'));
+    const newMessage: Omit<TicketMessage, 'id'> = {
+        content: firstMessage,
+        createdAt: now,
+        sender: 'user',
+    };
+    batch.set(messageRef, newMessage);
+
+    await batch.commit();
+    return ticketRef.id;
+}
+
+export const addMessageToTicket = async (userId: string, ticketId: string, messageData: Omit<TicketMessage, 'id'>) => {
+    if (!userId) throw new Error("User not authenticated");
+
+    const batch = writeBatch(db);
+    const now = new Date().toISOString();
+
+    // Add new message to subcollection
+    const ticketRef = doc(db, 'users', userId, 'tickets', ticketId);
+    const messageRef = doc(collection(ticketRef, 'messages'));
+    batch.set(messageRef, { ...messageData, createdAt: now });
+
+    // Update ticket's 'updatedAt' timestamp
+    batch.update(ticketRef, { updatedAt: now });
+
+    await batch.commit();
 }
 
 

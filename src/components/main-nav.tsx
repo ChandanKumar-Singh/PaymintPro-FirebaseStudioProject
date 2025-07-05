@@ -19,6 +19,7 @@ import {
   CandlestickChart,
   Sparkles,
   Target,
+  LifeBuoy,
 } from 'lucide-react';
 
 const menuItems = [
@@ -34,7 +35,10 @@ const menuItems = [
   { href: '/advisor', label: 'AI Advisor', icon: Sparkles },
 ];
 
-const settingsItem = { href: '/settings', label: 'Settings', icon: Settings };
+const secondaryMenuItems = [
+    { href: '/support', label: 'Support', icon: LifeBuoy },
+    { href: '/settings', label: 'Settings', icon: Settings }
+];
 
 export function MainNav() {
   const pathname = usePathname();
@@ -58,18 +62,20 @@ export function MainNav() {
         ))}
       </SidebarMenu>
       <SidebarMenu>
-        <SidebarMenuItem>
-          <SidebarMenuButton
-            asChild
-            isActive={pathname.startsWith(settingsItem.href)}
-            tooltip={settingsItem.label}
-          >
-            <Link href={settingsItem.href}>
-              <settingsItem.icon />
-              {settingsItem.label}
-            </Link>
-          </SidebarMenuButton>
-        </SidebarMenuItem>
+        {secondaryMenuItems.map((item) => (
+            <SidebarMenuItem key={item.href}>
+                <SidebarMenuButton
+                asChild
+                isActive={pathname.startsWith(item.href)}
+                tooltip={item.label}
+                >
+                <Link href={item.href}>
+                    <item.icon />
+                    {item.label}
+                </Link>
+                </SidebarMenuButton>
+            </SidebarMenuItem>
+        ))}
       </SidebarMenu>
     </div>
   );
