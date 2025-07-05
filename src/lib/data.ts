@@ -192,7 +192,22 @@ export const getTradingData = async (userId: string) => {
 };
 
 // Support Ticket functions
-export const getTickets = (userId: string) => getCollectionData<Ticket>(userId, 'tickets');
+export async function getTickets(userId: string): Promise<Ticket[]> {
+    if (!userId) return [];
+    const colRef = collection(db, 'users', userId, 'tickets');
+    const snapshot = await getDocs(colRef);
+    return snapshot.docs.map(doc => {
+        const data = doc.data();
+        // Convert Firestore Timestamps to ISO strings to prevent "Invalid time value" errors
+        return {
+            id: doc.id,
+            ...data,
+            createdAt: data.createdAt?.toDate ? data.createdAt.toDate().toISOString() : new Date().toISOString(),
+            updatedAt: data.updatedAt?.toDate ? data.updatedAt.toDate().toISOString() : new Date().toISOString(),
+        } as Ticket;
+    });
+}
+
 export const getTicketById = (userId: string, ticketId: string) => getDocument<Ticket>(userId, 'tickets', ticketId);
 
 export async function getPaginatedTicketMessages(userId: string, ticketId: string, pageLimit: number, lastVisible: DocumentSnapshot | null = null) {
