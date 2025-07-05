@@ -14,8 +14,10 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import Image from 'next/image';
+import { type CardData } from '@/lib/data';
+import { useState } from 'react';
 
-function CreditCard({ className, brand }: { className?: string, brand: 'visa' | 'mastercard' }) {
+function CreditCard({ className, brand, number, holder, expiry }: { className?: string } & Omit<CardData, 'id' | 'status' | 'type'>) {
   const gradients = {
     visa: 'from-blue-600 to-blue-400',
     mastercard: 'from-gray-800 to-gray-600',
@@ -44,16 +46,16 @@ function CreditCard({ className, brand }: { className?: string, brand: 'visa' | 
       </div>
       <div className="mt-8">
         <p className="text-xl tracking-widest">
-          **** **** **** 1234
+          {number}
         </p>
         <div className="mt-4 flex justify-between">
           <div>
             <p className="text-xs text-white/80">Card Holder</p>
-            <p className="text-sm">Olivia Martin</p>
+            <p className="text-sm">{holder}</p>
           </div>
           <div>
             <p className="text-xs text-white/80">Expires</p>
-            <p className="text-sm">08/28</p>
+            <p className="text-sm">{expiry}</p>
           </div>
         </div>
       </div>
@@ -62,7 +64,10 @@ function CreditCard({ className, brand }: { className?: string, brand: 'visa' | 
 }
 
 
-export function MyCards() {
+export function MyCards({ cards }: { cards: CardData[] }) {
+  const [selectedCardId, setSelectedCardId] = useState(cards.length > 0 ? cards[0].id : '');
+  const selectedCard = cards.find(c => c.id === selectedCardId);
+  
   return (
     <Card>
       <CardHeader>
@@ -71,19 +76,23 @@ export function MyCards() {
             <CardTitle>My Cards</CardTitle>
             <CardDescription>Manage your cards and settings.</CardDescription>
           </div>
-          <Select defaultValue="card-1">
+          <Select value={selectedCardId} onValueChange={setSelectedCardId}>
             <SelectTrigger className="w-[180px]">
               <SelectValue placeholder="Select card" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="card-1">Visa **** 1234</SelectItem>
-              <SelectItem value="card-2">Mastercard **** 5678</SelectItem>
+              {cards.map(card => (
+                <SelectItem key={card.id} value={card.id}>{card.brand.charAt(0).toUpperCase() + card.brand.slice(1)} **** {card.number.slice(-4)}</SelectItem>
+              ))}
             </SelectContent>
           </Select>
         </div>
       </CardHeader>
       <CardContent>
-        <CreditCard brand="visa" />
+        {selectedCard ? 
+            <CreditCard {...selectedCard} /> 
+            : <p>No card selected.</p>
+        }
       </CardContent>
     </Card>
   );

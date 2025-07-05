@@ -8,7 +8,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { Button } from '@/components/ui/button';
 import { DateRangePicker } from '@/components/date-range-picker';
 import { DollarSign, Users, CreditCard, Activity, ChevronDown } from 'lucide-react';
-import { getDashboardStats } from '@/lib/data';
+import { getDashboardStats, getRecentSales, getCards, Sale, CardData } from '@/lib/data';
 import { useEffect, useState } from 'react';
 
 type Stats = {
@@ -21,9 +21,13 @@ type Stats = {
 
 export default function DashboardPage() {
   const [stats, setStats] = useState<Stats>(null);
+  const [recentSales, setRecentSales] = useState<Sale[]>([]);
+  const [cards, setCards] = useState<CardData[]>([]);
   
   useEffect(() => {
     getDashboardStats().then(data => setStats(data));
+    getRecentSales().then(data => setRecentSales(data));
+    getCards().then(data => setCards(data));
   }, []);
 
   return (
@@ -85,12 +89,12 @@ export default function DashboardPage() {
           <TransactionChart />
         </div>
         <div className="lg:col-span-3">
-          <RecentTransactions />
+          <RecentTransactions sales={recentSales} />
         </div>
       </div>
       
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <MyCards />
+        <MyCards cards={cards} />
         <QuickInvoice />
       </div>
     </div>
