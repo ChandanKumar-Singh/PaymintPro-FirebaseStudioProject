@@ -2,6 +2,9 @@
 
 import Link from "next/link"
 import { useRouter } from "next/navigation"
+import { useState } from "react";
+import { sendPasswordResetEmail } from "firebase/auth";
+import { auth } from "@/lib/firebase";
 
 import { Button } from "@/components/ui/button"
 import {
@@ -14,19 +17,33 @@ import {
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { useToast } from "@/hooks/use-toast";
+import { Loader2 } from "lucide-react";
 
 export default function ForgotPasswordPage() {
     const router = useRouter();
     const { toast } = useToast();
+    const [email, setEmail] = useState('');
+    const [isLoading, setIsLoading] = useState(false);
     
-    const handleReset = (e: React.FormEvent) => {
+    const handleReset = async (e: React.FormEvent) => {
         e.preventDefault();
-        // Mock reset logic
-        toast({
-            title: "Password Reset Email Sent",
-            description: "If an account exists with that email, a reset link has been sent.",
-        });
-        router.push('/login');
+        setIsLoading(true);
+        try {
+            await sendPasswordResetEmail(auth, email);
+            toast({
+                title: "Password Reset Email Sent",
+                description: "If an account exists with that email, a reset link has been sent.",
+            });
+            router.push('/login');
+        } catch (error: any) {
+             toast({
+                title: "Error",
+                description: "Failed to send password reset email. Please try again.",
+                variant: "destructive",
+            });
+        } finally {
+            setIsLoading(false);
+        }
     }
 
   return (
@@ -46,9 +63,13 @@ export default function ForgotPasswordPage() {
                         type="email"
                         placeholder="m@example.com"
                         required
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        disabled={isLoading}
                     />
                 </div>
-                <Button type="submit" className="w-full">
+                <Button type="submit" className="w-full" disabled={isLoading}>
+                    {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                     Send Reset Link
                 </Button>
             </form>
