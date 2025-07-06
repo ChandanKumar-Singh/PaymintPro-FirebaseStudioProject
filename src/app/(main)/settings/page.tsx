@@ -19,8 +19,9 @@ import { seedDatabase } from "@/lib/seed";
 import { useAuth } from "@/components/auth-provider";
 import { useState, useEffect } from "react";
 import { updateProfile } from "firebase/auth";
-import { auth } from "@/lib/firebase";
+import { auth, db } from "@/lib/firebase";
 import { Skeleton } from "@/components/ui/skeleton";
+import { updateDocument } from "@/lib/data";
 
 const billingHistory = [
     { id: 'bill_1', date: '2024-07-01', amount: 20.00, description: 'Pro Plan - Monthly' },
@@ -59,7 +60,9 @@ export default function SettingsPage() {
         setIsSaving(true);
         try {
             const newDisplayName = `${firstName} ${lastName}`.trim();
-            await updateProfile(user, { displayName: newDisplayName });
+            if (auth.currentUser) {
+              await updateProfile(auth.currentUser, { displayName: newDisplayName });
+            }
             // Also update the firestore document
             await updateDocument(user.uid, 'users', user.uid, { displayName: newDisplayName });
             refetchUserProfile();
@@ -260,7 +263,7 @@ export default function SettingsPage() {
                         </Card>
                     </TabsContent>
                     <TabsContent value="billing">
-                        { !userProfile ? (
+                        { !userProfile || !userProfile.subscription ? (
                             <Card><CardContent className="p-6"><Skeleton className="h-96 w-full" /></CardContent></Card>
                         ) : (
                         <Card>
