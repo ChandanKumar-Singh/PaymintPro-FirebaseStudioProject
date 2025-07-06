@@ -11,6 +11,8 @@ import { getColumns } from './columns';
 import { EditTransactionSheet } from '@/components/sheets/edit-transaction-sheet';
 import { ConfirmDialog } from '@/components/dialogs/confirm-dialog';
 import { useToast } from '@/hooks/use-toast';
+import { useSearchParams, useRouter } from 'next/navigation';
+
 
 export default function TransactionsPage() {
     const { user } = useAuth();
@@ -21,6 +23,9 @@ export default function TransactionsPage() {
     const [editSheetOpen, setEditSheetOpen] = useState(false);
     const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
     const [selectedTransaction, setSelectedTransaction] = useState<Transaction | null>(null);
+
+    const searchParams = useSearchParams();
+    const router = useRouter();
 
     const fetchData = useCallback(async () => {
       if(user?.uid) {
@@ -34,6 +39,25 @@ export default function TransactionsPage() {
     useEffect(() => {
         fetchData();
     }, [fetchData]);
+
+    useEffect(() => {
+        const viewId = searchParams.get('view');
+        if (viewId && transactions.length > 0) {
+            const transactionToView = transactions.find(tx => tx.id === viewId);
+            if (transactionToView) {
+                handleEditClick(transactionToView);
+            }
+        }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [searchParams, transactions]);
+
+    const handleSheetOpenChange = (open: boolean) => {
+        setEditSheetOpen(open);
+        if (!open) {
+            setSelectedTransaction(null);
+            router.replace('/transactions', { scroll: false });
+        }
+    }
 
      const handleEditClick = (transaction: Transaction) => {
       setSelectedTransaction(transaction);
@@ -84,7 +108,7 @@ export default function TransactionsPage() {
       <div className="space-y-6">
          <EditTransactionSheet 
             open={editSheetOpen}
-            onOpenChange={setEditSheetOpen}
+            onOpenChange={handleSheetOpenChange}
             transaction={selectedTransaction}
             onSuccess={fetchData}
         />

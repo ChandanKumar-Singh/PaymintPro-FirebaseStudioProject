@@ -17,6 +17,7 @@ import { subDays } from "date-fns";
 import { EmptyState } from "@/components/empty-state";
 import { DataTable } from "@/components/transactions-table";
 import { type ColumnDef } from "@tanstack/react-table";
+import { useSearchParams, useRouter } from "next/navigation";
 
 const getStatusBadge = (status: string) => {
   switch (status) {
@@ -41,6 +42,8 @@ export default function InvoicingPage() {
     const [editSheetOpen, setEditSheetOpen] = useState(false);
     const [selectedInvoice, setSelectedInvoice] = useState<Invoice | null>(null);
     const { toast } = useToast();
+    const searchParams = useSearchParams();
+    const router = useRouter();
 
     const fetchInvoices = useCallback(async () => {
         if(user?.uid) {
@@ -54,6 +57,25 @@ export default function InvoicingPage() {
     useEffect(() => {
         fetchInvoices();
     }, [fetchInvoices]);
+    
+    useEffect(() => {
+        const viewId = searchParams.get('view');
+        if (viewId && invoices.length > 0) {
+            const invoiceToView = invoices.find(inv => inv.id === viewId);
+            if (invoiceToView) {
+                handleEditClick(invoiceToView);
+            }
+        }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [searchParams, invoices]);
+
+    const handleSheetOpenChange = (open: boolean) => {
+        setEditSheetOpen(open);
+        if (!open) {
+            setSelectedInvoice(null);
+            router.replace('/invoicing', { scroll: false });
+        }
+    }
 
     const handleDeleteClick = (invoice: Invoice) => {
         setSelectedInvoice(invoice);
@@ -193,7 +215,7 @@ export default function InvoicingPage() {
             />
             <EditInvoiceSheet
                 open={editSheetOpen}
-                onOpenChange={setEditSheetOpen}
+                onOpenChange={handleSheetOpenChange}
                 invoice={selectedInvoice}
                 onSuccess={fetchInvoices}
             />

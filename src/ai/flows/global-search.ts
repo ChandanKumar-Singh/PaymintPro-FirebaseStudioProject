@@ -55,7 +55,7 @@ export async function globalSearch(input: GlobalSearchInput): Promise<GlobalSear
         id: tx.id!,
         title: `${tx.customer}`,
         description: `Transaction: ${tx.amount.toLocaleString('en-US', { style: 'currency', currency: 'USD' })} on ${new Date(tx.date).toLocaleDateString()}`,
-        url: `/transactions`
+        url: `/transactions?view=${tx.id}`
     }));
 
   // Filter and map invoices
@@ -66,7 +66,7 @@ export async function globalSearch(input: GlobalSearchInput): Promise<GlobalSear
         id: inv.id!,
         title: `Invoice #${inv.invoiceNumber}`,
         description: `To ${inv.customer} for ${inv.amount.toLocaleString('en-US', { style: 'currency', currency: 'USD' })}`,
-        url: `/invoicing`
+        url: `/invoicing?view=${inv.id}`
     }));
 
     // Filter and map tickets
