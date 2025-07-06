@@ -1,4 +1,3 @@
-'use client';
 import { collection, getDocs, addDoc, doc, deleteDoc, updateDoc, writeBatch, getDoc, serverTimestamp, query, orderBy, limit, startAfter, type DocumentSnapshot } from "firebase/firestore";
 import { db } from "./firebase";
 import { format, subMonths, startOfMonth, endOfMonth, subDays, differenceInDays, startOfDay, endOfDay, eachDayOfInterval, eachMonthOfInterval } from 'date-fns';
