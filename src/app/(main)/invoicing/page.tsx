@@ -17,7 +17,7 @@ import { subDays } from "date-fns";
 import { EmptyState } from "@/components/empty-state";
 import { DataTable } from "@/components/transactions-table";
 import { type ColumnDef } from "@tanstack/react-table";
-import { useSearchParams, useRouter } from "next/navigation";
+import { useSearchParams, useRouter, usePathname } from "next/navigation";
 
 const getStatusBadge = (status: string) => {
   switch (status) {
@@ -36,14 +36,17 @@ const getStatusBadge = (status: string) => {
 
 export default function InvoicingPage() {
     const { user } = useAuth();
+    const router = useRouter();
+    const pathname = usePathname();
+    const searchParams = useSearchParams();
+
     const [invoices, setInvoices] = useState<Invoice[]>([]);
     const [loading, setLoading] = useState(true);
     const [confirmOpen, setConfirmOpen] = useState(false);
     const [editSheetOpen, setEditSheetOpen] = useState(false);
     const [selectedInvoice, setSelectedInvoice] = useState<Invoice | null>(null);
     const { toast } = useToast();
-    const searchParams = useSearchParams();
-    const router = useRouter();
+    
 
     const fetchInvoices = useCallback(async () => {
         if(user?.uid) {
@@ -59,22 +62,36 @@ export default function InvoicingPage() {
     }, [fetchInvoices]);
     
     useEffect(() => {
-        const viewId = searchParams.get('view');
-        if (viewId && invoices.length > 0) {
+        const viewId = searchParams.get('id');
+        const action = searchParams.get('action');
+
+        if (action === 'edit-invoice' && viewId && invoices.length > 0) {
             const invoiceToView = invoices.find(inv => inv.id === viewId);
             if (invoiceToView) {
-                handleEditClick(invoiceToView);
+                setSelectedInvoice(invoiceToView);
+                setEditSheetOpen(true);
+            } else {
+                // If invoice not found, clear params
+                handleSheetOpenChange(false);
+            }
+        } else {
+            // If no action, ensure sheet is closed
+            if (editSheetOpen) {
+                setEditSheetOpen(false);
             }
         }
     // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [searchParams, invoices]);
 
     const handleSheetOpenChange = (open: boolean) => {
-        setEditSheetOpen(open);
         if (!open) {
             setSelectedInvoice(null);
-            router.replace('/invoicing', { scroll: false });
+            const params = new URLSearchParams(searchParams.toString());
+            params.delete('action');
+            params.delete('id');
+            router.replace(`${pathname}?${params.toString()}`);
         }
+        setEditSheetOpen(open);
     }
 
     const handleDeleteClick = (invoice: Invoice) => {
@@ -83,8 +100,10 @@ export default function InvoicingPage() {
     }
 
     const handleEditClick = (invoice: Invoice) => {
-        setSelectedInvoice(invoice);
-        setEditSheetOpen(true);
+        const params = new URLSearchParams(searchParams.toString());
+        params.set('action', 'edit-invoice');
+        params.set('id', invoice.id!);
+        router.push(`${pathname}?${params.toString()}`);
     }
     
     const handleDeleteConfirm = async () => {
@@ -202,7 +221,7 @@ export default function InvoicingPage() {
                 );
             },
         },
-    ], [fetchInvoices]);
+    ], [fetchInvoices, router, pathname, searchParams]);
 
     return (
         <div className="space-y-6">

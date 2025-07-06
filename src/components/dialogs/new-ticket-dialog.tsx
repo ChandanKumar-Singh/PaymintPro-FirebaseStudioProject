@@ -1,10 +1,10 @@
 'use client';
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { PlusCircle, Loader2 } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "../auth-provider";
@@ -12,12 +12,13 @@ import { addTicketAndFirstMessage } from "@/lib/data";
 import { Textarea } from "../ui/textarea";
 
 interface NewTicketDialogProps {
+    open: boolean;
+    onOpenChange: (open: boolean) => void;
     onSuccess: () => void;
 }
 
-export function NewTicketDialog({ onSuccess }: NewTicketDialogProps) {
+export function NewTicketDialog({ open, onOpenChange, onSuccess }: NewTicketDialogProps) {
     const { user } = useAuth();
-    const [open, setOpen] = useState(false);
     const [loading, setLoading] = useState(false);
     const { toast } = useToast();
 
@@ -49,7 +50,7 @@ export function NewTicketDialog({ onSuccess }: NewTicketDialogProps) {
                 description: "Your support ticket has been created successfully.",
             });
             onSuccess();
-            setOpen(false);
+            onOpenChange(false);
             // Reset form
             setSubject('');
             setDepartment('');
@@ -63,13 +64,7 @@ export function NewTicketDialog({ onSuccess }: NewTicketDialogProps) {
     }
 
     return (
-        <Dialog open={open} onOpenChange={setOpen}>
-            <DialogTrigger asChild>
-                <Button>
-                    <PlusCircle className="mr-2 h-4 w-4" />
-                    Create New Ticket
-                </Button>
-            </DialogTrigger>
+        <Dialog open={open} onOpenChange={onOpenChange}>
             <DialogContent className="sm:max-w-[480px]">
                 <DialogHeader>
                     <DialogTitle>Create Support Ticket</DialogTitle>
@@ -116,7 +111,7 @@ export function NewTicketDialog({ onSuccess }: NewTicketDialogProps) {
                     </div>
                 </div>
                 <DialogFooter>
-                    <Button variant="outline" onClick={() => setOpen(false)}>Cancel</Button>
+                    <Button variant="outline" onClick={() => onOpenChange(false)}>Cancel</Button>
                     <Button type="submit" onClick={handleCreateTicket} disabled={loading}>
                         {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                         Create Ticket

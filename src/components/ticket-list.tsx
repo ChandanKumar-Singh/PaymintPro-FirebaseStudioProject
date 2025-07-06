@@ -1,12 +1,12 @@
 'use client';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { type Ticket } from "@/lib/data";
 import { cn } from "@/lib/utils";
-import { format, formatDistanceToNow } from 'date-fns';
+import { formatDistanceToNow } from 'date-fns';
+import { PlusCircle } from "lucide-react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
-import { NewTicketDialog } from "./dialogs/new-ticket-dialog";
 
 const getStatusColor = (status: string) => {
     switch (status) {
@@ -19,10 +19,10 @@ const getStatusColor = (status: string) => {
 
 interface TicketListProps {
     tickets: Ticket[];
-    onRefresh: () => void;
+    onNewTicket: () => void;
 }
 
-export function TicketList({ tickets, onRefresh }: TicketListProps) {
+export function TicketList({ tickets, onNewTicket }: TicketListProps) {
     const params = useParams();
     const activeTicketId = params.id as string;
     
@@ -31,7 +31,10 @@ export function TicketList({ tickets, onRefresh }: TicketListProps) {
             <div className="p-4 border-b">
                 <div className="flex justify-between items-center">
                     <h2 className="text-xl font-bold">Inbox</h2>
-                    <NewTicketDialog onSuccess={onRefresh} />
+                    <Button onClick={onNewTicket}>
+                        <PlusCircle className="mr-2 h-4 w-4" />
+                        Create New Ticket
+                    </Button>
                 </div>
             </div>
             <ScrollArea className="flex-1">

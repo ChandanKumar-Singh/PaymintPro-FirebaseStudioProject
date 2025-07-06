@@ -11,21 +11,22 @@ import { getColumns } from './columns';
 import { EditTransactionSheet } from '@/components/sheets/edit-transaction-sheet';
 import { ConfirmDialog } from '@/components/dialogs/confirm-dialog';
 import { useToast } from '@/hooks/use-toast';
-import { useSearchParams, useRouter } from 'next/navigation';
+import { useSearchParams, useRouter, usePathname } from 'next/navigation';
 
 
 export default function TransactionsPage() {
     const { user } = useAuth();
     const { toast } = useToast();
+    const router = useRouter();
+    const pathname = usePathname();
+    const searchParams = useSearchParams();
+
     const [transactions, setTransactions] = useState<Transaction[]>([]);
     const [loading, setLoading] = useState(true);
     
     const [editSheetOpen, setEditSheetOpen] = useState(false);
     const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
     const [selectedTransaction, setSelectedTransaction] = useState<Transaction | null>(null);
-
-    const searchParams = useSearchParams();
-    const router = useRouter();
 
     const fetchData = useCallback(async () => {
       if(user?.uid) {
@@ -41,27 +42,43 @@ export default function TransactionsPage() {
     }, [fetchData]);
 
     useEffect(() => {
-        const viewId = searchParams.get('view');
-        if (viewId && transactions.length > 0) {
+        const viewId = searchParams.get('id');
+        const action = searchParams.get('action');
+
+        if (action === 'edit-transaction' && viewId && transactions.length > 0) {
             const transactionToView = transactions.find(tx => tx.id === viewId);
             if (transactionToView) {
-                handleEditClick(transactionToView);
+                setSelectedTransaction(transactionToView);
+                setEditSheetOpen(true);
+            } else {
+                // If transaction not found, clear params from URL
+                handleSheetOpenChange(false);
+            }
+        } else {
+            // If no action, ensure sheet is closed
+            if (editSheetOpen) {
+                 setEditSheetOpen(false);
             }
         }
     // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [searchParams, transactions]);
 
     const handleSheetOpenChange = (open: boolean) => {
-        setEditSheetOpen(open);
         if (!open) {
             setSelectedTransaction(null);
-            router.replace('/transactions', { scroll: false });
+            const params = new URLSearchParams(searchParams.toString());
+            params.delete('action');
+            params.delete('id');
+            router.replace(`${pathname}?${params.toString()}`);
         }
+        setEditSheetOpen(open);
     }
 
      const handleEditClick = (transaction: Transaction) => {
-      setSelectedTransaction(transaction);
-      setEditSheetOpen(true);
+        const params = new URLSearchParams(searchParams.toString());
+        params.set('action', 'edit-transaction');
+        params.set('id', transaction.id!);
+        router.push(`${pathname}?${params.toString()}`);
     }
 
     const handleDeleteClick = (transaction: Transaction) => {
