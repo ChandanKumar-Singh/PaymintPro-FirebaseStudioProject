@@ -15,6 +15,7 @@ import {
   getSortedRowModel,
   useReactTable,
 } from "@tanstack/react-table"
+
 import {
   Table,
   TableBody,
@@ -48,17 +49,17 @@ import {
   ListFilter,
 } from "lucide-react"
 
-interface TransactionsTableProps<TData, TValue> {
+interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[]
   data: TData[]
   searchKey?: string
 }
 
-export function TransactionsTable<TData, TValue>({
+export function DataTable<TData, TValue>({
   columns,
   data,
   searchKey,
-}: TransactionsTableProps<TData, TValue>) {
+}: DataTableProps<TData, TValue>) {
   const [rowSelection, setRowSelection] = React.useState({})
   const [columnVisibility, setColumnVisibility] =
     React.useState<VisibilityState>({})

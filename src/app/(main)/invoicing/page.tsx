@@ -2,9 +2,8 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { MoreHorizontal, PlusCircle, FileWarning, FileClock, FileCheck, FileText } from "lucide-react";
+import { MoreHorizontal, PlusCircle, FileWarning, FileClock, FileCheck, FileText, ChevronsUpDown } from "lucide-react";
 import { StatCard } from "@/components/stat-card";
 import Link from "next/link";
 import { useState, useEffect, useCallback, useMemo } from "react";
@@ -16,6 +15,8 @@ import { getInvoices, deleteDocument, type Invoice } from '@/lib/data';
 import { Skeleton } from "@/components/ui/skeleton";
 import { subDays } from "date-fns";
 import { EmptyState } from "@/components/empty-state";
+import { DataTable } from "@/components/transactions-table";
+import { type ColumnDef } from "@tanstack/react-table";
 
 const getStatusBadge = (status: string) => {
   switch (status) {
@@ -114,6 +115,73 @@ export default function InvoicingPage() {
 
     }, [invoices]);
 
+    const columns = useMemo<ColumnDef<Invoice>[]>(() => [
+        {
+            accessorKey: "customer",
+            header: ({ column }) => (
+                <Button variant="ghost" onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}>
+                    Customer <ChevronsUpDown className="ml-2 h-4 w-4" />
+                </Button>
+            ),
+            cell: ({ row }) => <div className="pl-4 font-medium">{row.original.customer}</div>,
+        },
+        {
+            accessorKey: "invoiceNumber",
+            header: "Invoice #",
+        },
+        {
+            accessorKey: "date",
+            header: ({ column }) => (
+                <Button variant="ghost" onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}>
+                    Date <ChevronsUpDown className="ml-2 h-4 w-4" />
+                </Button>
+            ),
+            cell: ({ row }) => <div className="pl-4">{new Date(row.original.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</div>,
+        },
+        {
+            accessorKey: "dueDate",
+            header: "Due Date",
+            cell: ({ row }) => new Date(row.original.dueDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
+        },
+        {
+            accessorKey: "status",
+            header: "Status",
+            cell: ({ row }) => getStatusBadge(row.original.status),
+        },
+        {
+            accessorKey: "amount",
+            header: ({ column }) => (
+                <div className="text-right">
+                    <Button variant="ghost" onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}>
+                        Amount <ChevronsUpDown className="ml-2 h-4 w-4" />
+                    </Button>
+                </div>
+            ),
+            cell: ({ row }) => <div className="text-right font-medium pr-4">{row.original.amount.toLocaleString('en-US', { style: 'currency', currency: 'USD' })}</div>,
+        },
+        {
+            id: "actions",
+            cell: ({ row }) => {
+                const invoice = row.original;
+                return (
+                    <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" className="h-8 w-8 p-0">
+                                <span className="sr-only">Open menu</span>
+                                <MoreHorizontal className="h-4 w-4" />
+                            </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                            <DropdownMenuItem onClick={() => handleEditClick(invoice)}>View/Edit</DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => handleSendReminder(invoice.customer)}>Send Reminder</DropdownMenuItem>
+                            <DropdownMenuItem className="text-destructive focus:text-destructive" onClick={() => handleDeleteClick(invoice)}>Delete</DropdownMenuItem>
+                        </DropdownMenuContent>
+                    </DropdownMenu>
+                );
+            },
+        },
+    ], [fetchInvoices]);
+
     return (
         <div className="space-y-6">
             <ConfirmDialog 
@@ -153,7 +221,8 @@ export default function InvoicingPage() {
                 <CardContent>
                     {loading ? (
                          <div className="space-y-4">
-                            {[...Array(5)].map((_, i) => <Skeleton key={i} className="h-12 w-full" />)}
+                            <Skeleton className="h-8 w-1/4" />
+                            <Skeleton className="h-48 w-full" />
                         </div>
                     ) : invoices.length === 0 ? (
                         <EmptyState 
@@ -170,47 +239,7 @@ export default function InvoicingPage() {
                             }
                         />
                     ) : (
-                        <Table>
-                            <TableHeader>
-                                <TableRow>
-                                    <TableHead>Customer</TableHead>
-                                    <TableHead>Invoice #</TableHead>
-                                    <TableHead>Date</TableHead>
-                                    <TableHead>Due Date</TableHead>
-                                    <TableHead>Status</TableHead>
-                                    <TableHead className="text-right">Amount</TableHead>
-                                    <TableHead className="w-[50px]"></TableHead>
-                                </TableRow>
-                            </TableHeader>
-                            <TableBody>
-                                {invoices.map((invoice) => (
-                                    <TableRow key={invoice.id}>
-                                        <TableCell className="font-medium">{invoice.customer}</TableCell>
-                                        <TableCell>{invoice.invoiceNumber}</TableCell>
-                                        <TableCell>{new Date(invoice.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</TableCell>
-                                        <TableCell>{new Date(invoice.dueDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</TableCell>
-                                        <TableCell>{getStatusBadge(invoice.status)}</TableCell>
-                                        <TableCell className="text-right font-medium">{invoice.amount.toLocaleString('en-US', { style: 'currency', currency: 'USD' })}</TableCell>
-                                        <TableCell>
-                                            <DropdownMenu>
-                                                <DropdownMenuTrigger asChild>
-                                                    <Button variant="ghost" className="h-8 w-8 p-0">
-                                                        <span className="sr-only">Open menu</span>
-                                                        <MoreHorizontal className="h-4 w-4" />
-                                                    </Button>
-                                                </DropdownMenuTrigger>
-                                                <DropdownMenuContent align="end">
-                                                    <DropdownMenuItem onClick={() => handleEditClick(invoice)}>View Invoice</DropdownMenuItem>
-                                                    <DropdownMenuItem onClick={() => handleEditClick(invoice)}>Edit</DropdownMenuItem>
-                                                    <DropdownMenuItem onClick={() => handleSendReminder(invoice.customer)}>Send Reminder</DropdownMenuItem>
-                                                    <DropdownMenuItem className="text-destructive focus:text-destructive" onClick={() => handleDeleteClick(invoice)}>Delete</DropdownMenuItem>
-                                                </DropdownMenuContent>
-                                            </DropdownMenu>
-                                        </TableCell>
-                                    </TableRow>
-                                ))}
-                            </TableBody>
-                        </Table>
+                        <DataTable columns={columns} data={invoices} searchKey="customer" />
                     )}
                 </CardContent>
             </Card>

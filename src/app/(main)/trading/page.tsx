@@ -1,17 +1,20 @@
 'use client';
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ArrowUp } from "lucide-react";
+import { ArrowUp, ChevronsUpDown } from "lucide-react";
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
 import Image from 'next/image';
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { TradeOrderDialog } from "@/components/dialogs/trade-order-dialog";
 import { useAuth } from "@/components/auth-provider";
 import { getTradingData, updateDocument, type PortfolioItem, type WatchlistItem, type MarketNewsItem, type StockDataPoint } from "@/lib/data";
 import { Skeleton } from "@/components/ui/skeleton";
+import { DataTable } from "@/components/transactions-table";
+import { type ColumnDef } from "@tanstack/react-table";
+
 
 export default function TradingPage() {
     const { user } = useAuth();
@@ -74,6 +77,34 @@ export default function TradingPage() {
         setTradeDialogOpen(false);
         await fetchData(); // Refresh data
     }
+
+    const portfolioColumns = useMemo<ColumnDef<PortfolioItem>[]>(() => [
+        {
+            accessorKey: 'symbol',
+            header: 'Asset',
+            cell: ({ row }) => (
+                <div>
+                    <div className="font-bold">{row.original.symbol}</div>
+                    <div className="text-sm text-muted-foreground">{row.original.name}</div>
+                </div>
+            )
+        },
+        { accessorKey: 'shares', header: 'Shares' },
+        { 
+            accessorKey: 'value', 
+            header: ({ column }) => <Button variant="ghost" onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}>Value <ChevronsUpDown className="ml-2 h-4 w-4" /></Button>,
+            cell: ({ row }) => row.original.value.toLocaleString('en-US', { style: 'currency', currency: 'USD' })
+        },
+        { 
+            accessorKey: 'change', 
+            header: ({ column }) => <div className="text-right"><Button variant="ghost" onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}>24h Change <ChevronsUpDown className="ml-2 h-4 w-4" /></Button></div>,
+            cell: ({ row }) => (
+                <div className={`text-right font-medium ${row.original.change >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                    {row.original.change >= 0 ? '+' : ''}{row.original.change.toFixed(2)}%
+                </div>
+            )
+        },
+    ], []);
 
 
     if (loading) {
@@ -144,31 +175,7 @@ export default function TradingPage() {
                             <CardTitle>My Portfolio</CardTitle>
                         </CardHeader>
                         <CardContent>
-                            <Table>
-                                <TableHeader>
-                                    <TableRow>
-                                        <TableHead>Asset</TableHead>
-                                        <TableHead>Shares</TableHead>
-                                        <TableHead>Value</TableHead>
-                                        <TableHead className="text-right">24h Change</TableHead>
-                                    </TableRow>
-                                </TableHeader>
-                                <TableBody>
-                                    {portfolio.map(stock => (
-                                        <TableRow key={stock.symbol}>
-                                            <TableCell>
-                                                <div className="font-bold">{stock.symbol}</div>
-                                                <div className="text-sm text-muted-foreground">{stock.name}</div>
-                                            </TableCell>
-                                            <TableCell>{stock.shares}</TableCell>
-                                            <TableCell>{stock.value.toLocaleString('en-US', { style: 'currency', currency: 'USD' })}</TableCell>
-                                            <TableCell className={`text-right font-medium ${stock.change >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                                                {stock.change >= 0 ? '+' : ''}{stock.change.toFixed(2)}%
-                                            </TableCell>
-                                        </TableRow>
-                                    ))}
-                                </TableBody>
-                            </Table>
+                           <DataTable columns={portfolioColumns} data={portfolio} />
                         </CardContent>
                     </Card>
                 </div>

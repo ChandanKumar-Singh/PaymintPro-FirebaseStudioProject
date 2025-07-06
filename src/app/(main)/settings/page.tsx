@@ -9,27 +9,29 @@ import { useSearchParams } from "next/navigation";
 import { useToast } from "@/hooks/use-toast";
 import { Switch } from "@/components/ui/switch";
 import { Separator } from "@/components/ui/separator";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Badge } from "@/components/ui/badge";
 import { Setup2FADialog } from "@/components/dialogs/setup-2fa-dialog";
 import { ChangePlanDialog } from "@/components/dialogs/change-plan-dialog";
 import { UpdatePaymentDialog } from "@/components/dialogs/update-payment-dialog";
-import { Download, Bot, Loader2 } from "lucide-react";
+import { Download, Bot, Loader2, ChevronsUpDown } from "lucide-react";
 import { seedDatabase } from "@/lib/seed";
 import { useAuth } from "@/components/auth-provider";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { updateProfile } from "firebase/auth";
 import { auth, db } from "@/lib/firebase";
 import { Skeleton } from "@/components/ui/skeleton";
 import { updateDocument } from "@/lib/data";
+import { DataTable } from "@/components/transactions-table";
+import { type ColumnDef } from "@tanstack/react-table";
 
-const billingHistory = [
+type BillingHistoryItem = { id: string; date: string; amount: number; description: string };
+const billingHistoryData: BillingHistoryItem[] = [
     { id: 'bill_1', date: '2024-07-01', amount: 20.00, description: 'Pro Plan - Monthly' },
     { id: 'bill_2', date: '2024-06-01', amount: 20.00, description: 'Pro Plan - Monthly' },
     { id: 'bill_3', date: '2024-05-01', amount: 20.00, description: 'Pro Plan - Monthly' },
 ];
 
-const loginHistory = [
+type LoginHistoryItem = { id: string; device: string; location: string; ip: string; lastSeen: string };
+const loginHistoryData: LoginHistoryItem[] = [
     { id: 'session_1', device: 'Chrome on MacOS', location: 'New York, US', ip: '192.168.1.1', lastSeen: 'July 4, 2024' },
     { id: 'session_2', device: 'Safari on iPhone', location: 'New York, US', ip: '192.168.1.1', lastSeen: 'July 3, 2024' },
     { id: 'session_3', device: 'Paymint Desktop App', location: 'London, UK', ip: '10.0.0.1', lastSeen: 'July 1, 2024' },
@@ -63,7 +65,6 @@ export default function SettingsPage() {
             if (auth.currentUser) {
               await updateProfile(auth.currentUser, { displayName: newDisplayName });
             }
-            // Also update the firestore document
             await updateDocument(user.uid, 'users', user.uid, { displayName: newDisplayName });
             refetchUserProfile();
             toast({
@@ -101,6 +102,38 @@ export default function SettingsPage() {
         }
 
     }
+    
+    const billingColumns = useMemo<ColumnDef<BillingHistoryItem>[]>(() => [
+        { 
+            accessorKey: "date", 
+            header: ({ column }) => <Button variant="ghost" onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}>Date<ChevronsUpDown className="ml-2 h-4 w-4" /></Button>,
+            cell: ({ row }) => <div className="pl-4">{row.original.date}</div>
+        },
+        { accessorKey: "description", header: "Description" },
+        { 
+            accessorKey: "amount", 
+            header: () => <div className="text-right">Amount</div>,
+            cell: ({ row }) => <div className="text-right">{row.original.amount.toLocaleString('en-US', { style: 'currency', currency: 'USD' })}</div>
+        },
+        { 
+            id: 'actions',
+            cell: () => (
+                <div className="text-right">
+                    <Button variant="ghost" size="icon">
+                        <Download className="h-4 w-4" />
+                        <span className="sr-only">Download invoice</span>
+                    </Button>
+                </div>
+            )
+        }
+    ], []);
+
+    const loginColumns = useMemo<ColumnDef<LoginHistoryItem>[]>(() => [
+        { accessorKey: "device", header: "Device" },
+        { accessorKey: "location", header: "Location" },
+        { accessorKey: "lastSeen", header: "Last Seen" },
+        { accessorKey: "ip", header: "IP Address" }
+    ], []);
 
     return (
         <div className="space-y-6">
@@ -238,26 +271,7 @@ export default function SettingsPage() {
                                 <Separator />
                                 <div className="space-y-4">
                                     <h3 className="text-lg font-medium">Login History</h3>
-                                    <Table>
-                                        <TableHeader>
-                                            <TableRow>
-                                                <TableHead>Device</TableHead>
-                                                <TableHead className="hidden sm:table-cell">Location</TableHead>
-                                                <TableHead>Last Seen</TableHead>
-                                                <TableHead className="hidden sm:table-cell">IP Address</TableHead>
-                                            </TableRow>
-                                        </TableHeader>
-                                        <TableBody>
-                                            {loginHistory.map(session => (
-                                                <TableRow key={session.id}>
-                                                    <TableCell>{session.device}</TableCell>
-                                                    <TableCell className="hidden sm:table-cell">{session.location}</TableCell>
-                                                    <TableCell>{session.lastSeen}</TableCell>
-                                                    <TableCell className="hidden sm:table-cell">{session.ip}</TableCell>
-                                                </TableRow>
-                                            ))}
-                                        </TableBody>
-                                    </Table>
+                                    <DataTable columns={loginColumns} data={loginHistoryData} />
                                 </div>
                             </CardContent>
                         </Card>
@@ -310,31 +324,7 @@ export default function SettingsPage() {
                                         <CardTitle>Billing History</CardTitle>
                                     </CardHeader>
                                     <CardContent>
-                                        <Table>
-                                            <TableHeader>
-                                                <TableRow>
-                                                    <TableHead>Date</TableHead>
-                                                    <TableHead>Description</TableHead>
-                                                    <TableHead className="text-right">Amount</TableHead>
-                                                    <TableHead className="w-[50px] text-right">Action</TableHead>
-                                                </TableRow>
-                                            </TableHeader>
-                                            <TableBody>
-                                                {billingHistory.map(item => (
-                                                    <TableRow key={item.id}>
-                                                        <TableCell>{item.date}</TableCell>
-                                                        <TableCell>{item.description}</TableCell>
-                                                        <TableCell className="text-right">{item.amount.toLocaleString('en-US', { style: 'currency', currency: 'USD' })}</TableCell>
-                                                        <TableCell className="text-right">
-                                                            <Button variant="ghost" size="icon">
-                                                                <Download className="h-4 w-4" />
-                                                                <span className="sr-only">Download invoice</span>
-                                                            </Button>
-                                                        </TableCell>
-                                                    </TableRow>
-                                                ))}
-                                            </TableBody>
-                                        </Table>
+                                        <DataTable columns={billingColumns} data={billingHistoryData} />
                                     </CardContent>
                                 </Card>
                             </CardContent>

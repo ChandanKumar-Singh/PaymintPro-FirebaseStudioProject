@@ -1,11 +1,10 @@
 'use client';
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, useMemo } from 'react';
 import { useAuth } from '@/components/auth-provider';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Banknote, MoreHorizontal, Landmark } from "lucide-react";
 import { AddAccountDialog } from '@/components/dialogs/add-account-dialog';
@@ -14,6 +13,8 @@ import { useToast } from '@/hooks/use-toast';
 import { EditAccountSheet } from '@/components/sheets/edit-account-sheet';
 import { getAccounts, getRecentAccountTransactions, deleteDocument, type Account, type AccountTransaction } from '@/lib/data';
 import { EmptyState } from '@/components/empty-state';
+import { DataTable } from '@/components/transactions-table';
+import { type ColumnDef } from '@tanstack/react-table';
 
 const getStatusBadge = (status: string) => {
     return <Badge variant="default" className="bg-green-100 text-green-800 border-green-200 hover:bg-green-100">Completed</Badge>;
@@ -89,6 +90,21 @@ export default function AccountsPage() {
         setSelectedAccount(null);
     }
   }
+
+  const transactionColumns = useMemo<ColumnDef<AccountTransaction>[]>(() => [
+    { accessorKey: 'description', header: 'Description', cell: ({ row }) => <div className="font-medium">{row.original.description}</div> },
+    { accessorKey: 'date', header: 'Date', cell: ({ row }) => new Date(row.original.date).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }) },
+    { accessorKey: 'status', header: 'Status', cell: ({ row }) => getStatusBadge(row.original.status) },
+    { 
+        accessorKey: 'amount', 
+        header: () => <div className="text-right">Amount</div>,
+        cell: ({ row }) => (
+            <div className={`text-right font-medium ${row.original.amount > 0 ? 'text-green-600' : 'text-foreground'}`}>
+                {row.original.amount < 0 && '-'}{row.original.amount.toLocaleString('en-US', { style: 'currency', currency: 'USD' }).replace('-', '')}
+            </div>
+        )
+    },
+  ], []);
 
   if(loading) {
     return (
@@ -184,28 +200,7 @@ export default function AccountsPage() {
               <CardDescription>Recent activity on your primary account.</CardDescription>
             </CardHeader>
             <CardContent>
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Description</TableHead>
-                    <TableHead>Date</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead className="text-right">Amount</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {transactions.map((transaction) => (
-                    <TableRow key={transaction.id}>
-                      <TableCell className="font-medium">{transaction.description}</TableCell>
-                      <TableCell>{new Date(transaction.date).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}</TableCell>
-                      <TableCell>{getStatusBadge(transaction.status)}</TableCell>
-                      <TableCell className={`text-right font-medium ${transaction.amount > 0 ? 'text-green-600' : 'text-foreground'}`}>
-                        {transaction.amount < 0 && '-'}{transaction.amount.toLocaleString('en-US', { style: 'currency', currency: 'USD' }).replace('-', '')}
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
+              <DataTable columns={transactionColumns} data={transactions} />
             </CardContent>
           </Card>
         </>

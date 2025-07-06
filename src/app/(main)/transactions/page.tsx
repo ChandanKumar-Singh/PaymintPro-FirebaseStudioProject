@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button"
 import { Download } from "lucide-react"
 import { DateRangePicker } from "@/components/date-range-picker"
 import { getTransactions, type Transaction, deleteDocument } from '@/lib/data';
-import { TransactionsTable } from '@/components/transactions-table';
+import { DataTable } from '@/components/transactions-table';
 import { useAuth } from '@/components/auth-provider';
 import { Skeleton } from '@/components/ui/skeleton';
 import { getColumns } from './columns';
@@ -116,7 +116,7 @@ export default function TransactionsPage() {
                 <Skeleton className="h-[500px] w-full" />
              </div>
         ) : (
-             <TransactionsTable columns={columns} data={transactions} searchKey="customer" />
+             <DataTable columns={columns} data={transactions} searchKey="customer" />
         )}
       </div>
     );

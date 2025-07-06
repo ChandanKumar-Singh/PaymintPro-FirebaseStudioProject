@@ -1,19 +1,20 @@
 'use client';
 
 import { Button } from "@/components/ui/button";
-import { MoreHorizontal } from "lucide-react";
+import { MoreHorizontal, PlusCircle } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { NewPaymentDialog } from "@/components/dialogs/new-payment-dialog";
 import { ConfirmDialog } from "@/components/dialogs/confirm-dialog";
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/components/auth-provider";
 import { getPayments, deleteDocument, updateDocument, type Payment } from "@/lib/data";
 import { Skeleton } from "@/components/ui/skeleton";
+import { DataTable } from "@/components/transactions-table";
+import { type ColumnDef } from "@tanstack/react-table";
 
 const getStatusBadge = (status: string) => {
   switch (status) {
@@ -83,57 +84,49 @@ export default function PaymentsPage() {
         setSelectedPayment(null);
     }
 
-    const PaymentsTable = ({ data }: { data: Payment[] }) => {
-        if (data.length === 0) {
-            return (
-                <div className="flex flex-col items-center justify-center text-center p-8 h-48">
-                    <p className="font-semibold">No payments here</p>
-                    <p className="text-sm text-muted-foreground">There are no payments with this status.</p>
+    const columns = useMemo<ColumnDef<Payment>[]>(() => [
+        { accessorKey: 'recipient', header: 'Recipient' },
+        { 
+            accessorKey: 'date', 
+            header: 'Date',
+            cell: ({ row }) => new Date(row.original.date).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })
+        },
+        { 
+            accessorKey: 'status', 
+            header: 'Status',
+            cell: ({ row }) => getStatusBadge(row.original.status)
+        },
+        { 
+            accessorKey: 'amount', 
+            header: () => <div className="text-right">Amount</div>,
+            cell: ({ row }) => (
+                <div className="text-right font-medium">
+                    {row.original.amount.toLocaleString('en-US', { style: 'currency', currency: 'USD' })}
+                </div>
+            )
+        },
+        {
+            id: 'actions',
+            cell: ({ row }) => (
+                <div className="text-right">
+                    <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" className="h-8 w-8 p-0">
+                                <span className="sr-only">Open menu</span>
+                                <MoreHorizontal className="h-4 w-4" />
+                            </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                            <DropdownMenuItem onClick={handleViewDetails}>View Details</DropdownMenuItem>
+                            {row.original.status === 'Upcoming' && <DropdownMenuItem onClick={() => handleActionClick(row.original.id!, 'cancel')}>Cancel Payment</DropdownMenuItem>}
+                            {row.original.status === 'Failed' && <DropdownMenuItem onClick={() => handleActionClick(row.original.id!, 'retry')}>Retry Payment</DropdownMenuItem>}
+                        </DropdownMenuContent>
+                    </DropdownMenu>
                 </div>
             )
         }
+    ], [fetchPayments]);
 
-        return (
-            <Table>
-                <TableHeader>
-                    <TableRow>
-                        <TableHead>Recipient</TableHead>
-                        <TableHead>Date</TableHead>
-                        <TableHead>Status</TableHead>
-                        <TableHead className="text-right">Amount</TableHead>
-                        <TableHead className="w-[50px]"></TableHead>
-                    </TableRow>
-                </TableHeader>
-                <TableBody>
-                    {data.map((payment) => (
-                        <TableRow key={payment.id}>
-                            <TableCell className="font-medium">{payment.recipient}</TableCell>
-                            <TableCell>{new Date(payment.date).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}</TableCell>
-                            <TableCell>{getStatusBadge(payment.status)}</TableCell>
-                            <TableCell className="text-right font-medium">
-                                {payment.amount.toLocaleString('en-US', { style: 'currency', currency: 'USD' })}
-                            </TableCell>
-                            <TableCell>
-                                <DropdownMenu>
-                                    <DropdownMenuTrigger asChild>
-                                        <Button variant="ghost" className="h-8 w-8 p-0">
-                                            <span className="sr-only">Open menu</span>
-                                            <MoreHorizontal className="h-4 w-4" />
-                                        </Button>
-                                    </DropdownMenuTrigger>
-                                    <DropdownMenuContent align="end">
-                                        <DropdownMenuItem onClick={handleViewDetails}>View Details</DropdownMenuItem>
-                                        {payment.status === 'Upcoming' && <DropdownMenuItem onClick={() => handleActionClick(payment.id!, 'cancel')}>Cancel Payment</DropdownMenuItem>}
-                                        {payment.status === 'Failed' && <DropdownMenuItem onClick={() => handleActionClick(payment.id!, 'retry')}>Retry Payment</DropdownMenuItem>}
-                                    </DropdownMenuContent>
-                                </DropdownMenu>
-                            </TableCell>
-                        </TableRow>
-                    ))}
-                </TableBody>
-            </Table>
-        );
-    }
 
     const renderTabContent = (status: 'Upcoming' | 'Completed' | 'Failed') => {
         const filteredPayments = payments.filter(p => p.status === status);
@@ -150,7 +143,7 @@ export default function PaymentsPage() {
                     </CardDescription>
                 </CardHeader>
                 <CardContent>
-                    {loading ? <Skeleton className="h-48 w-full" /> : <PaymentsTable data={filteredPayments} />}
+                    {loading ? <Skeleton className="h-48 w-full" /> : <DataTable columns={columns} data={filteredPayments} searchKey="recipient" />}
                 </CardContent>
             </Card>
         )
