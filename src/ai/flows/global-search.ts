@@ -55,7 +55,7 @@ export async function globalSearch(input: GlobalSearchInput): Promise<GlobalSear
         id: tx.id!,
         title: `${tx.customer}`,
         description: `Transaction: ${tx.amount.toLocaleString('en-US', { style: 'currency', currency: 'USD' })} on ${new Date(tx.date).toLocaleDateString()}`,
-        url: `/transactions?view=${tx.id}`
+        url: `/transactions?action=edit-transaction&id=${tx.id}`
     }));
 
   // Filter and map invoices
@@ -66,7 +66,7 @@ export async function globalSearch(input: GlobalSearchInput): Promise<GlobalSear
         id: inv.id!,
         title: `Invoice #${inv.invoiceNumber}`,
         description: `To ${inv.customer} for ${inv.amount.toLocaleString('en-US', { style: 'currency', currency: 'USD' })}`,
-        url: `/invoicing?view=${inv.id}`
+        url: `/invoicing?action=edit-invoice&id=${inv.id}`
     }));
 
     // Filter and map tickets
@@ -88,7 +88,7 @@ export async function globalSearch(input: GlobalSearchInput): Promise<GlobalSear
             id: b.id!,
             title: `Budget: ${b.name}`,
             description: `Spent ${b.spent.toLocaleString('en-US', { style: 'currency', currency: 'USD' })} of ${b.total.toLocaleString('en-US', { style: 'currency', currency: 'USD' })}`,
-            url: '/budgets',
+            url: `/budgets?action=edit-budget&id=${b.id!}`,
         }));
     
     // Filter and map accounts
@@ -99,7 +99,7 @@ export async function globalSearch(input: GlobalSearchInput): Promise<GlobalSear
             id: a.id!,
             title: `Account: ${a.name}`,
             description: `${a.bank} - Balance: ${a.balance.toLocaleString('en-US', { style: 'currency', currency: 'USD' })}`,
-            url: '/accounts',
+            url: `/accounts?action=edit-account&id=${a.id!}`,
         }));
 
   const allResults = [...transactionResults, ...invoiceResults, ...ticketResults, ...budgetResults, ...accountResults];

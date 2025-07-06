@@ -15,6 +15,7 @@ import { getAccounts, getRecentAccountTransactions, deleteDocument, type Account
 import { EmptyState } from '@/components/empty-state';
 import { DataTable } from '@/components/transactions-table';
 import { type ColumnDef } from '@tanstack/react-table';
+import { useSearchParams, useRouter, usePathname } from 'next/navigation';
 
 const getStatusBadge = (status: string) => {
     return <Badge variant="default" className="bg-green-100 text-green-800 border-green-200 hover:bg-green-100">Completed</Badge>;
@@ -22,6 +23,10 @@ const getStatusBadge = (status: string) => {
 
 export default function AccountsPage() {
   const { user } = useAuth();
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+
   const [accounts, setAccounts] = useState<Account[]>([]);
   const [transactions, setTransactions] = useState<AccountTransaction[]>([]);
   const [loading, setLoading] = useState(true);
@@ -53,14 +58,47 @@ export default function AccountsPage() {
     fetchData();
   }, [fetchData]);
 
+  useEffect(() => {
+    const viewId = searchParams.get('id');
+    const action = searchParams.get('action');
+
+    if (action === 'edit-account' && viewId && accounts.length > 0) {
+        const accountToView = accounts.find(acc => acc.id === viewId);
+        if (accountToView) {
+            setSelectedAccount(accountToView);
+            setEditSheetOpen(true);
+        } else {
+            handleSheetOpenChange(false);
+        }
+    } else {
+        if (editSheetOpen) {
+            setEditSheetOpen(false);
+        }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchParams, accounts]);
+
+  const handleSheetOpenChange = (open: boolean) => {
+    if (!open) {
+        setSelectedAccount(null);
+        const params = new URLSearchParams(searchParams.toString());
+        params.delete('action');
+        params.delete('id');
+        router.replace(`${pathname}?${params.toString()}`);
+    }
+    setEditSheetOpen(open);
+  }
+
   const handleRemoveClick = (account: Account) => {
     setSelectedAccount(account);
     setConfirmOpen(true);
   }
 
   const handleEditClick = (account: Account) => {
-    setSelectedAccount(account);
-    setEditSheetOpen(true);
+    const params = new URLSearchParams(searchParams.toString());
+    params.set('action', 'edit-account');
+    params.set('id', account.id!);
+    router.push(`${pathname}?${params.toString()}`);
   }
 
   const handleSetDefault = (account: Account) => {
@@ -135,7 +173,7 @@ export default function AccountsPage() {
       />
       <EditAccountSheet 
         open={editSheetOpen}
-        onOpenChange={setEditSheetOpen}
+        onOpenChange={handleSheetOpenChange}
         account={selectedAccount}
         onSuccess={fetchData}
       />

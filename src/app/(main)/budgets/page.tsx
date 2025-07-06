@@ -13,9 +13,14 @@ import { useAuth } from '@/components/auth-provider';
 import { getBudgets, deleteDocument, type Budget } from '@/lib/data';
 import { Skeleton } from '@/components/ui/skeleton';
 import { EmptyState } from '@/components/empty-state';
+import { useSearchParams, useRouter, usePathname } from 'next/navigation';
 
 export default function BudgetsPage() {
     const { user } = useAuth();
+    const router = useRouter();
+    const pathname = usePathname();
+    const searchParams = useSearchParams();
+
     const [budgets, setBudgets] = useState<Budget[]>([]);
     const [loading, setLoading] = useState(true);
     const [editSheetOpen, setEditSheetOpen] = useState(false);
@@ -36,9 +41,42 @@ export default function BudgetsPage() {
         fetchBudgets();
     }, [fetchBudgets]);
 
+    useEffect(() => {
+        const viewId = searchParams.get('id');
+        const action = searchParams.get('action');
+
+        if (action === 'edit-budget' && viewId && budgets.length > 0) {
+            const budgetToView = budgets.find(b => b.id === viewId);
+            if (budgetToView) {
+                setSelectedBudget(budgetToView);
+                setEditSheetOpen(true);
+            } else {
+                handleSheetOpenChange(false);
+            }
+        } else {
+            if (editSheetOpen) {
+                setEditSheetOpen(false);
+            }
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [searchParams, budgets]);
+
+    const handleSheetOpenChange = (open: boolean) => {
+        if (!open) {
+            setSelectedBudget(null);
+            const params = new URLSearchParams(searchParams.toString());
+            params.delete('action');
+            params.delete('id');
+            router.replace(`${pathname}?${params.toString()}`);
+        }
+        setEditSheetOpen(open);
+    }
+
     const handleEditClick = (budget: Budget) => {
-        setSelectedBudget(budget);
-        setEditSheetOpen(true);
+        const params = new URLSearchParams(searchParams.toString());
+        params.set('action', 'edit-budget');
+        params.set('id', budget.id!);
+        router.push(`${pathname}?${params.toString()}`);
     }
 
     const handleDeleteClick = (budget: Budget) => {
@@ -79,7 +117,7 @@ export default function BudgetsPage() {
             />
             <EditBudgetSheet 
                 open={editSheetOpen}
-                onOpenChange={setEditSheetOpen}
+                onOpenChange={handleSheetOpenChange}
                 budget={selectedBudget}
                 onSuccess={fetchBudgets}
             />
