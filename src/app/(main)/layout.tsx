@@ -1,5 +1,5 @@
 'use client';
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import {
   Sidebar,
@@ -11,13 +11,13 @@ import {
 } from '@/components/ui/sidebar';
 import { Settings, Search, Rocket } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { MainNav } from '@/components/main-nav';
 import { UserNav } from '@/components/user-nav';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { ThemeToggle } from '@/components/theme-toggle';
 import { ChangePlanDialog } from '@/components/dialogs/change-plan-dialog';
 import { useAuth } from '@/components/auth-provider';
+import { CommandPalette } from '@/components/command-palette';
 
 function Logo() {
   return (
@@ -49,11 +49,24 @@ export default function MainLayout({
   children: React.ReactNode;
 }) {
   const { user, userProfile, refetchUserProfile } = useAuth();
+  const [commandPaletteOpen, setCommandPaletteOpen] = useState(false);
   
   const showUpgradeCard = userProfile?.subscription?.plan === 'Starter';
 
+  useEffect(() => {
+    const down = (e: KeyboardEvent) => {
+      if (e.key === 'k' && (e.metaKey || e.ctrlKey)) {
+        e.preventDefault();
+        setCommandPaletteOpen((open) => !open);
+      }
+    };
+    document.addEventListener('keydown', down);
+    return () => document.removeEventListener('keydown', down);
+  }, []);
+
   return (
     <div className="flex min-h-screen w-full bg-background">
+      <CommandPalette open={commandPaletteOpen} onOpenChange={setCommandPaletteOpen} />
       <Sidebar variant="sidebar" collapsible="icon" className="border-r border-sidebar-border">
         <SidebarHeader>
           <Link href="/dashboard">
@@ -97,12 +110,19 @@ export default function MainLayout({
           </div>
           <div className="flex items-center gap-2">
             <div className="relative hidden flex-1 md:grow-0 md:flex">
-              <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-              <Input
-                type="search"
-                placeholder="Search..."
-                className="w-full rounded-lg bg-card pl-8 md:w-[200px] lg:w-[320px]"
-              />
+                <Button
+                    variant="outline"
+                    className="w-full justify-between rounded-lg bg-card pl-3 pr-2 text-muted-foreground md:w-[200px] lg:w-[320px]"
+                    onClick={() => setCommandPaletteOpen(true)}
+                >
+                    <div className="flex items-center gap-2">
+                        <Search className="h-4 w-4" />
+                        Search...
+                    </div>
+                    <kbd className="pointer-events-none inline-flex h-5 select-none items-center gap-1 rounded border bg-muted px-1.5 font-mono text-[10px] font-medium text-muted-foreground opacity-100">
+                        <span className="text-xs">⌘</span>K
+                    </kbd>
+                </Button>
             </div>
             <ThemeToggle />
             <UserNav />
