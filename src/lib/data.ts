@@ -352,7 +352,16 @@ export const addDocument = async <T extends { [key: string]: any }>(userId: stri
 
 export const updateDocument = async <T>(userId: string, collectionName: string, docId: string, data: Partial<T>) => {
     if (!userId) throw new Error("User not authenticated");
-    const docRef = doc(db, 'users', userId, collectionName, docId);
+    
+    let docRef;
+    // Check if we are trying to update the user document itself
+    if (collectionName === 'users' && docId === userId) {
+        docRef = doc(db, 'users', userId);
+    } else {
+        // Otherwise, update a document in a subcollection
+        docRef = doc(db, 'users', userId, collectionName, docId);
+    }
+    
     return await updateDoc(docRef, data as any);
 };
 
