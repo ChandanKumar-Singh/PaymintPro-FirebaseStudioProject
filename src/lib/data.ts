@@ -37,13 +37,24 @@ export type TicketMessage = {
 async function getCollectionData<T>(userId: string, collectionName: string, subCollectionPath: string[] = []): Promise<T[]> {
     if (!userId) return [];
     let colRef;
-    if(subCollectionPath.length > 0) {
+    if (subCollectionPath.length > 0) {
         colRef = collection(db, 'users', userId, collectionName, ...subCollectionPath);
     } else {
         colRef = collection(db, 'users', userId, collectionName);
     }
     const snapshot = await getDocs(colRef);
-    return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as T));
+    return snapshot.docs.map(doc => {
+        const data = doc.data();
+        const convertedData: any = {};
+        for (const key in data) {
+            if (data[key] && typeof data[key].toDate === 'function') {
+                convertedData[key] = data[key].toDate().toISOString();
+            } else {
+                convertedData[key] = data[key];
+            }
+        }
+        return { id: doc.id, ...convertedData } as T;
+    });
 }
 
 // Generic function to fetch a single document
@@ -192,21 +203,7 @@ export const getTradingData = async (userId: string) => {
 };
 
 // Support Ticket functions
-export async function getTickets(userId: string): Promise<Ticket[]> {
-    if (!userId) return [];
-    const colRef = collection(db, 'users', userId, 'tickets');
-    const snapshot = await getDocs(colRef);
-    return snapshot.docs.map(doc => {
-        const data = doc.data();
-        // Convert Firestore Timestamps to ISO strings to prevent "Invalid time value" errors
-        return {
-            id: doc.id,
-            ...data,
-            createdAt: data.createdAt?.toDate ? data.createdAt.toDate().toISOString() : new Date().toISOString(),
-            updatedAt: data.updatedAt?.toDate ? data.updatedAt.toDate().toISOString() : new Date().toISOString(),
-        } as Ticket;
-    });
-}
+export const getTickets = (userId: string) => getCollectionData<Ticket>(userId, 'tickets');
 
 export const getTicketById = (userId: string, ticketId: string) => getDocument<Ticket>(userId, 'tickets', ticketId);
 
