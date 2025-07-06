@@ -21,41 +21,45 @@ export function NewPaymentDialog({ onSuccess }: NewPaymentDialogProps) {
     const [open, setOpen] = useState(false);
     const [loading, setLoading] = useState(false);
     const { toast } = useToast();
+    
+    const [recipient, setRecipient] = useState('');
+    const [amount, setAmount] = useState('');
+    const [date, setDate] = useState<Date>();
+    const [frequency, setFrequency] = useState('one-time');
 
-    const handleSchedulePayment = async (event: React.FormEvent<HTMLFormElement>) => {
-        event.preventDefault();
+    const handleSchedulePayment = async () => {
         if (!user) return;
         
-        const formData = new FormData(event.currentTarget);
-        const paymentData = {
-            recipient: formData.get('recipient') as string,
-            amount: parseFloat(formData.get('amount') as string),
-            date: new Date(formData.get('payment-date') as string).toISOString().split('T')[0],
-            status: 'Upcoming' as 'Upcoming',
-        };
-
-        if(!paymentData.recipient || !paymentData.amount || !paymentData.date) {
+        if(!recipient || !amount || !date) {
             toast({ title: "Missing Information", description: "Please fill out all fields.", variant: "destructive"});
             return;
         }
 
         setLoading(true);
         try {
-            await addDocument(user.uid, 'payments', paymentData);
+            await addDocument(user.uid, 'payments', {
+                recipient,
+                amount: parseFloat(amount),
+                date: format(date, 'yyyy-MM-dd'),
+                status: 'Upcoming',
+            });
             toast({
                 title: "Payment Scheduled",
                 description: "Your new payment has been scheduled successfully.",
             });
             onSuccess();
             setOpen(false);
+            // Reset form
+            setRecipient('');
+            setAmount('');
+            setDate(undefined);
+            setFrequency('one-time');
         } catch (error) {
             toast({ title: "Error", description: "Failed to schedule payment.", variant: 'destructive'});
         } finally {
             setLoading(false);
         }
     }
-
-    const [date, setDate] = useState<Date>();
 
     return (
         <Dialog open={open} onOpenChange={setOpen}>
@@ -66,7 +70,6 @@ export function NewPaymentDialog({ onSuccess }: NewPaymentDialogProps) {
                 </Button>
             </DialogTrigger>
             <DialogContent className="sm:max-w-[425px]">
-                <form onSubmit={handleSchedulePayment}>
                 <DialogHeader>
                     <DialogTitle>New Payment</DialogTitle>
                     <DialogDescription>
@@ -76,20 +79,19 @@ export function NewPaymentDialog({ onSuccess }: NewPaymentDialogProps) {
                 <div className="grid gap-4 py-4">
                      <div className="space-y-2">
                         <Label htmlFor="recipient">Recipient</Label>
-                        <Input id="recipient" name="recipient" placeholder="e.g., Landlord, AT&T" required/>
+                        <Input id="recipient" name="recipient" placeholder="e.g., Landlord, AT&T" required value={recipient} onChange={e => setRecipient(e.target.value)} />
                     </div>
                     <div className="space-y-2">
                         <Label htmlFor="amount">Amount</Label>
-                        <Input id="amount" name="amount" type="number" placeholder="$0.00" required/>
+                        <Input id="amount" name="amount" type="number" placeholder="$0.00" required value={amount} onChange={e => setAmount(e.target.value)} />
                     </div>
                      <div className="space-y-2">
                         <Label htmlFor="payment-date">Payment Date</Label>
-                        <input type="hidden" name="payment-date" value={date ? format(date, 'yyyy-MM-dd') : ''} />
                         <DatePicker date={date} setDate={setDate} />
                     </div>
                     <div className="space-y-2">
                         <Label htmlFor="frequency">Frequency</Label>
-                         <Select name="frequency" defaultValue="one-time">
+                         <Select name="frequency" value={frequency} onValueChange={setFrequency}>
                             <SelectTrigger id="frequency">
                                 <SelectValue placeholder="One-time" />
                             </SelectTrigger>
@@ -104,12 +106,11 @@ export function NewPaymentDialog({ onSuccess }: NewPaymentDialogProps) {
                 </div>
                 <DialogFooter>
                     <Button variant="outline" onClick={() => setOpen(false)} type="button">Cancel</Button>
-                    <Button type="submit" disabled={loading}>
+                    <Button type="submit" onClick={handleSchedulePayment} disabled={loading}>
                         {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                         Schedule Payment
                     </Button>
                 </DialogFooter>
-                </form>
             </DialogContent>
         </Dialog>
     )
