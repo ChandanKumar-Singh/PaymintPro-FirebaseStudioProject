@@ -16,8 +16,8 @@ jest.mock('@/components/recent-transactions', () => ({
 jest.mock('@/components/my-cards', () => ({
   MyCards: () => <div data-testid="my-cards">My Cards</div>,
 }));
-jest.mock('@/components/quick-transfer', () => ({
-  QuickInvoice: () => <div data-testid="quick-invoice">Quick Invoice</div>,
+jest.mock('@/components/daily-insight', () => ({
+  DailyInsight: () => <div data-testid="daily-insight">Daily Insight</div>,
 }));
 jest.mock('@/components/date-range-picker', () => ({
   DateRangePicker: () => <button>Date Range</button>
@@ -58,6 +58,6 @@ describe('DashboardPage', () => {
     expect(screen.getByTestId('transaction-chart')).toBeInTheDocument();
     expect(screen.getByTestId('recent-transactions')).toBeInTheDocument();
     expect(screen.getByTestId('my-cards')).toBeInTheDocument();
-    expect(screen.getByTestId('quick-invoice')).toBeInTheDocument();
+    expect(screen.getByTestId('daily-insight')).toBeInTheDocument();
   });
 });

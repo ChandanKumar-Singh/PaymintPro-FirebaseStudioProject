@@ -136,12 +136,10 @@ export const getDashboardStats = async (userId: string, dateRange?: DateRange) =
         activeNow: { value: 573, change: 201 } // Simulated
     };
 
-    const recentSales = currentMonthTxs
-        .filter(tx => tx.type === 'Sale')
-        .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
-        .slice(0, 5);
+    const recentTransactions = currentMonthTxs
+        .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
     
-    return { stats, recentSales };
+    return { stats, recentTransactions };
 };
 
 export const getOverviewData = async (userId: string, dateRange?: DateRange) => {

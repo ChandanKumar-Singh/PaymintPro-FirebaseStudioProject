@@ -11,18 +11,17 @@ import { Button } from './ui/button';
 import { type Transaction } from '@/lib/data';
 
 interface RecentTransactionsProps {
-  sales: Transaction[];
-  totalSalesThisMonth: number;
+  transactions: Transaction[];
 }
 
-export function RecentTransactions({ sales, totalSalesThisMonth }: RecentTransactionsProps) {
+export function RecentTransactions({ transactions }: RecentTransactionsProps) {
   return (
     <Card>
       <CardHeader>
         <div className="flex justify-between items-center">
             <div>
-                <CardTitle>Recent Sales</CardTitle>
-                <CardDescription>You made {totalSalesThisMonth} sales this month.</CardDescription>
+                <CardTitle>Recent Transactions</CardTitle>
+                <CardDescription>The latest movements in your account.</CardDescription>
             </div>
             <Button asChild variant="ghost" size="sm">
                 <Link href="/transactions">View all</Link>
@@ -31,20 +30,20 @@ export function RecentTransactions({ sales, totalSalesThisMonth }: RecentTransac
       </CardHeader>
       <CardContent>
         <div className="space-y-6">
-          {sales.map((sale) => (
-            <div key={sale.id} className="flex items-center gap-4">
+          {transactions.slice(0, 5).map((tx) => (
+            <div key={tx.id} className="flex items-center gap-4">
               <Avatar className="h-9 w-9">
-                <AvatarImage src={sale.avatar} alt={sale.customer} data-ai-hint={sale.dataAiHint} />
+                <AvatarImage src={tx.avatar} alt={tx.customer} data-ai-hint={tx.dataAiHint} />
                 <AvatarFallback>
-                  {sale.customer.split(' ').map((n) => n[0]).join('')}
+                  {tx.customer.split(' ').map((n) => n[0]).join('')}
                 </AvatarFallback>
               </Avatar>
               <div className="flex-1">
-                <p className="text-sm font-medium leading-none">{sale.customer}</p>
-                <p className="text-sm text-muted-foreground">{sale.email}</p>
+                <p className="text-sm font-medium leading-none">{tx.customer}</p>
+                <p className="text-sm text-muted-foreground">{tx.email}</p>
               </div>
-              <div className="font-medium">
-                {sale.amount.toLocaleString('en-US', {
+              <div className={`font-medium ${tx.amount > 0 ? 'text-green-600' : 'text-foreground'}`}>
+                {tx.amount.toLocaleString('en-US', {
                   style: 'currency',
                   currency: 'USD',
                 })}

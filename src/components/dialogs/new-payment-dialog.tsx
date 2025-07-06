@@ -14,11 +14,16 @@ import { format } from "date-fns";
 
 interface NewPaymentDialogProps {
     onSuccess: () => void;
+    open?: boolean;
+    onOpenChange?: (open: boolean) => void;
 }
 
-export function NewPaymentDialog({ onSuccess }: NewPaymentDialogProps) {
+export function NewPaymentDialog({ onSuccess, open: openProp, onOpenChange: onOpenChangeProp }: NewPaymentDialogProps) {
     const { user } = useAuth();
-    const [open, setOpen] = useState(false);
+    const [internalOpen, setInternalOpen] = useState(false);
+    const open = openProp ?? internalOpen;
+    const setOpen = onOpenChangeProp ?? setInternalOpen;
+
     const [loading, setLoading] = useState(false);
     const { toast } = useToast();
     

@@ -3,7 +3,7 @@ import { StatCard } from '@/components/stat-card';
 import { TransactionChart } from '@/components/transaction-chart';
 import { RecentTransactions } from '@/components/recent-transactions';
 import { MyCards } from '@/components/my-cards';
-import { QuickInvoice } from '@/components/quick-transfer';
+import { DailyInsight } from '@/components/daily-insight';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Button } from '@/components/ui/button';
 import { DateRangePicker } from '@/components/date-range-picker';
@@ -14,6 +14,8 @@ import { useAuth } from '@/components/auth-provider';
 import { Skeleton } from '@/components/ui/skeleton';
 import { subDays } from 'date-fns';
 import type { DateRange } from 'react-day-picker';
+import { NewPaymentDialog } from '@/components/dialogs/new-payment-dialog';
+import Link from 'next/link';
 
 
 type Stats = {
@@ -29,10 +31,11 @@ type OverviewData = { name: string; total: number }[];
 export default function DashboardPage() {
   const { user } = useAuth();
   const [stats, setStats] = useState<Stats | null>(null);
-  const [recentSales, setRecentSales] = useState<Transaction[]>([]);
+  const [recentTransactions, setRecentTransactions] = useState<Transaction[]>([]);
   const [cards, setCards] = useState<CardData[]>([]);
   const [overviewData, setOverviewData] = useState<OverviewData>([]);
   const [loading, setLoading] = useState(true);
+  const [newPaymentOpen, setNewPaymentOpen] = useState(false);
   const [dateRange, setDateRange] = useState<DateRange | undefined>({
     from: subDays(new Date(), 29),
     to: new Date(),
@@ -49,7 +52,7 @@ export default function DashboardPage() {
 
         if (dashboardData) {
           setStats(dashboardData.stats);
-          setRecentSales(dashboardData.recentSales);
+          setRecentTransactions(dashboardData.recentTransactions);
         }
         
         setCards(cardsData);
@@ -70,6 +73,7 @@ export default function DashboardPage() {
 
   return (
     <div className="space-y-6">
+      <NewPaymentDialog open={newPaymentOpen} onOpenChange={setNewPaymentOpen} onSuccess={fetchData} />
       <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-4">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Welcome back, {user?.displayName?.split(' ')[0] || 'Olivia'}!</h1>
@@ -87,9 +91,12 @@ export default function DashboardPage() {
                 </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
-                <DropdownMenuItem>New Invoice</DropdownMenuItem>
-                <DropdownMenuItem>New Payment</DropdownMenuItem>
-                <DropdownMenuItem>New Transaction</DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link href="/invoicing/new">New Invoice</Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem onSelect={() => setNewPaymentOpen(true)}>
+                    New Payment
+                </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
@@ -142,13 +149,13 @@ export default function DashboardPage() {
               <TransactionChart data={overviewData} />
             </div>
             <div className="lg:col-span-3">
-              <RecentTransactions sales={recentSales} totalSalesThisMonth={stats?.sales.value || 0} />
+              <RecentTransactions transactions={recentTransactions} />
             </div>
           </div>
           
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <MyCards cards={cards} />
-            <QuickInvoice />
+            <DailyInsight />
           </div>
         </>
       )}
