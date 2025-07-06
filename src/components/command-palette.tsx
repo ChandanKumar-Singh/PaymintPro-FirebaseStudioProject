@@ -44,12 +44,10 @@ export function CommandPalette() {
   const [loading, setLoading] = React.useState(false);
   const [results, setResults] = React.useState<GlobalSearchOutput['results']>([]);
   
-  // Ref for the input to manage focus
   const inputRef = React.useRef<HTMLInputElement>(null);
 
   const debouncedSearch = useDebounce(search, 300);
 
-  // Keyboard shortcut to open the palette
   React.useEffect(() => {
     const down = (e: KeyboardEvent) => {
       if (e.key === 'k' && (e.metaKey || e.ctrlKey)) {
@@ -61,14 +59,13 @@ export function CommandPalette() {
     return () => document.removeEventListener('keydown', down);
   }, []);
   
-  // Focus input when popover opens
   React.useEffect(() => {
     if (open) {
+      setSearch(''); // Clear search on open
       inputRef.current?.focus();
     }
   }, [open]);
 
-  // Perform search
   React.useEffect(() => {
     const performSearch = async () => {
       if (debouncedSearch && user) {
@@ -85,9 +82,13 @@ export function CommandPalette() {
 
   const runCommand = React.useCallback((command: () => unknown) => {
     setOpen(false);
-    setSearch('');
     command();
   }, []);
+
+  const handleMouseDown = (e: React.MouseEvent, command: () => unknown) => {
+    e.preventDefault();
+    runCommand(command);
+  }
 
   const getIcon = (type: string) => {
     switch (type) {
@@ -131,16 +132,13 @@ export function CommandPalette() {
         </PopoverTrigger>
         <PopoverContent className="w-[min(calc(100vw-2rem),40rem)] p-0" align="start">
             <Command shouldFilter={false}>
-                <div className="flex items-center border-b px-3" cmdk-input-wrapper="">
-                    <Search className="mr-2 h-4 w-4 shrink-0 opacity-50" />
-                    <CommandInput
-                        ref={inputRef}
-                        value={search}
-                        onValueChange={setSearch}
-                        placeholder="Type a command or search..."
-                        className="flex h-11 w-full rounded-md bg-transparent py-3 text-sm outline-none placeholder:text-muted-foreground disabled:cursor-not-allowed disabled:opacity-50"
-                    />
-                </div>
+                <CommandInput
+                    ref={inputRef}
+                    value={search}
+                    onValueChange={setSearch}
+                    placeholder="Type a command or search..."
+                />
+                <CommandSeparator />
                 <CommandList>
                     <CommandEmpty>{loading ? "Searching..." : "No results found."}</CommandEmpty>
                     
@@ -150,8 +148,9 @@ export function CommandPalette() {
                         <CommandItem
                             key={result.id}
                             onSelect={() => runCommand(() => router.push(result.url))}
+                            onMouseDown={(e) => handleMouseDown(e, () => router.push(result.url))}
                             value={`result-${result.id}-${result.title}`}
-                            className="flex-col items-start"
+                            className="flex-col items-start cursor-pointer"
                         >
                             <div className="flex items-center">
                                 {getIcon(result.type)}
@@ -166,34 +165,32 @@ export function CommandPalette() {
                     {showSuggestions && (
                         <>
                             <CommandGroup heading="Suggestions">
-                                <CommandItem onSelect={() => runCommand(() => router.push('/dashboard'))}>
+                                <CommandItem onSelect={() => runCommand(() => router.push('/dashboard'))} onMouseDown={(e) => handleMouseDown(e, () => router.push('/dashboard'))} className="cursor-pointer">
                                     <LayoutDashboard className="mr-2 h-4 w-4" />
                                     <span>Dashboard</span>
                                 </CommandItem>
-                                <CommandItem onSelect={() => runCommand(() => router.push('/transactions'))}>
+                                <CommandItem onSelect={() => runCommand(() => router.push('/transactions'))} onMouseDown={(e) => handleMouseDown(e, () => router.push('/transactions'))} className="cursor-pointer">
                                     <ArrowRightLeft className="mr-2 h-4 w-4" />
                                     <span>Transactions</span>
                                 </CommandItem>
-                                <CommandItem onSelect={() => runCommand(() => router.push('/invoicing'))}>
+                                <CommandItem onSelect={() => runCommand(() => router.push('/invoicing'))} onMouseDown={(e) => handleMouseDown(e, () => router.push('/invoicing'))} className="cursor-pointer">
                                     <FileText className="mr-2 h-4 w-4" />
                                     <span>Invoicing</span>
                                 </CommandItem>
-                                <CommandItem onSelect={() => runCommand(() => router.push('/settings'))}>
+                                <CommandItem onSelect={() => runCommand(() => router.push('/settings'))} onMouseDown={(e) => handleMouseDown(e, () => router.push('/settings'))} className="cursor-pointer">
                                     <Settings className="mr-2 h-4 w-4" />
                                     <span>Settings</span>
                                 </CommandItem>
                             </CommandGroup>
                             <CommandSeparator />
                             <CommandGroup heading="Actions">
-                                <CommandItem onSelect={() => runCommand(() => router.push('/invoicing/new'))}>
+                                <CommandItem onSelect={() => runCommand(() => router.push('/invoicing/new'))} onMouseDown={(e) => handleMouseDown(e, () => router.push('/invoicing/new'))} className="cursor-pointer">
                                     <FilePlus2 className="mr-2 h-4 w-4" />
                                     <span>Create New Invoice</span>
                                 </CommandItem>
                                 <CommandItem onSelect={() => {
-                                    // This requires a more complex way to open the dialog
-                                    // For now, navigate to the page where the dialog is
                                     runCommand(() => router.push('/support'))
-                                }}>
+                                }} onMouseDown={(e) => handleMouseDown(e, () => router.push('/support'))} className="cursor-pointer">
                                     <PlusCircle className="mr-2 h-4 w-4" />
                                     <span>Create New Ticket</span>
                                 </CommandItem>

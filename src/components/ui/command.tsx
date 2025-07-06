@@ -3,7 +3,7 @@
 import * as React from "react"
 import { type DialogProps } from "@radix-ui/react-dialog"
 import { Command as CommandPrimitive } from "cmdk"
-import { Search } from "lucide-react"
+import { Search, HelpCircle } from "lucide-react"
 
 import { cn } from "@/lib/utils"
 import {
@@ -13,6 +13,8 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog"
+import { Tooltip, TooltipContent, TooltipTrigger } from "./tooltip"
+import { Button } from "./button"
 
 const Command = React.forwardRef<
   React.ElementRef<typeof CommandPrimitive>,
@@ -53,7 +55,7 @@ const CommandInput = React.forwardRef<
   React.ElementRef<typeof CommandPrimitive.Input>,
   React.ComponentPropsWithoutRef<typeof CommandPrimitive.Input>
 >(({ className, ...props }, ref) => (
-  <div className="flex items-center border-b px-3" cmdk-input-wrapper="">
+  <div className="flex items-center px-3" cmdk-input-wrapper="">
     <Search className="mr-2 h-4 w-4 shrink-0 opacity-50" />
     <CommandPrimitive.Input
       ref={ref}
@@ -63,6 +65,26 @@ const CommandInput = React.forwardRef<
       )}
       {...props}
     />
+    <Tooltip>
+        <TooltipTrigger asChild>
+            <Button variant="ghost" size="icon" className="h-8 w-8 shrink-0 opacity-50 cursor-help">
+                <HelpCircle className="h-4 w-4" />
+            </Button>
+        </TooltipTrigger>
+        <TooltipContent className="w-80 p-0" side="bottom" align="end">
+            <div className="p-3 text-sm">
+                <p className="font-semibold text-foreground">What can I search for?</p>
+                <ul className="list-inside list-disc mt-2 space-y-1.5 text-muted-foreground">
+                    <li>Navigate to pages like <strong>Dashboard</strong> or <strong>Settings</strong>.</li>
+                    <li>Search across invoices, transactions, accounts, budgets, and support tickets.</li>
+                    <li>Perform quick actions like <strong>Create New Invoice</strong>.</li>
+                </ul>
+                <div className="mt-3 border-t pt-3 text-xs text-muted-foreground">
+                    Use <kbd className="pointer-events-none inline-flex h-5 select-none items-center gap-1 rounded border bg-muted px-1.5 font-mono text-[10px] font-medium">↑</kbd> <kbd className="pointer-events-none inline-flex h-5 select-none items-center gap-1 rounded border bg-muted px-1.5 font-mono text-[10px] font-medium">↓</kbd> to navigate, and <kbd className="pointer-events-none inline-flex h-5 select-none items-center gap-1 rounded border bg-muted px-1.5 font-mono text-[10px] font-medium">Enter</kbd> to select.
+                </div>
+            </div>
+        </TooltipContent>
+    </Tooltip>
   </div>
 ))
 
