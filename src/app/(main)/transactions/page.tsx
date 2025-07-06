@@ -42,8 +42,8 @@ export default function TransactionsPage() {
     }, [fetchData]);
 
     useEffect(() => {
-        const viewId = searchParams.get('id');
         const action = searchParams.get('action');
+        const viewId = searchParams.get('id');
 
         if (action === 'edit-transaction' && viewId && transactions.length > 0) {
             const transactionToView = transactions.find(tx => tx.id === viewId);
@@ -51,27 +51,29 @@ export default function TransactionsPage() {
                 setSelectedTransaction(transactionToView);
                 setEditSheetOpen(true);
             } else {
-                // If transaction not found, clear params from URL
-                handleSheetOpenChange(false);
+                // If transaction not found for the given ID, clear the URL params.
+                const params = new URLSearchParams(searchParams.toString());
+                params.delete('action');
+                params.delete('id');
+                router.replace(`${pathname}?${params.toString()}`);
             }
         } else {
-            // If no action, ensure sheet is closed
+            // If the action/id params are not in the URL, ensure the sheet is closed.
             if (editSheetOpen) {
                  setEditSheetOpen(false);
+                 setSelectedTransaction(null);
             }
         }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [searchParams, transactions]);
+    }, [searchParams, transactions, router, pathname]);
 
     const handleSheetOpenChange = (open: boolean) => {
         if (!open) {
-            setSelectedTransaction(null);
             const params = new URLSearchParams(searchParams.toString());
             params.delete('action');
             params.delete('id');
             router.replace(`${pathname}?${params.toString()}`);
         }
-        setEditSheetOpen(open);
     }
 
      const handleEditClick = (transaction: Transaction) => {

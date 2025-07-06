@@ -62,8 +62,8 @@ export default function InvoicingPage() {
     }, [fetchInvoices]);
     
     useEffect(() => {
-        const viewId = searchParams.get('id');
         const action = searchParams.get('action');
+        const viewId = searchParams.get('id');
 
         if (action === 'edit-invoice' && viewId && invoices.length > 0) {
             const invoiceToView = invoices.find(inv => inv.id === viewId);
@@ -71,27 +71,29 @@ export default function InvoicingPage() {
                 setSelectedInvoice(invoiceToView);
                 setEditSheetOpen(true);
             } else {
-                // If invoice not found, clear params
-                handleSheetOpenChange(false);
+                // If invoice not found for the given ID, clear the URL params.
+                const params = new URLSearchParams(searchParams.toString());
+                params.delete('action');
+                params.delete('id');
+                router.replace(`${pathname}?${params.toString()}`);
             }
         } else {
-            // If no action, ensure sheet is closed
+            // If the action/id params are not in the URL, ensure the sheet is closed.
             if (editSheetOpen) {
                 setEditSheetOpen(false);
+                setSelectedInvoice(null);
             }
         }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [searchParams, invoices]);
+    }, [searchParams, invoices, router, pathname]);
 
     const handleSheetOpenChange = (open: boolean) => {
         if (!open) {
-            setSelectedInvoice(null);
             const params = new URLSearchParams(searchParams.toString());
             params.delete('action');
             params.delete('id');
             router.replace(`${pathname}?${params.toString()}`);
         }
-        setEditSheetOpen(open);
     }
 
     const handleDeleteClick = (invoice: Invoice) => {

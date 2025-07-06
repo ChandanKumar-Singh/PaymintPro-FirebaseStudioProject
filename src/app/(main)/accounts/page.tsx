@@ -59,8 +59,8 @@ export default function AccountsPage() {
   }, [fetchData]);
 
   useEffect(() => {
-    const viewId = searchParams.get('id');
     const action = searchParams.get('action');
+    const viewId = searchParams.get('id');
 
     if (action === 'edit-account' && viewId && accounts.length > 0) {
         const accountToView = accounts.find(acc => acc.id === viewId);
@@ -68,25 +68,29 @@ export default function AccountsPage() {
             setSelectedAccount(accountToView);
             setEditSheetOpen(true);
         } else {
-            handleSheetOpenChange(false);
+            // If account not found for the given ID, clear the URL params.
+            const params = new URLSearchParams(searchParams.toString());
+            params.delete('action');
+            params.delete('id');
+            router.replace(`${pathname}?${params.toString()}`);
         }
     } else {
+        // If the action/id params are not in the URL, ensure the sheet is closed.
         if (editSheetOpen) {
             setEditSheetOpen(false);
+            setSelectedAccount(null);
         }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [searchParams, accounts]);
+  }, [searchParams, accounts, router, pathname]);
 
   const handleSheetOpenChange = (open: boolean) => {
     if (!open) {
-        setSelectedAccount(null);
         const params = new URLSearchParams(searchParams.toString());
         params.delete('action');
         params.delete('id');
         router.replace(`${pathname}?${params.toString()}`);
     }
-    setEditSheetOpen(open);
   }
 
   const handleRemoveClick = (account: Account) => {

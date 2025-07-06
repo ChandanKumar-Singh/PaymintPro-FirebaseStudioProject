@@ -42,8 +42,8 @@ export default function BudgetsPage() {
     }, [fetchBudgets]);
 
     useEffect(() => {
-        const viewId = searchParams.get('id');
         const action = searchParams.get('action');
+        const viewId = searchParams.get('id');
 
         if (action === 'edit-budget' && viewId && budgets.length > 0) {
             const budgetToView = budgets.find(b => b.id === viewId);
@@ -51,25 +51,29 @@ export default function BudgetsPage() {
                 setSelectedBudget(budgetToView);
                 setEditSheetOpen(true);
             } else {
-                handleSheetOpenChange(false);
+                 // If budget not found for the given ID, clear the URL params.
+                const params = new URLSearchParams(searchParams.toString());
+                params.delete('action');
+                params.delete('id');
+                router.replace(`${pathname}?${params.toString()}`);
             }
         } else {
+             // If the action/id params are not in the URL, ensure the sheet is closed.
             if (editSheetOpen) {
                 setEditSheetOpen(false);
+                setSelectedBudget(null);
             }
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [searchParams, budgets]);
+    }, [searchParams, budgets, router, pathname]);
 
     const handleSheetOpenChange = (open: boolean) => {
         if (!open) {
-            setSelectedBudget(null);
             const params = new URLSearchParams(searchParams.toString());
             params.delete('action');
             params.delete('id');
             router.replace(`${pathname}?${params.toString()}`);
         }
-        setEditSheetOpen(open);
     }
 
     const handleEditClick = (budget: Budget) => {
