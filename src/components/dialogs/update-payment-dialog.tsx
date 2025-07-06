@@ -1,14 +1,18 @@
 'use client';
 
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 
-export function UpdatePaymentDialog() {
-    const [open, setOpen] = useState(false);
+interface UpdatePaymentDialogProps {
+    open: boolean;
+    onOpenChange: (open: boolean) => void;
+}
+
+export function UpdatePaymentDialog({ open, onOpenChange }: UpdatePaymentDialogProps) {
     const { toast } = useToast();
 
     const handleUpdate = () => {
@@ -16,14 +20,11 @@ export function UpdatePaymentDialog() {
             title: "Payment Method Updated",
             description: "Your payment method has been successfully updated.",
         });
-        setOpen(false);
+        onOpenChange(false);
     }
 
     return (
-        <Dialog open={open} onOpenChange={setOpen}>
-            <DialogTrigger asChild>
-                <Button variant="outline">Update</Button>
-            </DialogTrigger>
+        <Dialog open={open} onOpenChange={onOpenChange}>
             <DialogContent className="sm:max-w-[425px]">
                 <DialogHeader>
                     <DialogTitle>Update Payment Method</DialogTitle>
@@ -52,7 +53,7 @@ export function UpdatePaymentDialog() {
                     </div>
                 </div>
                 <DialogFooter>
-                    <Button variant="outline" onClick={() => setOpen(false)}>Cancel</Button>
+                    <Button variant="outline" onClick={() => onOpenChange(false)}>Cancel</Button>
                     <Button type="submit" onClick={handleUpdate}>Update Card</Button>
                 </DialogFooter>
             </DialogContent>

@@ -5,14 +5,14 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { useSearchParams } from "next/navigation";
+import { useSearchParams, useRouter, usePathname } from 'next/navigation';
 import { useToast } from "@/hooks/use-toast";
 import { Switch } from "@/components/ui/switch";
 import { Separator } from "@/components/ui/separator";
 import { Setup2FADialog } from "@/components/dialogs/setup-2fa-dialog";
 import { ChangePlanDialog } from "@/components/dialogs/change-plan-dialog";
 import { UpdatePaymentDialog } from "@/components/dialogs/update-payment-dialog";
-import { Download, Bot, Loader2, ChevronsUpDown } from "lucide-react";
+import { Download, Bot, Loader2 } from "lucide-react";
 import { seedDatabase } from "@/lib/seed";
 import { useAuth } from "@/components/auth-provider";
 import { useState, useEffect, useMemo } from "react";
@@ -20,7 +20,7 @@ import { updateProfile } from "firebase/auth";
 import { auth, db } from "@/lib/firebase";
 import { Skeleton } from "@/components/ui/skeleton";
 import { updateDocument } from "@/lib/data";
-import { DataTable } from "@/components/transactions-table";
+import { DataTable } from "@/components/data-table";
 import { type ColumnDef } from "@tanstack/react-table";
 
 type BillingHistoryItem = { id: string; date: string; amount: number; description: string };
@@ -38,15 +38,37 @@ const loginHistoryData: LoginHistoryItem[] = [
 ]
 
 export default function SettingsPage() {
+    const router = useRouter();
+    const pathname = usePathname();
     const searchParams = useSearchParams();
-    const tab = searchParams.get('tab') || 'profile';
     const { toast } = useToast();
     const { user, userProfile, refetchUserProfile } = useAuth();
+
     const [isSeeding, setIsSeeding] = useState(false);
     const [firstName, setFirstName] = useState('');
     const [lastName, setLastName] = useState('');
     const [email, setEmail] = useState('');
     const [isSaving, setIsSaving] = useState(false);
+
+    // URL-driven state
+    const tab = searchParams.get('tab') || 'profile';
+    const action = searchParams.get('action');
+
+    const is2FAOpen = action === 'setup-2fa';
+    const isChangePlanOpen = action === 'change-plan';
+    const isUpdatePaymentOpen = action === 'update-payment';
+
+    const handleOpen = (newAction: string) => {
+        const params = new URLSearchParams(searchParams.toString());
+        params.set('action', newAction);
+        router.push(`${pathname}?${params.toString()}`);
+    };
+
+    const handleClose = () => {
+        const params = new URLSearchParams(searchParams.toString());
+        params.delete('action');
+        router.push(`${pathname}?${params.toString()}`);
+    };
 
     useEffect(() => {
         if(user) {
@@ -104,11 +126,7 @@ export default function SettingsPage() {
     }
     
     const billingColumns = useMemo<ColumnDef<BillingHistoryItem>[]>(() => [
-        { 
-            accessorKey: "date", 
-            header: ({ column }) => <Button variant="ghost" onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}>Date<ChevronsUpDown className="ml-2 h-4 w-4" /></Button>,
-            cell: ({ row }) => <div className="pl-4">{row.original.date}</div>
-        },
+        { accessorKey: "date", header: "Date" },
         { accessorKey: "description", header: "Description" },
         { 
             accessorKey: "amount", 
@@ -138,7 +156,20 @@ export default function SettingsPage() {
     return (
         <div className="space-y-6">
             <h1 className="text-3xl font-bold tracking-tight">Settings</h1>
-            <Tabs defaultValue={tab} className="w-full">
+
+            <Setup2FADialog open={is2FAOpen} onOpenChange={(open) => !open && handleClose()} />
+            <ChangePlanDialog 
+                open={isChangePlanOpen} 
+                onOpenChange={(open) => !open && handleClose()}
+                currentPlan={userProfile?.subscription?.plan} 
+                onSuccess={() => {
+                    refetchUserProfile();
+                    handleClose();
+                }}
+            />
+            <UpdatePaymentDialog open={isUpdatePaymentOpen} onOpenChange={(open) => !open && handleClose()} />
+
+            <Tabs value={tab} onValueChange={(value) => router.push(`${pathname}?tab=${value}`)} className="w-full">
                 <TabsList className="grid w-full grid-cols-1 sm:grid-cols-2 md:grid-cols-5">
                     <TabsTrigger value="profile">Profile</TabsTrigger>
                     <TabsTrigger value="notifications">Notifications</TabsTrigger>
@@ -265,7 +296,7 @@ export default function SettingsPage() {
                                             <p className="font-medium">Enable 2FA</p>
                                             <p className="text-sm text-muted-foreground">Secure your account with an extra layer of protection.</p>
                                         </div>
-                                        <Setup2FADialog />
+                                        <Button variant="outline" onClick={() => handleOpen('setup-2fa')}>Setup</Button>
                                     </div>
                                 </div>
                                 <Separator />
@@ -296,10 +327,7 @@ export default function SettingsPage() {
                                                 {userProfile.subscription.plan === 'Enterprise' && 'Custom pricing'}
                                             </CardDescription>
                                         </div>
-                                        <ChangePlanDialog 
-                                            currentPlan={userProfile.subscription.plan} 
-                                            onSuccess={refetchUserProfile}
-                                        />
+                                        <Button variant="outline" onClick={() => handleOpen('change-plan')}>Change Plan</Button>
                                     </CardHeader>
                                 </Card>
                                 <Card>
@@ -316,7 +344,7 @@ export default function SettingsPage() {
                                                 <p className="text-sm text-muted-foreground">Expires 08/2028</p>
                                             </div>
                                         </div>
-                                        <UpdatePaymentDialog />
+                                        <Button variant="outline" onClick={() => handleOpen('update-payment')}>Update</Button>
                                     </CardContent>
                                 </Card>
                                 <Card>

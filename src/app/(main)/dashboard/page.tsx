@@ -16,6 +16,7 @@ import { subDays } from 'date-fns';
 import type { DateRange } from 'react-day-picker';
 import { NewPaymentDialog } from '@/components/dialogs/new-payment-dialog';
 import Link from 'next/link';
+import { useSearchParams, useRouter, usePathname } from 'next/navigation';
 
 
 type Stats = {
@@ -30,16 +31,36 @@ type OverviewData = { name: string; total: number }[];
 
 export default function DashboardPage() {
   const { user } = useAuth();
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+
   const [stats, setStats] = useState<Stats | null>(null);
   const [recentTransactions, setRecentTransactions] = useState<Transaction[]>([]);
   const [cards, setCards] = useState<CardData[]>([]);
   const [overviewData, setOverviewData] = useState<OverviewData>([]);
   const [loading, setLoading] = useState(true);
-  const [newPaymentOpen, setNewPaymentOpen] = useState(false);
+  
   const [dateRange, setDateRange] = useState<DateRange | undefined>({
     from: subDays(new Date(), 29),
     to: new Date(),
   });
+  
+  // URL-driven state
+  const action = searchParams.get('action');
+  const isNewPaymentOpen = action === 'new-payment';
+
+  const handleOpen = (newAction: string) => {
+    const params = new URLSearchParams(searchParams.toString());
+    params.set('action', newAction);
+    router.push(`${pathname}?${params.toString()}`);
+  };
+
+  const handleClose = () => {
+    const params = new URLSearchParams(searchParams.toString());
+    params.delete('action');
+    router.push(`${pathname}?${params.toString()}`);
+  };
   
   const fetchData = useCallback(async () => {
     if (user?.uid && dateRange) {
@@ -73,7 +94,14 @@ export default function DashboardPage() {
 
   return (
     <div className="space-y-6">
-      <NewPaymentDialog open={newPaymentOpen} onOpenChange={setNewPaymentOpen} onSuccess={fetchData} />
+      <NewPaymentDialog 
+        open={isNewPaymentOpen} 
+        onOpenChange={(open) => !open && handleClose()} 
+        onSuccess={() => {
+          fetchData();
+          handleClose();
+        }}
+      />
       <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-4">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Welcome back, {user?.displayName?.split(' ')[0] || 'Olivia'}!</h1>
@@ -94,7 +122,7 @@ export default function DashboardPage() {
                 <DropdownMenuItem asChild>
                   <Link href="/invoicing/new">New Invoice</Link>
                 </DropdownMenuItem>
-                <DropdownMenuItem onSelect={() => setNewPaymentOpen(true)}>
+                <DropdownMenuItem onSelect={() => handleOpen('new-payment')}>
                     New Payment
                 </DropdownMenuItem>
             </DropdownMenuContent>

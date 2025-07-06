@@ -1,22 +1,23 @@
 'use client';
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { PlusCircle, Loader2 } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/components/auth-provider";
 import { addDocument } from "@/lib/data";
 
 interface AddBudgetDialogProps {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
   onSuccess: () => void;
 }
 
-export function AddBudgetDialog({ onSuccess }: AddBudgetDialogProps) {
+export function AddBudgetDialog({ open, onOpenChange, onSuccess }: AddBudgetDialogProps) {
     const { user } = useAuth();
-    const [open, setOpen] = useState(false);
     const [name, setName] = useState('');
     const [total, setTotal] = useState('');
     const [loading, setLoading] = useState(false);
@@ -40,7 +41,6 @@ export function AddBudgetDialog({ onSuccess }: AddBudgetDialogProps) {
                 description: "Your new budget has been created successfully.",
             });
             onSuccess();
-            setOpen(false);
             setName('');
             setTotal('');
         } catch (error) {
@@ -51,13 +51,7 @@ export function AddBudgetDialog({ onSuccess }: AddBudgetDialogProps) {
     }
 
     return (
-        <Dialog open={open} onOpenChange={setOpen}>
-            <DialogTrigger asChild>
-                <Button>
-                    <PlusCircle className="mr-2 h-4 w-4" />
-                    Add Budget
-                </Button>
-            </DialogTrigger>
+        <Dialog open={open} onOpenChange={onOpenChange}>
             <DialogContent className="sm:max-w-[425px]">
                 <DialogHeader>
                     <DialogTitle>Create New Budget</DialogTitle>
@@ -90,7 +84,7 @@ export function AddBudgetDialog({ onSuccess }: AddBudgetDialogProps) {
                     </div>
                 </div>
                 <DialogFooter>
-                    <Button variant="outline" onClick={() => setOpen(false)}>Cancel</Button>
+                    <Button variant="outline" onClick={() => onOpenChange(false)}>Cancel</Button>
                     <Button type="submit" onClick={handleAddBudget} disabled={loading}>
                         {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                         Create Budget

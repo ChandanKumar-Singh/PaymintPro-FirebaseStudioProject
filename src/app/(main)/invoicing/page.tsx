@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Badge } from "@/components/ui/badge";
-import { MoreHorizontal, PlusCircle, FileWarning, FileClock, FileCheck, FileText, ChevronsUpDown } from "lucide-react";
+import { MoreHorizontal, PlusCircle, FileWarning, FileClock, FileCheck, FileText } from "lucide-react";
 import { StatCard } from "@/components/stat-card";
 import Link from "next/link";
 import { useState, useEffect, useCallback, useMemo } from "react";
@@ -15,7 +15,7 @@ import { getInvoices, deleteDocument, type Invoice } from '@/lib/data';
 import { Skeleton } from "@/components/ui/skeleton";
 import { subDays } from "date-fns";
 import { EmptyState } from "@/components/empty-state";
-import { DataTable } from "@/components/transactions-table";
+import { DataTable } from "@/components/data-table";
 import { type ColumnDef } from "@tanstack/react-table";
 import { useSearchParams, useRouter, usePathname } from "next/navigation";
 
@@ -39,13 +39,24 @@ export default function InvoicingPage() {
     const router = useRouter();
     const pathname = usePathname();
     const searchParams = useSearchParams();
+    const { toast } = useToast();
 
     const [invoices, setInvoices] = useState<Invoice[]>([]);
     const [loading, setLoading] = useState(true);
+    
     const [confirmOpen, setConfirmOpen] = useState(false);
-    const [editSheetOpen, setEditSheetOpen] = useState(false);
-    const [selectedInvoice, setSelectedInvoice] = useState<Invoice | null>(null);
-    const { toast } = useToast();
+    const [invoiceToDelete, setInvoiceToDelete] = useState<Invoice | null>(null);
+
+    // URL-driven state
+    const action = searchParams.get('action');
+    const selectedInvoiceId = searchParams.get('id');
+
+    const isEditOpen = action === 'edit-invoice' && !!selectedInvoiceId;
+
+    const selectedInvoice = useMemo(() => {
+        if (!selectedInvoiceId || !isEditOpen) return null;
+        return invoices.find(inv => inv.id === selectedInvoiceId) || null;
+    }, [invoices, selectedInvoiceId, isEditOpen]);
     
 
     const fetchInvoices = useCallback(async () => {
@@ -62,57 +73,38 @@ export default function InvoicingPage() {
     }, [fetchInvoices]);
     
     useEffect(() => {
-        const action = searchParams.get('action');
-        const viewId = searchParams.get('id');
-
-        if (action === 'edit-invoice' && viewId && invoices.length > 0) {
-            const invoiceToView = invoices.find(inv => inv.id === viewId);
-            if (invoiceToView) {
-                setSelectedInvoice(invoiceToView);
-                setEditSheetOpen(true);
-            } else {
-                // If invoice not found for the given ID, clear the URL params.
-                const params = new URLSearchParams(searchParams.toString());
-                params.delete('action');
-                params.delete('id');
-                router.replace(`${pathname}?${params.toString()}`);
-            }
-        } else {
-            // If the action/id params are not in the URL, ensure the sheet is closed.
-            if (editSheetOpen) {
-                setEditSheetOpen(false);
-                setSelectedInvoice(null);
-            }
-        }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [searchParams, invoices, router, pathname]);
-
-    const handleSheetOpenChange = (open: boolean) => {
-        if (!open) {
+        if (isEditOpen && !loading && invoices.length > 0 && !selectedInvoice) {
             const params = new URLSearchParams(searchParams.toString());
             params.delete('action');
             params.delete('id');
             router.replace(`${pathname}?${params.toString()}`);
         }
-    }
+    }, [isEditOpen, selectedInvoice, invoices.length, loading, searchParams, router, pathname]);
+
+    const handleOpen = (newAction: string, id: string) => {
+        const params = new URLSearchParams(searchParams.toString());
+        params.set('action', newAction);
+        params.set('id', id);
+        router.push(`${pathname}?${params.toString()}`);
+    };
+
+    const handleClose = () => {
+        const params = new URLSearchParams(searchParams.toString());
+        params.delete('action');
+        params.delete('id');
+        router.push(`${pathname}?${params.toString()}`);
+    };
 
     const handleDeleteClick = (invoice: Invoice) => {
-        setSelectedInvoice(invoice);
+        setInvoiceToDelete(invoice);
         setConfirmOpen(true);
-    }
-
-    const handleEditClick = (invoice: Invoice) => {
-        const params = new URLSearchParams(searchParams.toString());
-        params.set('action', 'edit-invoice');
-        params.set('id', invoice.id!);
-        router.push(`${pathname}?${params.toString()}`);
     }
     
     const handleDeleteConfirm = async () => {
-        if (!selectedInvoice || !user?.uid) return;
+        if (!invoiceToDelete || !user?.uid) return;
         
         try {
-            await deleteDocument(user.uid, 'invoices', selectedInvoice.id!);
+            await deleteDocument(user.uid, 'invoices', invoiceToDelete.id!);
             toast({
                 title: "Invoice Deleted",
                 description: "The invoice has been successfully deleted.",
@@ -127,7 +119,7 @@ export default function InvoicingPage() {
         }
         
         setConfirmOpen(false);
-        setSelectedInvoice(null);
+        setInvoiceToDelete(null);
     }
 
     const handleSendReminder = (customer: string) => {
@@ -161,12 +153,8 @@ export default function InvoicingPage() {
     const columns = useMemo<ColumnDef<Invoice>[]>(() => [
         {
             accessorKey: "customer",
-            header: ({ column }) => (
-                <Button variant="ghost" onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}>
-                    Customer <ChevronsUpDown className="ml-2 h-4 w-4" />
-                </Button>
-            ),
-            cell: ({ row }) => <div className="pl-4 font-medium">{row.original.customer}</div>,
+            header: "Customer",
+            cell: ({ row }) => <div className="font-medium">{row.original.customer}</div>,
         },
         {
             accessorKey: "invoiceNumber",
@@ -174,12 +162,8 @@ export default function InvoicingPage() {
         },
         {
             accessorKey: "date",
-            header: ({ column }) => (
-                <Button variant="ghost" onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}>
-                    Date <ChevronsUpDown className="ml-2 h-4 w-4" />
-                </Button>
-            ),
-            cell: ({ row }) => <div className="pl-4">{new Date(row.original.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</div>,
+            header: "Date",
+            cell: ({ row }) => new Date(row.original.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
         },
         {
             accessorKey: "dueDate",
@@ -193,14 +177,8 @@ export default function InvoicingPage() {
         },
         {
             accessorKey: "amount",
-            header: ({ column }) => (
-                <div className="text-right">
-                    <Button variant="ghost" onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}>
-                        Amount <ChevronsUpDown className="ml-2 h-4 w-4" />
-                    </Button>
-                </div>
-            ),
-            cell: ({ row }) => <div className="text-right font-medium pr-4">{row.original.amount.toLocaleString('en-US', { style: 'currency', currency: 'USD' })}</div>,
+            header: () => <div className="text-right">Amount</div>,
+            cell: ({ row }) => <div className="text-right font-medium">{row.original.amount.toLocaleString('en-US', { style: 'currency', currency: 'USD' })}</div>,
         },
         {
             id: "actions",
@@ -215,7 +193,7 @@ export default function InvoicingPage() {
                             </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
-                            <DropdownMenuItem onClick={() => handleEditClick(invoice)}>View/Edit</DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => handleOpen('edit-invoice', invoice.id!)}>View/Edit</DropdownMenuItem>
                             <DropdownMenuItem onClick={() => handleSendReminder(invoice.customer)}>Send Reminder</DropdownMenuItem>
                             <DropdownMenuItem className="text-destructive focus:text-destructive" onClick={() => handleDeleteClick(invoice)}>Delete</DropdownMenuItem>
                         </DropdownMenuContent>
@@ -223,7 +201,7 @@ export default function InvoicingPage() {
                 );
             },
         },
-    ], [fetchInvoices, router, pathname, searchParams]);
+    ], [fetchInvoices]);
 
     return (
         <div className="space-y-6">
@@ -235,10 +213,13 @@ export default function InvoicingPage() {
                 description="This will permanently delete the invoice. This action cannot be undone."
             />
             <EditInvoiceSheet
-                open={editSheetOpen}
-                onOpenChange={handleSheetOpenChange}
+                open={isEditOpen && !!selectedInvoice}
+                onOpenChange={(open) => !open && handleClose()}
                 invoice={selectedInvoice}
-                onSuccess={fetchInvoices}
+                onSuccess={() => {
+                    fetchInvoices();
+                    handleClose();
+                }}
             />
             <div className="flex justify-between items-center">
                 <h1 className="text-3xl font-bold tracking-tight">Invoicing</h1>

@@ -8,13 +8,35 @@ import { useAuth } from '@/components/auth-provider';
 import { getCards, getCardTransactions, type CardData, type CardTransaction } from '@/lib/data';
 import { Skeleton } from '@/components/ui/skeleton';
 import { EmptyState } from '@/components/empty-state';
-import { CreditCard } from 'lucide-react';
+import { CreditCard, PlusCircle } from 'lucide-react';
+import { useSearchParams, useRouter, usePathname } from 'next/navigation';
+import { Button } from '@/components/ui/button';
 
 export default function CardsPage() {
     const { user } = useAuth();
+    const router = useRouter();
+    const pathname = usePathname();
+    const searchParams = useSearchParams();
+
     const [cards, setCards] = useState<CardData[]>([]);
     const [transactions, setTransactions] = useState<CardTransaction[]>([]);
     const [loading, setLoading] = useState(true);
+
+    // URL-driven state
+    const action = searchParams.get('action');
+    const isAddOpen = action === 'add-card';
+
+    const handleOpen = (newAction: string) => {
+        const params = new URLSearchParams(searchParams.toString());
+        params.set('action', newAction);
+        router.push(`${pathname}?${params.toString()}`);
+    };
+
+    const handleClose = () => {
+        const params = new URLSearchParams(searchParams.toString());
+        params.delete('action');
+        router.push(`${pathname}?${params.toString()}`);
+    };
 
     const fetchData = useCallback(async () => {
         if(user?.uid) {
@@ -51,9 +73,20 @@ export default function CardsPage() {
 
     return (
         <div className="space-y-6">
+            <AddCardDialog
+                open={isAddOpen}
+                onOpenChange={(open) => !open && handleClose()}
+                onSuccess={() => {
+                    fetchData();
+                    handleClose();
+                }}
+            />
             <div className="flex justify-between items-center">
                 <h1 className="text-3xl font-bold tracking-tight">My Cards</h1>
-                <AddCardDialog onSuccess={fetchData} />
+                <Button onClick={() => handleOpen('add-card')}>
+                    <PlusCircle className="mr-2 h-4 w-4" />
+                    Add New Card
+                </Button>
             </div>
             
             {cards.length === 0 ? (
@@ -61,7 +94,7 @@ export default function CardsPage() {
                     icon={CreditCard}
                     title="No cards added"
                     description="Add your credit or debit card to see it here."
-                    actionButton={<AddCardDialog onSuccess={fetchData} />}
+                    actionButton={<Button onClick={() => handleOpen('add-card')}>Add New Card</Button>}
                 />
             ) : (
                 <>

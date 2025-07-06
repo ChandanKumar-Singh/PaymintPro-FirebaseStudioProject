@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button"
 import { Download } from "lucide-react"
 import { DateRangePicker } from "@/components/date-range-picker"
 import { getTransactions, type Transaction, deleteDocument } from '@/lib/data';
-import { DataTable } from '@/components/transactions-table';
+import { DataTable } from '@/components/data-table';
 import { useAuth } from '@/components/auth-provider';
 import { Skeleton } from '@/components/ui/skeleton';
 import { getColumns } from './columns';
@@ -24,9 +24,20 @@ export default function TransactionsPage() {
     const [transactions, setTransactions] = useState<Transaction[]>([]);
     const [loading, setLoading] = useState(true);
     
-    const [editSheetOpen, setEditSheetOpen] = useState(false);
     const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
-    const [selectedTransaction, setSelectedTransaction] = useState<Transaction | null>(null);
+    const [transactionToDelete, setTransactionToDelete] = useState<Transaction | null>(null);
+
+    // URL-driven state
+    const action = searchParams.get('action');
+    const selectedTransactionId = searchParams.get('id');
+
+    const isEditOpen = action === 'edit-transaction' && !!selectedTransactionId;
+    
+    const selectedTransaction = useMemo(() => {
+        if (!selectedTransactionId || !isEditOpen) return null;
+        return transactions.find(tx => tx.id === selectedTransactionId) || null;
+    }, [transactions, selectedTransactionId, isEditOpen]);
+
 
     const fetchData = useCallback(async () => {
       if(user?.uid) {
@@ -42,56 +53,37 @@ export default function TransactionsPage() {
     }, [fetchData]);
 
     useEffect(() => {
-        const action = searchParams.get('action');
-        const viewId = searchParams.get('id');
-
-        if (action === 'edit-transaction' && viewId && transactions.length > 0) {
-            const transactionToView = transactions.find(tx => tx.id === viewId);
-            if (transactionToView) {
-                setSelectedTransaction(transactionToView);
-                setEditSheetOpen(true);
-            } else {
-                // If transaction not found for the given ID, clear the URL params.
-                const params = new URLSearchParams(searchParams.toString());
-                params.delete('action');
-                params.delete('id');
-                router.replace(`${pathname}?${params.toString()}`);
-            }
-        } else {
-            // If the action/id params are not in the URL, ensure the sheet is closed.
-            if (editSheetOpen) {
-                 setEditSheetOpen(false);
-                 setSelectedTransaction(null);
-            }
-        }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [searchParams, transactions, router, pathname]);
-
-    const handleSheetOpenChange = (open: boolean) => {
-        if (!open) {
+        if (isEditOpen && !loading && transactions.length > 0 && !selectedTransaction) {
             const params = new URLSearchParams(searchParams.toString());
             params.delete('action');
             params.delete('id');
             router.replace(`${pathname}?${params.toString()}`);
         }
-    }
+    }, [isEditOpen, selectedTransaction, transactions.length, loading, searchParams, router, pathname]);
 
-     const handleEditClick = (transaction: Transaction) => {
+    const handleOpen = (newAction: string, id: string) => {
         const params = new URLSearchParams(searchParams.toString());
-        params.set('action', 'edit-transaction');
-        params.set('id', transaction.id!);
+        params.set('action', newAction);
+        params.set('id', id);
         router.push(`${pathname}?${params.toString()}`);
-    }
+    };
+
+    const handleClose = () => {
+        const params = new URLSearchParams(searchParams.toString());
+        params.delete('action');
+        params.delete('id');
+        router.push(`${pathname}?${params.toString()}`);
+    };
 
     const handleDeleteClick = (transaction: Transaction) => {
-      setSelectedTransaction(transaction);
+      setTransactionToDelete(transaction);
       setConfirmDeleteOpen(true);
     }
 
     const handleDeleteConfirm = async () => {
-      if (!selectedTransaction || !user?.uid) return;
+      if (!transactionToDelete || !user?.uid) return;
       try {
-        await deleteDocument(user.uid, 'transactions', selectedTransaction.id!);
+        await deleteDocument(user.uid, 'transactions', transactionToDelete.id!);
         toast({
             title: "Transaction Deleted",
             description: "The transaction has been successfully deleted.",
@@ -101,12 +93,14 @@ export default function TransactionsPage() {
         toast({ title: "Error", description: "Failed to delete transaction", variant: "destructive" });
       } finally {
         setConfirmDeleteOpen(false);
-        setSelectedTransaction(null);
+        setTransactionToDelete(null);
       }
     }
     
-    // useMemo is important here to prevent re-creating the columns on every render
-    const columns = useMemo(() => getColumns(handleEditClick, handleDeleteClick), [fetchData]);
+    const columns = useMemo(() => getColumns(
+        (transaction) => handleOpen('edit-transaction', transaction.id!),
+        handleDeleteClick
+    ), [fetchData]);
 
     const handleDownloadCSV = () => {
         const headers = ['ID', 'Customer', 'Email', 'Type', 'Status', 'Date', 'Amount', 'Category'];
@@ -126,10 +120,13 @@ export default function TransactionsPage() {
     return (
       <div className="space-y-6">
          <EditTransactionSheet 
-            open={editSheetOpen}
-            onOpenChange={handleSheetOpenChange}
+            open={isEditOpen && !!selectedTransaction}
+            onOpenChange={(open) => !open && handleClose()}
             transaction={selectedTransaction}
-            onSuccess={fetchData}
+            onSuccess={() => {
+                fetchData();
+                handleClose();
+            }}
         />
         <ConfirmDialog 
             open={confirmDeleteOpen}

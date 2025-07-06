@@ -6,14 +6,14 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Badge } from "@/components/ui/badge";
-import { Banknote, MoreHorizontal, Landmark } from "lucide-react";
+import { Banknote, MoreHorizontal, Landmark, PlusCircle } from "lucide-react";
 import { AddAccountDialog } from '@/components/dialogs/add-account-dialog';
 import { ConfirmDialog } from '@/components/dialogs/confirm-dialog';
 import { useToast } from '@/hooks/use-toast';
 import { EditAccountSheet } from '@/components/sheets/edit-account-sheet';
 import { getAccounts, getRecentAccountTransactions, deleteDocument, type Account, type AccountTransaction } from '@/lib/data';
 import { EmptyState } from '@/components/empty-state';
-import { DataTable } from '@/components/transactions-table';
+import { DataTable } from '@/components/data-table';
 import { type ColumnDef } from '@tanstack/react-table';
 import { useSearchParams, useRouter, usePathname } from 'next/navigation';
 
@@ -26,14 +26,26 @@ export default function AccountsPage() {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
+  const { toast } = useToast();
 
   const [accounts, setAccounts] = useState<Account[]>([]);
   const [transactions, setTransactions] = useState<AccountTransaction[]>([]);
   const [loading, setLoading] = useState(true);
+  
   const [confirmOpen, setConfirmOpen] = useState(false);
-  const [editSheetOpen, setEditSheetOpen] = useState(false);
-  const [selectedAccount, setSelectedAccount] = useState<Account | null>(null);
-  const { toast } = useToast();
+  const [accountToDelete, setAccountToDelete] = useState<Account | null>(null);
+
+  // URL-driven state for dialogs/sheets
+  const action = searchParams.get('action');
+  const selectedAccountId = searchParams.get('id');
+
+  const isAddOpen = action === 'add-account';
+  const isEditOpen = action === 'edit-account' && !!selectedAccountId;
+
+  const selectedAccount = useMemo(() => {
+    if (!selectedAccountId || !isEditOpen) return null;
+    return accounts.find(acc => acc.id === selectedAccountId) || null;
+  }, [accounts, selectedAccountId, isEditOpen]);
 
   const fetchData = useCallback(async () => {
       if (user?.uid) {
@@ -57,52 +69,38 @@ export default function AccountsPage() {
   useEffect(() => {
     fetchData();
   }, [fetchData]);
-
+  
+  // Effect to handle invalid IDs in URL (e.g., after deletion or bad link)
   useEffect(() => {
-    const action = searchParams.get('action');
-    const viewId = searchParams.get('id');
-
-    if (action === 'edit-account' && viewId && accounts.length > 0) {
-        const accountToView = accounts.find(acc => acc.id === viewId);
-        if (accountToView) {
-            setSelectedAccount(accountToView);
-            setEditSheetOpen(true);
-        } else {
-            // If account not found for the given ID, clear the URL params.
-            const params = new URLSearchParams(searchParams.toString());
-            params.delete('action');
-            params.delete('id');
-            router.replace(`${pathname}?${params.toString()}`);
-        }
-    } else {
-        // If the action/id params are not in the URL, ensure the sheet is closed.
-        if (editSheetOpen) {
-            setEditSheetOpen(false);
-            setSelectedAccount(null);
-        }
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [searchParams, accounts, router, pathname]);
-
-  const handleSheetOpenChange = (open: boolean) => {
-    if (!open) {
+    if (isEditOpen && !loading && accounts.length > 0 && !selectedAccount) {
         const params = new URLSearchParams(searchParams.toString());
         params.delete('action');
         params.delete('id');
         router.replace(`${pathname}?${params.toString()}`);
     }
-  }
+  }, [isEditOpen, selectedAccount, accounts.length, loading, searchParams, router, pathname]);
+
+  const handleOpen = (newAction: string, id?: string) => {
+    const params = new URLSearchParams(searchParams.toString());
+    params.set('action', newAction);
+    if (id) {
+        params.set('id', id);
+    } else {
+        params.delete('id');
+    }
+    router.push(`${pathname}?${params.toString()}`);
+  };
+
+  const handleClose = () => {
+    const params = new URLSearchParams(searchParams.toString());
+    params.delete('action');
+    params.delete('id');
+    router.push(`${pathname}?${params.toString()}`);
+  };
 
   const handleRemoveClick = (account: Account) => {
-    setSelectedAccount(account);
+    setAccountToDelete(account);
     setConfirmOpen(true);
-  }
-
-  const handleEditClick = (account: Account) => {
-    const params = new URLSearchParams(searchParams.toString());
-    params.set('action', 'edit-account');
-    params.set('id', account.id!);
-    router.push(`${pathname}?${params.toString()}`);
   }
 
   const handleSetDefault = (account: Account) => {
@@ -113,9 +111,9 @@ export default function AccountsPage() {
   }
 
   const handleRemoveConfirm = async () => {
-    if (!selectedAccount || !user?.uid) return;
+    if (!accountToDelete || !user?.uid) return;
     try {
-        await deleteDocument(user.uid, 'accounts', selectedAccount.id!);
+        await deleteDocument(user.uid, 'accounts', accountToDelete.id!);
         toast({
             title: "Account Removed",
             description: "The account has been successfully removed.",
@@ -129,7 +127,7 @@ export default function AccountsPage() {
         });
     } finally {
         setConfirmOpen(false);
-        setSelectedAccount(null);
+        setAccountToDelete(null);
     }
   }
 
@@ -175,15 +173,29 @@ export default function AccountsPage() {
         title="Are you sure?"
         description="This will permanently remove the account and all its data. This action cannot be undone."
       />
+      <AddAccountDialog 
+        open={isAddOpen}
+        onOpenChange={(open) => !open && handleClose()}
+        onSuccess={() => {
+            fetchData();
+            handleClose();
+        }}
+      />
       <EditAccountSheet 
-        open={editSheetOpen}
-        onOpenChange={handleSheetOpenChange}
+        open={isEditOpen && !!selectedAccount}
+        onOpenChange={(open) => !open && handleClose()}
         account={selectedAccount}
-        onSuccess={fetchData}
+        onSuccess={() => {
+            fetchData();
+            handleClose();
+        }}
       />
       <div className="flex justify-between items-center">
         <h1 className="text-3xl font-bold tracking-tight">Accounts</h1>
-        <AddAccountDialog onSuccess={fetchData} />
+        <Button onClick={() => handleOpen('add-account')}>
+            <PlusCircle className="mr-2 h-4 w-4" />
+            Add New
+        </Button>
       </div>
 
       {accounts.length === 0 ? (
@@ -191,7 +203,7 @@ export default function AccountsPage() {
           icon={Landmark}
           title="No accounts connected"
           description="Get started by adding your first bank account to track your finances."
-          actionButton={<AddAccountDialog onSuccess={fetchData} />}
+          actionButton={<Button onClick={() => handleOpen('add-account')}>Add Account</Button>}
         />
       ) : (
         <>
@@ -219,7 +231,7 @@ export default function AccountsPage() {
                           </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
-                          <DropdownMenuItem onClick={() => handleEditClick(account)}>Edit</DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => handleOpen('edit-account', account.id!)}>Edit</DropdownMenuItem>
                           <DropdownMenuItem onClick={() => handleSetDefault(account)}>Set as Default</DropdownMenuItem>
                           <DropdownMenuItem className="text-destructive focus:text-destructive" onClick={() => handleRemoveClick(account)}>Remove Account</DropdownMenuItem>
                         </DropdownMenuContent>

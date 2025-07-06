@@ -1,7 +1,7 @@
 'use client';
 
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -17,14 +17,14 @@ const plans: { name: Subscription['plan'], price: string, features: string[] }[]
 ];
 
 interface ChangePlanDialogProps {
+    open: boolean;
+    onOpenChange: (open: boolean) => void;
     currentPlan?: Subscription['plan'];
     onSuccess?: () => void;
-    triggerButton?: React.ReactNode;
 }
 
-export function ChangePlanDialog({ currentPlan, onSuccess, triggerButton }: ChangePlanDialogProps) {
+export function ChangePlanDialog({ open, onOpenChange, currentPlan, onSuccess }: ChangePlanDialogProps) {
     const { user } = useAuth();
-    const [open, setOpen] = useState(false);
     const [loading, setLoading] = useState(false);
     const { toast } = useToast();
 
@@ -44,7 +44,6 @@ export function ChangePlanDialog({ currentPlan, onSuccess, triggerButton }: Chan
                 description: `Your subscription plan has been updated to ${newPlan}.`,
             });
             onSuccess?.();
-            setOpen(false);
         } catch (error) {
             toast({ title: "Error", description: "Could not update your plan.", variant: 'destructive'});
         } finally {
@@ -53,10 +52,7 @@ export function ChangePlanDialog({ currentPlan, onSuccess, triggerButton }: Chan
     }
 
     return (
-        <Dialog open={open} onOpenChange={setOpen}>
-            <DialogTrigger asChild>
-                {triggerButton || <Button variant="outline">Change Plan</Button>}
-            </DialogTrigger>
+        <Dialog open={open} onOpenChange={onOpenChange}>
             <DialogContent className="sm:max-w-3xl">
                 <DialogHeader>
                     <DialogTitle>Change Subscription Plan</DialogTitle>

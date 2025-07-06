@@ -1,9 +1,9 @@
 'use client';
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { Card, CardHeader, CardTitle, CardContent, CardFooter } from '@/components/ui/card';
 import { Progress } from "@/components/ui/progress";
 import { AddBudgetDialog } from '@/components/dialogs/add-budget-dialog';
-import { MoreHorizontal, Target } from 'lucide-react';
+import { MoreHorizontal, Target, PlusCircle } from 'lucide-react';
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from '@/components/ui/dropdown-menu';
 import { Button } from '@/components/ui/button';
 import { EditBudgetSheet } from '@/components/sheets/edit-budget-sheet';
@@ -20,13 +20,26 @@ export default function BudgetsPage() {
     const router = useRouter();
     const pathname = usePathname();
     const searchParams = useSearchParams();
+    const { toast } = useToast();
 
     const [budgets, setBudgets] = useState<Budget[]>([]);
     const [loading, setLoading] = useState(true);
-    const [editSheetOpen, setEditSheetOpen] = useState(false);
+    
     const [confirmOpen, setConfirmOpen] = useState(false);
-    const [selectedBudget, setSelectedBudget] = useState<Budget | null>(null);
-    const { toast } = useToast();
+    const [budgetToDelete, setBudgetToDelete] = useState<Budget | null>(null);
+
+    // URL-driven state
+    const action = searchParams.get('action');
+    const selectedBudgetId = searchParams.get('id');
+
+    const isAddOpen = action === 'add-budget';
+    const isEditOpen = action === 'edit-budget' && !!selectedBudgetId;
+    
+    const selectedBudget = useMemo(() => {
+        if (!selectedBudgetId || !isEditOpen) return null;
+        return budgets.find(b => b.id === selectedBudgetId) || null;
+    }, [budgets, selectedBudgetId, isEditOpen]);
+
 
     const fetchBudgets = useCallback(async () => {
         if (user?.uid) {
@@ -42,57 +55,42 @@ export default function BudgetsPage() {
     }, [fetchBudgets]);
 
     useEffect(() => {
-        const action = searchParams.get('action');
-        const viewId = searchParams.get('id');
-
-        if (action === 'edit-budget' && viewId && budgets.length > 0) {
-            const budgetToView = budgets.find(b => b.id === viewId);
-            if (budgetToView) {
-                setSelectedBudget(budgetToView);
-                setEditSheetOpen(true);
-            } else {
-                 // If budget not found for the given ID, clear the URL params.
-                const params = new URLSearchParams(searchParams.toString());
-                params.delete('action');
-                params.delete('id');
-                router.replace(`${pathname}?${params.toString()}`);
-            }
-        } else {
-             // If the action/id params are not in the URL, ensure the sheet is closed.
-            if (editSheetOpen) {
-                setEditSheetOpen(false);
-                setSelectedBudget(null);
-            }
-        }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [searchParams, budgets, router, pathname]);
-
-    const handleSheetOpenChange = (open: boolean) => {
-        if (!open) {
+        if (isEditOpen && !loading && budgets.length > 0 && !selectedBudget) {
             const params = new URLSearchParams(searchParams.toString());
             params.delete('action');
             params.delete('id');
             router.replace(`${pathname}?${params.toString()}`);
         }
-    }
+    }, [isEditOpen, selectedBudget, budgets.length, loading, searchParams, router, pathname]);
 
-    const handleEditClick = (budget: Budget) => {
+    const handleOpen = (newAction: string, id?: string) => {
         const params = new URLSearchParams(searchParams.toString());
-        params.set('action', 'edit-budget');
-        params.set('id', budget.id!);
+        params.set('action', newAction);
+        if (id) {
+            params.set('id', id);
+        } else {
+            params.delete('id');
+        }
         router.push(`${pathname}?${params.toString()}`);
-    }
+    };
+
+    const handleClose = () => {
+        const params = new URLSearchParams(searchParams.toString());
+        params.delete('action');
+        params.delete('id');
+        router.push(`${pathname}?${params.toString()}`);
+    };
 
     const handleDeleteClick = (budget: Budget) => {
-        setSelectedBudget(budget);
+        setBudgetToDelete(budget);
         setConfirmOpen(true);
     }
 
     const handleDeleteConfirm = async () => {
-        if (!selectedBudget || !user?.uid) return;
+        if (!budgetToDelete || !user?.uid) return;
         
         try {
-            await deleteDocument(user.uid, 'budgets', selectedBudget.id!);
+            await deleteDocument(user.uid, 'budgets', budgetToDelete.id!);
             toast({
                 title: "Budget Deleted",
                 description: "The budget has been successfully deleted.",
@@ -106,7 +104,7 @@ export default function BudgetsPage() {
             });
         } finally {
             setConfirmOpen(false);
-            setSelectedBudget(null);
+            setBudgetToDelete(null);
         }
     }
 
@@ -119,15 +117,29 @@ export default function BudgetsPage() {
                 title="Are you sure?"
                 description="This will permanently delete the budget. This action cannot be undone."
             />
+            <AddBudgetDialog
+                open={isAddOpen}
+                onOpenChange={(open) => !open && handleClose()}
+                onSuccess={() => {
+                    fetchBudgets();
+                    handleClose();
+                }}
+            />
             <EditBudgetSheet 
-                open={editSheetOpen}
-                onOpenChange={handleSheetOpenChange}
+                open={isEditOpen && !!selectedBudget}
+                onOpenChange={(open) => !open && handleClose()}
                 budget={selectedBudget}
-                onSuccess={fetchBudgets}
+                onSuccess={() => {
+                    fetchBudgets();
+                    handleClose();
+                }}
             />
             <div className="flex justify-between items-center">
                 <h1 className="text-3xl font-bold tracking-tight">Budgets</h1>
-                <AddBudgetDialog onSuccess={fetchBudgets} />
+                <Button onClick={() => handleOpen('add-budget')}>
+                    <PlusCircle className="mr-2 h-4 w-4" />
+                    Add Budget
+                </Button>
             </div>
 
             {loading ? (
@@ -139,7 +151,7 @@ export default function BudgetsPage() {
                     icon={Target}
                     title="No budgets created"
                     description="Get started by creating a new budget to track your spending."
-                    actionButton={<AddBudgetDialog onSuccess={fetchBudgets} />}
+                    actionButton={<Button onClick={() => handleOpen('add-budget')}>Add Budget</Button>}
                 />
             ) : (
                 <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
@@ -158,7 +170,7 @@ export default function BudgetsPage() {
                                             </Button>
                                             </DropdownMenuTrigger>
                                             <DropdownMenuContent align="end">
-                                            <DropdownMenuItem onClick={() => handleEditClick(budget)}>Edit Budget</DropdownMenuItem>
+                                            <DropdownMenuItem onClick={() => handleOpen('edit-budget', budget.id!)}>Edit Budget</DropdownMenuItem>
                                             <DropdownMenuItem className="text-destructive focus:text-destructive" onClick={() => handleDeleteClick(budget)}>Delete Budget</DropdownMenuItem>
                                             </DropdownMenuContent>
                                         </DropdownMenu>

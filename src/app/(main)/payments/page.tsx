@@ -13,8 +13,9 @@ import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/components/auth-provider";
 import { getPayments, deleteDocument, updateDocument, type Payment } from "@/lib/data";
 import { Skeleton } from "@/components/ui/skeleton";
-import { DataTable } from "@/components/transactions-table";
+import { DataTable } from '@/components/data-table';
 import { type ColumnDef } from "@tanstack/react-table";
+import { useSearchParams, useRouter, usePathname } from 'next/navigation';
 
 const getStatusBadge = (status: string) => {
   switch (status) {
@@ -33,11 +34,31 @@ type ActionType = 'cancel' | 'retry';
 
 export default function PaymentsPage() {
     const { user } = useAuth();
+    const router = useRouter();
+    const pathname = usePathname();
+    const searchParams = useSearchParams();
+
     const [payments, setPayments] = useState<Payment[]>([]);
     const [loading, setLoading] = useState(true);
     const [confirmOpen, setConfirmOpen] = useState(false);
     const [selectedPayment, setSelectedPayment] = useState<{id: string, action: ActionType} | null>(null);
     const { toast } = useToast();
+
+    // URL-driven state
+    const action = searchParams.get('action');
+    const isNewPaymentOpen = action === 'new-payment';
+
+    const handleOpen = (newAction: string) => {
+        const params = new URLSearchParams(searchParams.toString());
+        params.set('action', newAction);
+        router.push(`${pathname}?${params.toString()}`);
+    };
+
+    const handleClose = () => {
+        const params = new URLSearchParams(searchParams.toString());
+        params.delete('action');
+        router.push(`${pathname}?${params.toString()}`);
+    };
 
     const fetchPayments = useCallback(async () => {
         if(user?.uid) {
@@ -158,9 +179,20 @@ export default function PaymentsPage() {
                 title={`Are you sure you want to ${selectedPayment?.action} this payment?`}
                 description="This action may not be reversible depending on the payment status."
             />
+            <NewPaymentDialog 
+                open={isNewPaymentOpen} 
+                onOpenChange={(open) => !open && handleClose()}
+                onSuccess={() => {
+                    fetchPayments();
+                    handleClose();
+                }}
+            />
             <div className="flex justify-between items-center">
                 <h1 className="text-3xl font-bold tracking-tight">Payments</h1>
-                <NewPaymentDialog onSuccess={fetchPayments}/>
+                <Button onClick={() => handleOpen('new-payment')}>
+                    <PlusCircle className="mr-2 h-4 w-4" />
+                    New Payment
+                </Button>
             </div>
 
             <Tabs defaultValue="upcoming">

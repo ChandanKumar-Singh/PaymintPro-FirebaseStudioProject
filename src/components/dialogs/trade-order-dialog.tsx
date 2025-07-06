@@ -13,7 +13,7 @@ interface TradeOrderDialogProps {
         symbol: string;
         shares: number;
         price: number;
-    },
+    };
     onConfirm: () => Promise<void>;
 }
 
@@ -29,7 +29,6 @@ export function TradeOrderDialog({ open, onOpenChange, tradeDetails, onConfirm }
                 title: `Trade Executed`,
                 description: `Successfully ${tradeDetails.action === 'Buy' ? 'bought' : 'sold'} ${tradeDetails.shares} shares of ${tradeDetails.symbol}.`,
             });
-            onOpenChange(false);
         } catch(error) {
              toast({ title: "Error", description: "Trade could not be executed.", variant: 'destructive'});
         } finally {

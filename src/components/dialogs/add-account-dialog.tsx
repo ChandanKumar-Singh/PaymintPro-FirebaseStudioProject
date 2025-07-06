@@ -1,23 +1,24 @@
 'use client';
 
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { PlusCircle, Loader2 } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "../auth-provider";
 import { addDocument } from "@/lib/data";
 
 interface AddAccountDialogProps {
+    open: boolean;
+    onOpenChange: (open: boolean) => void;
     onSuccess: () => void;
 }
 
-export function AddAccountDialog({ onSuccess }: AddAccountDialogProps) {
+export function AddAccountDialog({ open, onOpenChange, onSuccess }: AddAccountDialogProps) {
     const { user } = useAuth();
-    const [open, setOpen] = useState(false);
     const [loading, setLoading] = useState(false);
     const { toast } = useToast();
 
@@ -50,7 +51,6 @@ export function AddAccountDialog({ onSuccess }: AddAccountDialogProps) {
                 description: "The new bank account has been connected successfully.",
             });
             onSuccess();
-            setOpen(false);
             // Reset form
             setBank('');
             setAccountName('');
@@ -63,13 +63,7 @@ export function AddAccountDialog({ onSuccess }: AddAccountDialogProps) {
     }
 
     return (
-        <Dialog open={open} onOpenChange={setOpen}>
-            <DialogTrigger asChild>
-                <Button>
-                    <PlusCircle className="mr-2 h-4 w-4" />
-                    Add New
-                </Button>
-            </DialogTrigger>
+        <Dialog open={open} onOpenChange={onOpenChange}>
             <DialogContent className="sm:max-w-[425px]">
                 <DialogHeader>
                     <DialogTitle>Add New Account</DialogTitle>
@@ -111,7 +105,7 @@ export function AddAccountDialog({ onSuccess }: AddAccountDialogProps) {
                     </div>
                 </div>
                 <DialogFooter>
-                    <Button variant="outline" onClick={() => setOpen(false)}>Cancel</Button>
+                    <Button variant="outline" onClick={() => onOpenChange(false)}>Cancel</Button>
                     <Button type="submit" onClick={handleAddAccount} disabled={loading}>
                         {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                         Connect Account

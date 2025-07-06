@@ -2,9 +2,8 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ArrowUp, ChevronsUpDown } from "lucide-react";
+import { ArrowUp } from "lucide-react";
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
 import Image from 'next/image';
 import { useState, useEffect, useCallback, useMemo } from "react";
@@ -12,22 +11,41 @@ import { TradeOrderDialog } from "@/components/dialogs/trade-order-dialog";
 import { useAuth } from "@/components/auth-provider";
 import { getTradingData, updateDocument, type PortfolioItem, type WatchlistItem, type MarketNewsItem, type StockDataPoint } from "@/lib/data";
 import { Skeleton } from "@/components/ui/skeleton";
-import { DataTable } from "@/components/transactions-table";
+import { DataTable } from "@/components/data-table";
 import { type ColumnDef } from "@tanstack/react-table";
-
+import { useSearchParams, useRouter, usePathname } from 'next/navigation';
 
 export default function TradingPage() {
     const { user } = useAuth();
+    const router = useRouter();
+    const pathname = usePathname();
+    const searchParams = useSearchParams();
+
     const [stockData, setStockData] = useState<StockDataPoint[]>([]);
     const [portfolio, setPortfolio] = useState<PortfolioItem[]>([]);
     const [watchlist, setWatchlist] = useState<WatchlistItem[]>([]);
     const [marketNews, setMarketNews] = useState<MarketNewsItem[]>([]);
     const [loading, setLoading] = useState(true);
-
-    const [tradeDialogOpen, setTradeDialogOpen] = useState(false);
-    const [tradeDetails, setTradeDetails] = useState({ action: 'Buy' as 'Buy' | 'Sell', symbol: 'AAPL', shares: 0, price: 155.10 });
+    
     const [buyShares, setBuyShares] = useState('');
     const [sellShares, setSellShares] = useState('');
+
+    // URL-driven state
+    const action = searchParams.get('action');
+    const symbol = searchParams.get('symbol');
+    const shares = searchParams.get('shares');
+
+    const isTradeOpen = action === 'trade' && !!symbol && !!shares;
+
+    const tradeDetails = useMemo(() => {
+        if (!isTradeOpen) return null;
+        return {
+            action: (searchParams.get('type') as 'Buy' | 'Sell') || 'Buy',
+            symbol: symbol!,
+            shares: parseInt(shares!),
+            price: stockData[stockData.length - 1]?.price || 155.10,
+        }
+    }, [isTradeOpen, symbol, shares, searchParams, stockData]);
 
     const fetchData = useCallback(async () => {
         if (user?.uid) {
@@ -45,21 +63,29 @@ export default function TradingPage() {
         fetchData();
     }, [fetchData]);
 
-    const handleTradeClick = (action: 'Buy' | 'Sell') => {
-        const shares = action === 'Buy' ? parseInt(buyShares) : parseInt(sellShares);
-        if (shares > 0) {
-            setTradeDetails({
-                action,
-                symbol: 'AAPL',
-                shares,
-                price: stockData[stockData.length - 1]?.price || 155.10
-            });
-            setTradeDialogOpen(true);
+    const handleOpenTrade = (type: 'Buy' | 'Sell') => {
+        const sharesToTrade = type === 'Buy' ? parseInt(buyShares) : parseInt(sellShares);
+        if (sharesToTrade > 0) {
+            const params = new URLSearchParams(searchParams.toString());
+            params.set('action', 'trade');
+            params.set('type', type);
+            params.set('symbol', 'AAPL');
+            params.set('shares', sharesToTrade.toString());
+            router.push(`${pathname}?${params.toString()}`);
         }
     }
 
+    const handleClose = () => {
+        const params = new URLSearchParams(searchParams.toString());
+        params.delete('action');
+        params.delete('type');
+        params.delete('symbol');
+        params.delete('shares');
+        router.push(`${pathname}?${params.toString()}`);
+    }
+
     const handleConfirmTrade = async () => {
-        if(!user) return;
+        if(!user || !tradeDetails) return;
         
         const aaplStock = portfolio.find(s => s.symbol === 'AAPL');
         if(!aaplStock || !aaplStock.id) {
@@ -74,7 +100,6 @@ export default function TradingPage() {
             value: newShares * tradeDetails.price
         });
         
-        setTradeDialogOpen(false);
         await fetchData(); // Refresh data
     }
 
@@ -92,12 +117,12 @@ export default function TradingPage() {
         { accessorKey: 'shares', header: 'Shares' },
         { 
             accessorKey: 'value', 
-            header: ({ column }) => <Button variant="ghost" onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}>Value <ChevronsUpDown className="ml-2 h-4 w-4" /></Button>,
+            header: 'Value',
             cell: ({ row }) => row.original.value.toLocaleString('en-US', { style: 'currency', currency: 'USD' })
         },
         { 
             accessorKey: 'change', 
-            header: ({ column }) => <div className="text-right"><Button variant="ghost" onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}>24h Change <ChevronsUpDown className="ml-2 h-4 w-4" /></Button></div>,
+            header: () => <div className="text-right">24h Change</div>,
             cell: ({ row }) => (
                 <div className={`text-right font-medium ${row.original.change >= 0 ? 'text-green-600' : 'text-red-600'}`}>
                     {row.original.change >= 0 ? '+' : ''}{row.original.change.toFixed(2)}%
@@ -128,12 +153,17 @@ export default function TradingPage() {
 
     return (
         <div className="space-y-6">
-            <TradeOrderDialog 
-                open={tradeDialogOpen} 
-                onOpenChange={setTradeDialogOpen} 
-                tradeDetails={tradeDetails} 
-                onConfirm={handleConfirmTrade}
-            />
+            {tradeDetails && (
+                <TradeOrderDialog 
+                    open={isTradeOpen} 
+                    onOpenChange={(open) => !open && handleClose()}
+                    tradeDetails={tradeDetails} 
+                    onConfirm={() => {
+                        handleConfirmTrade();
+                        handleClose();
+                    }}
+                />
+            )}
             <h1 className="text-3xl font-bold tracking-tight">Trading</h1>
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 <div className="lg:col-span-2 space-y-6">
@@ -193,7 +223,7 @@ export default function TradingPage() {
                                     <Input placeholder="Amount (shares)" type="number" value={buyShares} onChange={e => setBuyShares(e.target.value)} />
                                     <p className="text-sm text-muted-foreground">Market Price: ~${stockData[stockData.length - 1]?.price.toFixed(2)}</p>
                                     <p className="text-sm font-bold">Estimated Cost: {(parseFloat(buyShares) * (stockData[stockData.length - 1]?.price || 0) || 0).toLocaleString('en-US', { style: 'currency', currency: 'USD' })}</p>
-                                    <Button className="w-full" onClick={() => handleTradeClick('Buy')} disabled={!buyShares || parseInt(buyShares) <= 0}>Buy AAPL</Button>
+                                    <Button className="w-full" onClick={() => handleOpenTrade('Buy')} disabled={!buyShares || parseInt(buyShares) <= 0}>Buy AAPL</Button>
                                 </CardContent>
                             </TabsContent>
                             <TabsContent value="sell">
@@ -201,7 +231,7 @@ export default function TradingPage() {
                                     <Input placeholder="Amount (shares)" type="number" value={sellShares} onChange={e => setSellShares(e.target.value)} />
                                     <p className="text-sm text-muted-foreground">You own: {portfolio.find(s => s.symbol === 'AAPL')?.shares || 0} shares</p>
                                     <p className="text-sm font-bold">Estimated Credit: {(parseFloat(sellShares) * (stockData[stockData.length - 1]?.price || 0) || 0).toLocaleString('en-US', { style: 'currency', currency: 'USD' })}</p>
-                                    <Button variant="destructive" className="w-full" onClick={() => handleTradeClick('Sell')} disabled={!sellShares || parseInt(sellShares) <= 0}>Sell AAPL</Button>
+                                    <Button variant="destructive" className="w-full" onClick={() => handleOpenTrade('Sell')} disabled={!sellShares || parseInt(sellShares) <= 0}>Sell AAPL</Button>
                                 </CardContent>
                             </TabsContent>
                         </Tabs>
