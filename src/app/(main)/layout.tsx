@@ -17,6 +17,7 @@ import { UserNav } from '@/components/user-nav';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { ThemeToggle } from '@/components/theme-toggle';
 import { ChangePlanDialog } from '@/components/dialogs/change-plan-dialog';
+import { useAuth } from '@/components/auth-provider';
 
 function Logo() {
   return (
@@ -47,6 +48,10 @@ export default function MainLayout({
 }: {
   children: React.ReactNode;
 }) {
+  const { user, userProfile, refetchUserProfile } = useAuth();
+  
+  const showUpgradeCard = userProfile?.subscription.plan === 'Starter';
+
   return (
     <div className="flex min-h-screen w-full bg-background">
       <Sidebar variant="sidebar" collapsible="icon" className="border-r border-sidebar-border">
@@ -59,24 +64,30 @@ export default function MainLayout({
           <MainNav />
         </SidebarContent>
         <SidebarFooter>
-          <Card className="m-2 border-none bg-sidebar-accent shadow-none">
-            <CardHeader className="p-2 pt-2">
-              <CardTitle className="flex items-center gap-2 text-sm text-sidebar-primary font-medium">
-                <Rocket className="h-4 w-4 text-sidebar-primary" />
-                <span>Upgrade to Pro</span>
-              </CardTitle>
-              <CardDescription className="text-xs">
-                Unlock all features and get priority support.
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="p-2 pt-0">
-              <ChangePlanDialog>
-                <Button size="sm" className="w-full">
-                  Upgrade Now
-                </Button>
-              </ChangePlanDialog>
-            </CardContent>
-          </Card>
+          {showUpgradeCard && (
+            <Card className="m-2 border-none bg-sidebar-accent shadow-none">
+              <CardHeader className="p-2 pt-2">
+                <CardTitle className="flex items-center gap-2 text-sm text-sidebar-primary font-medium">
+                  <Rocket className="h-4 w-4 text-sidebar-primary" />
+                  <span>Upgrade to Pro</span>
+                </CardTitle>
+                <CardDescription className="text-xs">
+                  Unlock all features and get priority support.
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="p-2 pt-0">
+                <ChangePlanDialog 
+                  currentPlan={userProfile?.subscription.plan} 
+                  onSuccess={refetchUserProfile}
+                  triggerButton={
+                    <Button size="sm" className="w-full">
+                      Upgrade Now
+                    </Button>
+                  }
+                />
+              </CardContent>
+            </Card>
+          )}
         </SidebarFooter>
       </Sidebar>
       <SidebarInset>

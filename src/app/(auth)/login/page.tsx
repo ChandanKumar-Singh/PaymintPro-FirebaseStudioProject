@@ -87,6 +87,7 @@ export default function LoginPage() {
                     displayName: user.displayName,
                     photoURL: user.photoURL,
                     createdAt: new Date().toISOString(),
+                    subscription: { plan: 'Starter', status: 'active' },
                 });
                 await seedDatabase(user.uid);
                 toast({

@@ -50,6 +50,7 @@ export default function RegisterPage() {
                 displayName: `${firstName} ${lastName}`.trim(),
                 photoURL: user.photoURL,
                 createdAt: new Date().toISOString(),
+                subscription: { plan: 'Starter', status: 'active' },
             });
 
             // 4. Seed the database with sample data for the new user

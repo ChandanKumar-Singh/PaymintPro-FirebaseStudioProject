@@ -32,6 +32,15 @@ export type TicketMessage = {
     error?: string;
   };
 };
+export type Subscription = { plan: 'Starter' | 'Pro' | 'Enterprise'; status: 'active' | 'canceled' };
+export type UserProfile = {
+    uid: string;
+    email?: string | null;
+    displayName?: string | null;
+    photoURL?: string | null;
+    createdAt: string;
+    subscription: Subscription;
+};
 
 
 // Generic function to fetch a collection

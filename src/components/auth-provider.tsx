@@ -1,10 +1,12 @@
 'use client';
 
-import { createContext, useContext, useEffect, useState } from 'react';
+import { createContext, useContext, useEffect, useState, useCallback } from 'react';
 import { onAuthStateChanged, User } from 'firebase/auth';
-import { auth, isFirebaseConfigured } from '@/lib/firebase';
+import { auth, isFirebaseConfigured, db } from '@/lib/firebase';
 import { usePathname, useRouter } from 'next/navigation';
 import { Button } from './ui/button';
+import { doc, getDoc } from 'firebase/firestore';
+import type { UserProfile } from '@/lib/data';
 
 function FirebaseConfigErrorComponent() {
     return (
@@ -40,18 +42,46 @@ function FullScreenLoader() {
 
 interface AuthContextType {
   user: User | null;
+  userProfile: UserProfile | null;
   loading: boolean;
   isFirebaseConfigValid: boolean;
+  refetchUserProfile: () => void;
 }
 
-const AuthContext = createContext<AuthContextType>({ user: null, loading: true, isFirebaseConfigValid: true });
+const AuthContext = createContext<AuthContextType>({ 
+    user: null, 
+    userProfile: null, 
+    loading: true, 
+    isFirebaseConfigValid: true,
+    refetchUserProfile: () => {},
+});
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
+  const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
   const [isFirebaseConfigValid, setFirebaseConfigValid] = useState(true);
   const router = useRouter();
   const pathname = usePathname();
+
+  const fetchUserProfile = useCallback(async (authUser: User | null) => {
+    if (authUser) {
+      const userDocRef = doc(db, "users", authUser.uid);
+      const userDoc = await getDoc(userDocRef);
+      if (userDoc.exists()) {
+        setUserProfile(userDoc.data() as UserProfile);
+      }
+    } else {
+      setUserProfile(null);
+    }
+    setLoading(false);
+  }, []);
+
+  const refetchUserProfile = useCallback(() => {
+    if (auth.currentUser) {
+        fetchUserProfile(auth.currentUser);
+    }
+  }, [fetchUserProfile]);
 
   useEffect(() => {
     if (!isFirebaseConfigured()) {
@@ -59,13 +89,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setLoading(false);
         return;
     }
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      setUser(user);
-      setLoading(false);
+    const unsubscribe = onAuthStateChanged(auth, (authUser) => {
+      setUser(authUser);
+      fetchUserProfile(authUser);
     });
 
     return () => unsubscribe();
-  }, []);
+  }, [fetchUserProfile]);
 
   useEffect(() => {
     if (loading || !isFirebaseConfigValid) return;
@@ -93,7 +123,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return <FullScreenLoader />;
   }
 
-  return <AuthContext.Provider value={{ user, loading, isFirebaseConfigValid }}>{children}</AuthContext.Provider>;
+  return <AuthContext.Provider value={{ user, userProfile, loading, isFirebaseConfigValid, refetchUserProfile }}>{children}</AuthContext.Provider>;
 }
 
 export const useAuth = () => {

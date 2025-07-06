@@ -20,6 +20,7 @@ import { useAuth } from "@/components/auth-provider";
 import { useState, useEffect } from "react";
 import { updateProfile } from "firebase/auth";
 import { auth } from "@/lib/firebase";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const billingHistory = [
     { id: 'bill_1', date: '2024-07-01', amount: 20.00, description: 'Pro Plan - Monthly' },
@@ -37,7 +38,7 @@ export default function SettingsPage() {
     const searchParams = useSearchParams();
     const tab = searchParams.get('tab') || 'profile';
     const { toast } = useToast();
-    const { user } = useAuth();
+    const { user, userProfile, refetchUserProfile } = useAuth();
     const [isSeeding, setIsSeeding] = useState(false);
     const [firstName, setFirstName] = useState('');
     const [lastName, setLastName] = useState('');
@@ -59,6 +60,9 @@ export default function SettingsPage() {
         try {
             const newDisplayName = `${firstName} ${lastName}`.trim();
             await updateProfile(user, { displayName: newDisplayName });
+            // Also update the firestore document
+            await updateDocument(user.uid, 'users', user.uid, { displayName: newDisplayName });
+            refetchUserProfile();
             toast({
                 title: "Settings Saved",
                 description: "Your changes have been saved successfully.",
@@ -117,7 +121,7 @@ export default function SettingsPage() {
                                 <div className="flex items-center space-x-4">
                                     <Avatar className="h-20 w-20">
                                         <AvatarImage src={user?.photoURL || "https://placehold.co/80x80.png"} data-ai-hint="woman avatar" />
-                                        <AvatarFallback>{firstName[0]}{lastName[0]}</AvatarFallback>
+                                        <AvatarFallback>{firstName?.[0]}{lastName?.[0]}</AvatarFallback>
                                     </Avatar>
                                     <Button variant="outline">Change Photo</Button>
                                 </div>
@@ -256,6 +260,9 @@ export default function SettingsPage() {
                         </Card>
                     </TabsContent>
                     <TabsContent value="billing">
+                        { !userProfile ? (
+                            <Card><CardContent className="p-6"><Skeleton className="h-96 w-full" /></CardContent></Card>
+                        ) : (
                         <Card>
                             <CardHeader>
                                 <CardTitle>Billing</CardTitle>
@@ -265,10 +272,17 @@ export default function SettingsPage() {
                                 <Card>
                                     <CardHeader className="flex flex-row items-center justify-between">
                                         <div>
-                                            <CardTitle className="text-xl">Pro Plan</CardTitle>
-                                            <CardDescription>$20 / month</CardDescription>
+                                            <CardTitle className="text-xl">{userProfile.subscription.plan} Plan</CardTitle>
+                                            <CardDescription>
+                                                {userProfile.subscription.plan === 'Pro' && '$20 / month'}
+                                                {userProfile.subscription.plan === 'Starter' && 'Free plan'}
+                                                {userProfile.subscription.plan === 'Enterprise' && 'Custom pricing'}
+                                            </CardDescription>
                                         </div>
-                                        <ChangePlanDialog />
+                                        <ChangePlanDialog 
+                                            currentPlan={userProfile.subscription.plan} 
+                                            onSuccess={refetchUserProfile}
+                                        />
                                     </CardHeader>
                                 </Card>
                                 <Card>
@@ -322,6 +336,7 @@ export default function SettingsPage() {
                                 </Card>
                             </CardContent>
                         </Card>
+                        )}
                     </TabsContent>
                      <TabsContent value="developer">
                         <Card>
