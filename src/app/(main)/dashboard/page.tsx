@@ -12,6 +12,9 @@ import { getDashboardStats, getCards, getOverviewData, type Transaction, type Ca
 import { useEffect, useState, useCallback } from 'react';
 import { useAuth } from '@/components/auth-provider';
 import { Skeleton } from '@/components/ui/skeleton';
+import { subDays } from 'date-fns';
+import type { DateRange } from 'react-day-picker';
+
 
 type Stats = {
   totalRevenue: { value: number; change: number; };
@@ -30,14 +33,18 @@ export default function DashboardPage() {
   const [cards, setCards] = useState<CardData[]>([]);
   const [overviewData, setOverviewData] = useState<OverviewData>([]);
   const [loading, setLoading] = useState(true);
+  const [dateRange, setDateRange] = useState<DateRange | undefined>({
+    from: subDays(new Date(), 29),
+    to: new Date(),
+  });
   
   const fetchData = useCallback(async () => {
-    if (user?.uid) {
+    if (user?.uid && dateRange) {
         setLoading(true);
         const [dashboardData, cardsData, overview] = await Promise.all([
-            getDashboardStats(user.uid),
+            getDashboardStats(user.uid, dateRange),
             getCards(user.uid),
-            getOverviewData(user.uid)
+            getOverviewData(user.uid, dateRange)
         ]);
 
         if (dashboardData) {
@@ -49,7 +56,7 @@ export default function DashboardPage() {
         setOverviewData(overview);
         setLoading(false);
     }
-  }, [user]);
+  }, [user, dateRange]);
 
   useEffect(() => {
     fetchData();
@@ -67,11 +74,11 @@ export default function DashboardPage() {
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Welcome back, {user?.displayName?.split(' ')[0] || 'Olivia'}!</h1>
           <p className="text-muted-foreground">
-            Here's your financial overview for today.
+            Here's your financial overview for the selected period.
           </p>
         </div>
         <div className="flex items-center gap-4">
-          <DateRangePicker />
+          <DateRangePicker date={dateRange} onSelect={setDateRange} />
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
                 <Button>
@@ -107,19 +114,19 @@ export default function DashboardPage() {
             <StatCard
               title="Total Revenue"
               value={stats ? stats.totalRevenue.value.toLocaleString('en-US', { style: 'currency', currency: 'USD' }) : '$0.00'}
-              change={stats ? `${formatChange(stats.totalRevenue.change)} from last month` : '...'}
+              change={stats ? `${formatChange(stats.totalRevenue.change)} from previous period` : '...'}
               icon={DollarSign}
             />
             <StatCard
               title="Subscriptions"
               value={stats ? `+${stats.subscriptions.value.toLocaleString()}` : '+0'}
-              change={stats ? `${formatChange(stats.subscriptions.change)} from last month` : '...'}
+              change={stats ? `${formatChange(stats.subscriptions.change)} from previous period` : '...'}
               icon={Users}
             />
             <StatCard
               title="Sales"
               value={stats ? `+${stats.sales.value.toLocaleString()}`: '+0'}
-              change={stats ? `${formatChange(stats.sales.change)} from last month`: '...'}
+              change={stats ? `${formatChange(stats.sales.change)} from previous period`: '...'}
               icon={CreditCard}
             />
             <StatCard

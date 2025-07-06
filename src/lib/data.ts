@@ -1,7 +1,8 @@
 'use client';
 import { collection, getDocs, addDoc, doc, deleteDoc, updateDoc, writeBatch, getDoc, serverTimestamp, query, orderBy, limit, startAfter, type DocumentSnapshot } from "firebase/firestore";
 import { db } from "./firebase";
-import { format, subMonths, startOfMonth, endOfMonth } from 'date-fns';
+import { format, subMonths, startOfMonth, endOfMonth, subDays, differenceInDays, startOfDay, endOfDay, eachDayOfInterval, eachMonthOfInterval } from 'date-fns';
+import type { DateRange } from 'react-day-picker';
 
 // Type definitions
 export type Transaction = { id?: string; customer: string; email: string; type: "Sale" | "Refund" | "Subscription" | "Expense"; status: "Success" | "Processing" | "Declined"; date: string; amount: number; category: string; avatar?: string; dataAiHint?: string; };
@@ -81,14 +82,30 @@ async function getDocument<T>(userId: string, collectionName: string, docId: str
 
 
 // Specific data fetching functions
-export const getDashboardStats = async (userId: string) => {
+export const getDashboardStats = async (userId: string, dateRange?: DateRange) => {
     if (!userId) return null;
-    const transactions = await getCollectionData<Transaction>(userId, 'transactions');
-    const lastMonth = subMonths(new Date(), 1);
-    
-    const currentMonthTxs = transactions.filter(tx => new Date(tx.date) >= startOfMonth(new Date()));
-    const lastMonthTxs = transactions.filter(tx => new Date(tx.date) >= startOfMonth(lastMonth) && new Date(tx.date) <= endOfMonth(lastMonth));
+    if (!dateRange?.from || !dateRange?.to) return null;
 
+    const allTransactions = await getCollectionData<Transaction>(userId, 'transactions');
+
+    const currentPeriodStart = startOfDay(dateRange.from);
+    const currentPeriodEnd = endOfDay(dateRange.to);
+
+    const periodDuration = differenceInDays(currentPeriodEnd, currentPeriodStart);
+
+    const previousPeriodEnd = subDays(currentPeriodStart, 1);
+    const previousPeriodStart = startOfDay(subDays(previousPeriodEnd, periodDuration));
+    
+    const filterByDate = (txs: Transaction[], start: Date, end: Date) => {
+        return txs.filter(tx => {
+            const txDate = new Date(tx.date);
+            return txDate >= start && txDate <= end;
+        });
+    }
+
+    const currentMonthTxs = filterByDate(allTransactions, currentPeriodStart, currentPeriodEnd);
+    const lastMonthTxs = filterByDate(allTransactions, previousPeriodStart, previousPeriodEnd);
+    
     const totalRevenue = currentMonthTxs.filter(tx => tx.amount > 0).reduce((sum, tx) => sum + tx.amount, 0);
     const lastMonthRevenue = lastMonthTxs.filter(tx => tx.amount > 0).reduce((sum, tx) => sum + tx.amount, 0);
 
@@ -110,7 +127,7 @@ export const getDashboardStats = async (userId: string) => {
         activeNow: { value: 573, change: 201 } // Simulated
     };
 
-    const recentSales = transactions
+    const recentSales = currentMonthTxs
         .filter(tx => tx.type === 'Sale')
         .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
         .slice(0, 5);
@@ -118,24 +135,56 @@ export const getDashboardStats = async (userId: string) => {
     return { stats, recentSales };
 };
 
-export const getOverviewData = async (userId: string) => {
-    if (!userId) return [];
+export const getOverviewData = async (userId: string, dateRange?: DateRange) => {
+    if (!userId || !dateRange?.from || !dateRange.to) return [];
+    
     const transactions = await getCollectionData<Transaction>(userId, 'transactions');
-    const monthlyTotals: { [key: string]: number } = {};
+    
+    const startDate = startOfDay(dateRange.from);
+    const endDate = endOfDay(dateRange.to);
 
-    transactions.forEach(tx => {
-        if(tx.amount > 0) { // Only count revenue
-            const month = format(new Date(tx.date), 'MMM');
-            monthlyTotals[month] = (monthlyTotals[month] || 0) + tx.amount;
-        }
+    const filteredTxs = transactions.filter(tx => {
+        const txDate = new Date(tx.date);
+        return tx.amount > 0 && txDate >= startDate && txDate <= endDate;
     });
 
-    const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-    return monthNames.map(name => ({
-        name,
-        total: monthlyTotals[name] || 0,
-    }));
-}
+    const periodDuration = differenceInDays(endDate, startDate);
+
+    if (periodDuration > 90) {
+        // Group by month
+        const monthlyTotals: { [key: string]: number } = {};
+        const intervalMonths = eachMonthOfInterval({ start: startDate, end: endDate });
+        
+        intervalMonths.forEach(monthStart => {
+            const monthKey = format(monthStart, 'MMM yyyy');
+            monthlyTotals[monthKey] = 0;
+        });
+
+        filteredTxs.forEach(tx => {
+            const month = format(new Date(tx.date), 'MMM yyyy');
+            monthlyTotals[month] = (monthlyTotals[month] || 0) + tx.amount;
+        });
+        
+        return Object.entries(monthlyTotals).map(([name, total]) => ({ name: name.split(' ')[0], total }));
+
+    } else {
+        // Group by day
+        const dailyTotals: { [key: string]: number } = {};
+        const intervalDays = eachDayOfInterval({ start: startDate, end: endDate });
+
+        intervalDays.forEach(day => {
+            const dayKey = format(day, 'MMM d');
+            dailyTotals[dayKey] = 0;
+        });
+
+        filteredTxs.forEach(tx => {
+            const day = format(new Date(tx.date), 'MMM d');
+            dailyTotals[day] = (dailyTotals[day] || 0) + tx.amount;
+        });
+        
+        return Object.entries(dailyTotals).map(([name, total]) => ({ name, total }));
+    }
+};
 
 export const getSpendingByCategory = async (userId: string) => {
     if(!userId) return [];
