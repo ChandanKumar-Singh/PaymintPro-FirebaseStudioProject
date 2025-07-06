@@ -69,7 +69,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const userDocRef = doc(db, "users", authUser.uid);
       const userDoc = await getDoc(userDocRef);
       if (userDoc.exists()) {
-        setUserProfile(userDoc.data() as UserProfile);
+        const profileData = userDoc.data() as UserProfile;
+        // Gracefully handle missing subscription data for older user documents
+        if (!profileData.subscription) {
+            profileData.subscription = { plan: 'Starter', status: 'active' };
+        }
+        setUserProfile(profileData);
       }
     } else {
       setUserProfile(null);
