@@ -50,7 +50,7 @@ export default function MainLayout({
 }) {
   const { user, userProfile, refetchUserProfile } = useAuth();
   
-  const showUpgradeCard = userProfile?.subscription.plan === 'Starter';
+  const showUpgradeCard = userProfile?.subscription?.plan === 'Starter';
 
   return (
     <div className="flex min-h-screen w-full bg-background">
@@ -77,7 +77,7 @@ export default function MainLayout({
               </CardHeader>
               <CardContent className="p-2 pt-0">
                 <ChangePlanDialog 
-                  currentPlan={userProfile?.subscription.plan} 
+                  currentPlan={userProfile?.subscription?.plan} 
                   onSuccess={refetchUserProfile}
                   triggerButton={
                     <Button size="sm" className="w-full">
