@@ -30,7 +30,7 @@ export function Hero() {
             variant="outline"
             className="text-white border-white/40 hover:text-white hover:bg-white/10 rounded-md px-6 py-5 text-base font-bold"
           >
-            <Link href="#">Contact sales</Link>
+            <Link href="/contact">Contact sales</Link>
           </Button>
         </div>
         <div className="mt-16 flex justify-center">
