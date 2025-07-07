@@ -15,9 +15,10 @@ import { MainNav } from '@/components/main-nav';
 import { UserNav } from '@/components/user-nav';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { ThemeToggle } from '@/components/theme-toggle';
-import { ChangePlanDialog } from '@/components/dialogs/change-plan-dialog';
 import { useAuth } from '@/components/auth-provider';
 import { CommandPalette } from '@/components/command-palette';
+import { useSearchParams, useRouter, usePathname } from 'next/navigation';
+import { ChangePlanDialog } from '@/components/dialogs/change-plan-dialog';
 
 function Logo() {
   return (
@@ -49,11 +50,44 @@ export default function MainLayout({
   children: React.ReactNode;
 }) {
   const { userProfile, refetchUserProfile } = useAuth();
-  
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+
   const showUpgradeCard = userProfile?.subscription?.plan === 'Starter';
+
+  const action = searchParams.get('action');
+  const isChangePlanOpen = action === 'change-plan';
+
+  const handleOpen = (newAction: string) => {
+    const params = new URLSearchParams(searchParams.toString());
+    params.set('action', newAction);
+    router.push(`${pathname}?${params.toString()}`);
+  };
+
+  const handleClose = () => {
+    const params = new URLSearchParams(searchParams.toString());
+    params.delete('action');
+    router.push(`${pathname}?${params.toString()}`);
+  };
 
   return (
     <div className="flex min-h-screen w-full bg-background">
+       <ChangePlanDialog 
+          open={isChangePlanOpen}
+          onOpenChange={(open) => !open && handleClose()}
+          currentPlan={userProfile?.subscription?.plan} 
+          onSuccess={() => {
+              refetchUserProfile();
+              handleClose();
+          }}
+          triggerButton={
+            <Button size="sm" className="w-full">
+              Upgrade Now
+            </Button>
+          }
+        />
+
       <Sidebar variant="sidebar" collapsible="icon" className="border-r border-sidebar-border">
         <SidebarHeader>
           <Link href="/dashboard">
@@ -76,15 +110,9 @@ export default function MainLayout({
                 </CardDescription>
               </CardHeader>
               <CardContent className="p-2 pt-0">
-                <ChangePlanDialog 
-                  currentPlan={userProfile?.subscription?.plan} 
-                  onSuccess={refetchUserProfile}
-                  triggerButton={
-                    <Button size="sm" className="w-full">
-                      Upgrade Now
-                    </Button>
-                  }
-                />
+                <Button size="sm" className="w-full" onClick={() => handleOpen('change-plan')}>
+                  Upgrade Now
+                </Button>
               </CardContent>
             </Card>
           )}

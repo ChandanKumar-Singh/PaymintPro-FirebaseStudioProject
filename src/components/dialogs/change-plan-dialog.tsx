@@ -1,7 +1,7 @@
 'use client';
 
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -17,13 +17,14 @@ const plans: { name: Subscription['plan'], price: string, features: string[] }[]
 ];
 
 interface ChangePlanDialogProps {
-    open: boolean;
-    onOpenChange: (open: boolean) => void;
+    open?: boolean;
+    onOpenChange?: (open: boolean) => void;
     currentPlan?: Subscription['plan'];
     onSuccess?: () => void;
+    triggerButton?: React.ReactNode;
 }
 
-export function ChangePlanDialog({ open, onOpenChange, currentPlan, onSuccess }: ChangePlanDialogProps) {
+export function ChangePlanDialog({ open, onOpenChange, currentPlan, onSuccess, triggerButton }: ChangePlanDialogProps) {
     const { user } = useAuth();
     const [loading, setLoading] = useState(false);
     const { toast } = useToast();
@@ -44,6 +45,7 @@ export function ChangePlanDialog({ open, onOpenChange, currentPlan, onSuccess }:
                 description: `Your subscription plan has been updated to ${newPlan}.`,
             });
             onSuccess?.();
+            onOpenChange?.(false);
         } catch (error) {
             toast({ title: "Error", description: "Could not update your plan.", variant: 'destructive'});
         } finally {
@@ -51,44 +53,57 @@ export function ChangePlanDialog({ open, onOpenChange, currentPlan, onSuccess }:
         }
     }
 
+    const content = (
+         <DialogContent className="sm:max-w-3xl">
+            <DialogHeader>
+                <DialogTitle>Change Subscription Plan</DialogTitle>
+                <DialogDescription>
+                    Choose the plan that best fits your needs.
+                </DialogDescription>
+            </DialogHeader>
+            <div className="grid gap-6 py-4 md:grid-cols-3">
+                {plans.map(plan => (
+                    <Card key={plan.name} className={plan.name === currentPlan ? "border-primary" : ""}>
+                        <CardHeader>
+                            <CardTitle>{plan.name}</CardTitle>
+                            <CardDescription className="text-2xl font-bold">{plan.price}<span className="text-sm font-normal text-muted-foreground">/mo</span></CardDescription>
+                        </CardHeader>
+                        <CardContent className="flex flex-col flex-1">
+                            <ul className="space-y-2 text-sm flex-1">
+                                {plan.features.map(feature => (
+                                    <li key={feature} className="flex items-center gap-2">
+                                        <Check className="h-4 w-4 text-primary" />
+                                        {feature}
+                                    </li>
+                                ))}
+                            </ul>
+                            <Button 
+                                className="w-full mt-6" 
+                                disabled={plan.name === currentPlan || loading}
+                                onClick={() => handleChangePlan(plan.name)}
+                            >
+                                {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                                {plan.name === currentPlan ? "Current Plan" : "Choose Plan"}
+                            </Button>
+                        </CardContent>
+                    </Card>
+                ))}
+            </div>
+        </DialogContent>
+    )
+
+    if (triggerButton) {
+        return (
+            <Dialog open={open} onOpenChange={onOpenChange}>
+                <DialogTrigger asChild>{triggerButton}</DialogTrigger>
+                {content}
+            </Dialog>
+        );
+    }
+    
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent className="sm:max-w-3xl">
-                <DialogHeader>
-                    <DialogTitle>Change Subscription Plan</DialogTitle>
-                    <DialogDescription>
-                        Choose the plan that best fits your needs.
-                    </DialogDescription>
-                </DialogHeader>
-                <div className="grid gap-6 py-4 md:grid-cols-3">
-                    {plans.map(plan => (
-                        <Card key={plan.name} className={plan.name === currentPlan ? "border-primary" : ""}>
-                            <CardHeader>
-                                <CardTitle>{plan.name}</CardTitle>
-                                <CardDescription className="text-2xl font-bold">{plan.price}<span className="text-sm font-normal text-muted-foreground">/mo</span></CardDescription>
-                            </CardHeader>
-                            <CardContent className="flex flex-col flex-1">
-                                <ul className="space-y-2 text-sm flex-1">
-                                    {plan.features.map(feature => (
-                                        <li key={feature} className="flex items-center gap-2">
-                                            <Check className="h-4 w-4 text-primary" />
-                                            {feature}
-                                        </li>
-                                    ))}
-                                </ul>
-                                <Button 
-                                    className="w-full mt-6" 
-                                    disabled={plan.name === currentPlan || loading}
-                                    onClick={() => handleChangePlan(plan.name)}
-                                >
-                                    {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                                    {plan.name === currentPlan ? "Current Plan" : "Choose Plan"}
-                                </Button>
-                            </CardContent>
-                        </Card>
-                    ))}
-                </div>
-            </DialogContent>
+            {content}
         </Dialog>
     )
 }
