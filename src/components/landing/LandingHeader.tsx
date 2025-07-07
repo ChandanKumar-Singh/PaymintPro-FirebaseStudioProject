@@ -93,15 +93,15 @@ export function LandingHeader() {
                     </NavigationMenuLink>
                   </Link>
                 </NavigationMenuItem>
-                <NavigationMenuItem>
-                  <Link href="#" legacyBehavior passHref>
+                 <NavigationMenuItem>
+                  <Link href="/contact" legacyBehavior passHref>
                     <NavigationMenuLink
                       className={cn(
                         navigationMenuTriggerStyle(),
                         'bg-transparent text-white hover:bg-white/10 focus:bg-white/10'
                       )}
                     >
-                      Company
+                      Contact us
                     </NavigationMenuLink>
                   </Link>
                 </NavigationMenuItem>
@@ -184,10 +184,10 @@ export function LandingHeader() {
                     </SheetClose>
                     <SheetClose asChild>
                       <Link
-                        href="#"
+                        href="/contact"
                         className="hover:text-[#B2F35F] transition-colors"
                       >
-                        Company
+                        Contact us
                       </Link>
                     </SheetClose>
                   </nav>
