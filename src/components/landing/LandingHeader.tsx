@@ -67,39 +67,36 @@ export function LandingHeader() {
                   </NavigationMenuContent>
                 </NavigationMenuItem>
                 <NavigationMenuItem>
-                  <Link href="#" passHref>
-                    <NavigationMenuLink
-                      className={cn(
-                        navigationMenuTriggerStyle(),
-                        'bg-transparent text-white hover:bg-white/10 focus:bg-white/10'
-                      )}
-                    >
-                      Solutions
-                    </NavigationMenuLink>
+                  <Link
+                    href="#"
+                    className={cn(
+                      navigationMenuTriggerStyle(),
+                      'bg-transparent text-white hover:bg-white/10 focus:bg-white/10'
+                    )}
+                  >
+                    Solutions
                   </Link>
                 </NavigationMenuItem>
                 <NavigationMenuItem>
-                  <Link href="#" passHref>
-                    <NavigationMenuLink
-                      className={cn(
-                        navigationMenuTriggerStyle(),
-                        'bg-transparent text-white hover:bg-white/10 focus:bg-white/10'
-                      )}
-                    >
-                      Resources
-                    </NavigationMenuLink>
+                  <Link
+                    href="#"
+                    className={cn(
+                      navigationMenuTriggerStyle(),
+                      'bg-transparent text-white hover:bg-white/10 focus:bg-white/10'
+                    )}
+                  >
+                    Resources
                   </Link>
                 </NavigationMenuItem>
                 <NavigationMenuItem>
-                  <Link href="#" passHref>
-                    <NavigationMenuLink
-                      className={cn(
-                        navigationMenuTriggerStyle(),
-                        'bg-transparent text-white hover:bg-white/10 focus:bg-white/10'
-                      )}
-                    >
-                      Company
-                    </NavigationMenuLink>
+                   <Link
+                    href="#"
+                    className={cn(
+                      navigationMenuTriggerStyle(),
+                      'bg-transparent text-white hover:bg-white/10 focus:bg-white/10'
+                    )}
+                  >
+                    Company
                   </Link>
                 </NavigationMenuItem>
               </NavigationMenuList>
