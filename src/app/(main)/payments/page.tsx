@@ -20,11 +20,11 @@ import { useSearchParams, useRouter, usePathname } from 'next/navigation';
 const getStatusBadge = (status: string) => {
   switch (status) {
     case 'Upcoming':
-      return <Badge variant="outline" className="bg-blue-100 text-blue-800 border-blue-200">Upcoming</Badge>;
+      return <Badge variant="outline" className="bg-info/10 text-info border-info/20">Upcoming</Badge>;
     case 'Completed':
-      return <Badge variant="outline" className="bg-green-100 text-green-800 border-green-200">Completed</Badge>;
+      return <Badge variant="outline" className="bg-success/10 text-success border-success/20">Completed</Badge>;
     case 'Failed':
-      return <Badge variant="destructive" className="bg-red-100 text-red-800 border-red-200">Failed</Badge>;
+      return <Badge variant="destructive">Failed</Badge>;
     default:
       return <Badge variant="secondary">{status}</Badge>;
   }

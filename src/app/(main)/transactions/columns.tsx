@@ -20,11 +20,11 @@ import { cn } from "@/lib/utils"
 const getStatusBadge = (status: string) => {
   switch (status) {
     case 'Success':
-      return <Badge variant="outline" className="bg-emerald-100 text-emerald-800 border-emerald-200 dark:bg-emerald-900/40 dark:text-emerald-300 dark:border-emerald-700">Success</Badge>;
+      return <Badge variant="outline" className="bg-success/10 text-success border-success/20">Success</Badge>;
     case 'Processing':
-      return <Badge variant="outline" className="bg-blue-100 text-blue-800 border-blue-200 dark:bg-blue-900/40 dark:text-blue-300 dark:border-blue-700">Processing</Badge>;
+      return <Badge variant="outline" className="bg-info/10 text-info border-info/20">Processing</Badge>;
     case 'Declined':
-      return <Badge variant="outline" className="bg-rose-100 text-rose-800 border-rose-200 dark:bg-rose-900/40 dark:text-rose-300 dark:border-rose-700">Declined</Badge>;
+      return <Badge variant="outline" className="bg-destructive/10 text-destructive border-destructive/20">Declined</Badge>;
     default:
       return <Badge variant="secondary">{status}</Badge>;
   }

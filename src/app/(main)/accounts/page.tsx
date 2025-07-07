@@ -18,7 +18,7 @@ import { type ColumnDef } from '@tanstack/react-table';
 import { useSearchParams, useRouter, usePathname } from 'next/navigation';
 
 const getStatusBadge = (status: string) => {
-    return <Badge variant="default" className="bg-green-100 text-green-800 border-green-200 hover:bg-green-100">Completed</Badge>;
+    return <Badge variant="outline" className="bg-success/10 text-success border-success/20">Completed</Badge>;
 };
 
 export default function AccountsPage() {

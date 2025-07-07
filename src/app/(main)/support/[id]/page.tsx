@@ -25,9 +25,9 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/comp
 const getStatusBadge = (status: string) => {
     switch (status) {
         case 'Open':
-            return <Badge variant="outline" className="bg-green-100 text-green-800 border-green-200">Open</Badge>;
+            return <Badge variant="outline" className="bg-success/10 text-success border-success/20">Open</Badge>;
         case 'In Progress':
-            return <Badge variant="outline" className="bg-blue-100 text-blue-800 border-blue-200">In Progress</Badge>;
+            return <Badge variant="outline" className="bg-info/10 text-info border-info/20">In Progress</Badge>;
         case 'Closed':
             return <Badge variant="secondary">Closed</Badge>;
         default:
@@ -40,7 +40,7 @@ const getPriorityBadge = (priority: string) => {
         case 'High':
             return <Badge variant="destructive">High</Badge>;
         case 'Medium':
-            return <Badge variant="outline" className="bg-amber-100 text-amber-800 border-amber-200">Medium</Badge>;
+            return <Badge variant="outline" className="bg-warning/10 text-warning border-warning/20">Medium</Badge>;
         case 'Low':
             return <Badge variant="outline">Low</Badge>;
         default:
