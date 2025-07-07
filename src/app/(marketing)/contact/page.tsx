@@ -8,7 +8,7 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Textarea } from '@/components/ui/textarea';
 import Image from 'next/image';
 import Link from 'next/link';
-import { Facebook, Instagram, Linkedin, MessageSquareQuestion, Twitter, BookOpenCheck } from 'lucide-react';
+import { Facebook, Instagram, Linkedin, MessageSquareQuote, Twitter, BookOpenCheck } from 'lucide-react';
 import { FinalCTA } from '@/components/landing/FinalCTA';
 
 const socialLinks = [
@@ -51,7 +51,7 @@ function ContactHero() {
                         <div className="grid sm:grid-cols-2 gap-6">
                             <Card className="bg-white/10 border-white/20 p-6 rounded-2xl">
                                 <div className="bg-[#B2F35F] text-[#052011] rounded-full h-10 w-10 flex items-center justify-center mb-4">
-                                    <MessageSquareQuestion className="h-6 w-6" />
+                                    <MessageSquareQuote className="h-6 w-6" />
                                 </div>
                                 <h3 className="font-bold text-lg mb-2">Have a questions?</h3>
                                 <p className="text-sm text-white/80">Find the answers to frequently asked questions here.</p>
