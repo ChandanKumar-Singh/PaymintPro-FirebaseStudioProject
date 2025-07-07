@@ -1,3 +1,4 @@
+'use client';
 import Image from 'next/image';
 import Link from 'next/link';
 import React from 'react';
@@ -13,9 +14,7 @@ export default function AuthLayout({
       <div className="flex items-center justify-center py-12">
         <div className="mx-auto grid w-[350px] gap-6">
             <div className="grid gap-2 text-center">
-                <Link href="/" className="flex justify-center items-center">
-                    <Logo />
-                </Link>
+                <Logo className="justify-center" />
             </div>
             <div className="bg-white text-black rounded-lg p-8">
                 {children}
