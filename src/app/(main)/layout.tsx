@@ -23,20 +23,10 @@ import { ChangePlanDialog } from '@/components/dialogs/change-plan-dialog';
 function Logo() {
   return (
     <div className="flex items-center gap-2.5">
-       <svg
-        width="24"
-        height="24"
-        viewBox="0 0 24 24"
-        fill="none"
-        xmlns="http://www.w3.org/2000/svg"
-      >
-        <circle cx="12" cy="12" r="12" fill="hsl(var(--primary))" />
-        <path
-          d="M14.488 8H11V20H14.488V15.564H17.332C19.932 15.564 21.5 13.848 21.5 11.784C21.5 9.72 19.932 8 17.332 8H14.488ZM14.488 12.94V10.628H17.2C18.3 10.628 18.928 11.064 18.928 11.784C18.928 12.504 18.3 12.94 17.2 12.94H14.488Z"
-          fill="hsl(var(--primary-foreground))"
-          transform="translate(-2, -2)"
-        />
-      </svg>
+       <svg width="24" height="24" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="16" cy="16" r="16" fill="hsl(var(--primary))"/>
+        <path d="M19.3173 10.6667H14.6667V26.6667H19.3173V20.752H22.4427C25.5733 20.752 27.3333 18.464 27.3333 15.712C27.3333 12.96 25.5733 10.6667 22.4427 10.6667H19.3173ZM19.3173 17.2533V14.1707H22.2667C23.5733 14.1707 24.2773 14.752 24.2773 15.712C24.2773 16.672 23.5733 17.2533 22.2667 17.2533H19.3173Z" fill="hsl(var(--sidebar-primary-foreground))"/>
+       </svg>
       <span className="text-xl font-semibold text-sidebar-foreground group-data-[collapsible=icon]:hidden">
         Paymint
       </span>

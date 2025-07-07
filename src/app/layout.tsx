@@ -13,8 +13,8 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: 'Paymint Pro',
-  description: 'A modern, professional financial management application.',
+  title: 'Paymint',
+  description: 'The secure and easy way to manage your finances.',
 };
 
 export default function RootLayout({
@@ -23,11 +23,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" suppressHydrationWarning className={inter.variable}>
-      <body className="font-body antialiased">
+    <html lang="en" className={inter.variable} suppressHydrationWarning>
+      <body className="font-body antialiased bg-background">
         <ThemeProvider
           attribute="class"
-          defaultTheme="system"
+          defaultTheme="dark"
           enableSystem
           disableTransitionOnChange
         >
