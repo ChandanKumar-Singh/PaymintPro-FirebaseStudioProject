@@ -69,6 +69,18 @@ export function LandingHeader() {
                     </ul>
                   </NavigationMenuContent>
                 </NavigationMenuItem>
+                 <NavigationMenuItem>
+                  <Link href="/features" legacyBehavior passHref>
+                    <NavigationMenuLink
+                      className={cn(
+                        navigationMenuTriggerStyle(),
+                        'bg-transparent text-white hover:bg-white/10 focus:bg-white/10'
+                      )}
+                    >
+                      Features
+                    </NavigationMenuLink>
+                  </Link>
+                </NavigationMenuItem>
                 <NavigationMenuItem>
                   <Link href="/pricing" legacyBehavior passHref>
                     <NavigationMenuLink
@@ -166,6 +178,14 @@ export function LandingHeader() {
                         Cards
                       </Link>
                     </SheetClose>
+                     <SheetClose asChild>
+                        <Link
+                            href="/features"
+                            className="hover:text-[#B2F35F] transition-colors"
+                        >
+                            Features
+                        </Link>
+                     </SheetClose>
                      <SheetClose asChild>
                       <Link
                         href="/pricing"
