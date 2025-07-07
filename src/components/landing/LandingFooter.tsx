@@ -1,3 +1,4 @@
+
 'use client';
 import { Button } from '@/components/ui/button';
 import Image from 'next/image';
@@ -36,7 +37,7 @@ export function LandingFooter() {
             <div>
               <h4 className="font-semibold text-lg mb-4">Resources</h4>
               <ul className="space-y-3">
-                <li><Link href="#" className="text-white/80 hover:text-white transition-colors">Blog</Link></li>
+                <li><Link href="/blog" className="text-white/80 hover:text-white transition-colors">Blog</Link></li>
                 <li><Link href="#" className="text-white/80 hover:text-white transition-colors">Infographics</Link></li>
                 <li><Link href="#" className="text-white/80 hover:text-white transition-colors">Templates</Link></li>
                 <li><Link href="#" className="text-white/80 hover:text-white transition-colors">TUTORIALS</Link></li>

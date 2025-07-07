@@ -1,3 +1,4 @@
+
 'use client';
 
 import Link from 'next/link';
@@ -81,14 +82,14 @@ export function LandingHeader() {
                   </Link>
                 </NavigationMenuItem>
                 <NavigationMenuItem>
-                   <Link href="#" legacyBehavior passHref>
+                   <Link href="/blog" legacyBehavior passHref>
                     <NavigationMenuLink
                       className={cn(
                         navigationMenuTriggerStyle(),
                         'bg-transparent text-white hover:bg-white/10 focus:bg-white/10'
                       )}
                     >
-                      Resources
+                      Blog
                     </NavigationMenuLink>
                   </Link>
                 </NavigationMenuItem>
@@ -165,12 +166,12 @@ export function LandingHeader() {
                         Cards
                       </Link>
                     </SheetClose>
-                    <SheetClose asChild>
+                     <SheetClose asChild>
                       <Link
-                        href="#"
+                        href="/blog"
                         className="hover:text-[#B2F35F] transition-colors"
                       >
-                        Solutions
+                        Blog
                       </Link>
                     </SheetClose>
                     <SheetClose asChild>
@@ -178,7 +179,7 @@ export function LandingHeader() {
                         href="#"
                         className="hover:text-[#B2F35F] transition-colors"
                       >
-                        Resources
+                        Solutions
                       </Link>
                     </SheetClose>
                     <SheetClose asChild>
