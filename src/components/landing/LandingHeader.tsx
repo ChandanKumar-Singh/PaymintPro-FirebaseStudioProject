@@ -56,8 +56,8 @@ export function LandingHeader() {
                           </Link>
                         </NavigationMenuLink>
                       </li>
-                      <ListItem href="#" title="Payments">
-                        Accept payments from customers worldwide.
+                      <ListItem href="/cards" title="Cards">
+                        The most modern multi-currency card.
                       </ListItem>
                       <ListItem href="#" title="Transfers">
                         Send money globally with low fees.
@@ -69,43 +69,40 @@ export function LandingHeader() {
                   </NavigationMenuContent>
                 </NavigationMenuItem>
                 <NavigationMenuItem>
-                  <NavigationMenuLink asChild>
-                    <Link
-                      href="#"
+                  <Link href="#" legacyBehavior passHref>
+                    <NavigationMenuLink
                       className={cn(
                         navigationMenuTriggerStyle(),
                         'bg-transparent text-white hover:bg-white/10 focus:bg-white/10'
                       )}
                     >
                       Solutions
-                    </Link>
-                  </NavigationMenuLink>
+                    </NavigationMenuLink>
+                  </Link>
                 </NavigationMenuItem>
                 <NavigationMenuItem>
-                  <NavigationMenuLink asChild>
-                    <Link
-                      href="#"
+                   <Link href="#" legacyBehavior passHref>
+                    <NavigationMenuLink
                       className={cn(
                         navigationMenuTriggerStyle(),
                         'bg-transparent text-white hover:bg-white/10 focus:bg-white/10'
                       )}
                     >
                       Resources
-                    </Link>
-                  </NavigationMenuLink>
+                    </NavigationMenuLink>
+                  </Link>
                 </NavigationMenuItem>
                 <NavigationMenuItem>
-                  <NavigationMenuLink asChild>
-                    <Link
-                      href="#"
+                  <Link href="#" legacyBehavior passHref>
+                    <NavigationMenuLink
                       className={cn(
                         navigationMenuTriggerStyle(),
                         'bg-transparent text-white hover:bg-white/10 focus:bg-white/10'
                       )}
                     >
                       Company
-                    </Link>
-                  </NavigationMenuLink>
+                    </NavigationMenuLink>
+                  </Link>
                 </NavigationMenuItem>
               </NavigationMenuList>
             </NavigationMenu>
@@ -141,14 +138,14 @@ export function LandingHeader() {
                 side="right"
                 className="bg-[#052011] text-white border-l-gray-800"
               >
-                <SheetHeader className="p-4 border-b border-white/20">
-                    <SheetTitle className="sr-only">Mobile Menu</SheetTitle>
-                    <SheetDescription className="sr-only">
-                        Navigation links for the Paymint website.
-                    </SheetDescription>
-                    <SheetClose asChild>
-                      <Logo />
-                    </SheetClose>
+                <SheetHeader>
+                   <SheetTitle className="sr-only">Mobile Menu</SheetTitle>
+                   <SheetDescription className="sr-only">
+                       Navigation links for the Paymint website.
+                   </SheetDescription>
+                  <SheetClose asChild>
+                    <Logo />
+                  </SheetClose>
                 </SheetHeader>
                 <div className="flex flex-col h-full">
                   <nav className="flex flex-col gap-4 p-4 text-lg">
@@ -158,6 +155,14 @@ export function LandingHeader() {
                         className="hover:text-[#B2F35F] transition-colors"
                       >
                         Business
+                      </Link>
+                    </SheetClose>
+                     <SheetClose asChild>
+                      <Link
+                        href="/cards"
+                        className="hover:text-[#B2F35F] transition-colors"
+                      >
+                        Cards
                       </Link>
                     </SheetClose>
                     <SheetClose asChild>
