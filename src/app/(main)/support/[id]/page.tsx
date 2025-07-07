@@ -156,6 +156,29 @@ export default function TicketDetailPage() {
         return () => viewport?.removeEventListener('scroll', handleScroll);
     }, [hasMore, loadingMore, handleLoadMore]);
 
+    // Fetch suggested replies when agent sends a message
+    useEffect(() => {
+        const lastMessage = messages[messages.length - 1];
+        if (lastMessage && lastMessage.sender === 'agent' && ticket?.status !== 'Closed') {
+            const fetchSuggestions = async () => {
+                setSuggestionsLoading(true);
+                try {
+                    const result = await getSuggestedReplies({ lastMessage: lastMessage.content });
+                    setSuggestedReplies(result.suggestions);
+                } catch (error) {
+                    console.error("Failed to fetch suggested replies:", error);
+                    // Fail silently, don't show toast for this
+                } finally {
+                    setSuggestionsLoading(false);
+                }
+            };
+            fetchSuggestions();
+        } else {
+            setSuggestedReplies([]);
+        }
+    }, [messages, ticket?.status]);
+
+
     const fetchLatestMessagesAndScroll = useCallback(async (shouldScroll = true) => {
         if (user?.uid && ticketId) {
             const messagesData = await getPaginatedTicketMessages(user.uid, ticketId, MESSAGES_PER_PAGE);
@@ -434,7 +457,12 @@ export default function TicketDetailPage() {
                 
                 {ticket.status !== 'Closed' && (
                     <footer className="p-4 border-t space-y-2">
-                        {suggestedReplies.length > 0 && !suggestionsLoading && (
+                        {suggestionsLoading ? (
+                             <div className="flex items-center gap-2 px-2">
+                                <p className="text-sm text-muted-foreground mr-2">Getting suggestions...</p>
+                                <Loader2 className="h-4 w-4 animate-spin" />
+                            </div>
+                        ) : suggestedReplies.length > 0 && (
                              <div className="flex flex-wrap items-center gap-2">
                                 <p className="text-sm text-muted-foreground mr-2">Suggestions:</p>
                                 {suggestedReplies.map((reply, i) => (
