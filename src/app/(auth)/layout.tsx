@@ -12,10 +12,10 @@ function Logo() {
         fill="none"
         xmlns="http://www.w3.org/2000/svg"
       >
-        <circle cx="12" cy="12" r="12" fill="#3B82F6" />
+        <circle cx="12" cy="12" r="12" fill="hsl(var(--primary))" />
         <path
           d="M14.488 8H11V20H14.488V15.564H17.332C19.932 15.564 21.5 13.848 21.5 11.784C21.5 9.72 19.932 8 17.332 8H14.488ZM14.488 12.94V10.628H17.2C18.3 10.628 18.928 11.064 18.928 11.784C18.928 12.504 18.3 12.94 17.2 12.94H14.488Z"
-          fill="white"
+          fill="hsl(var(--primary-foreground))"
           transform="translate(-2, -2)"
         />
       </svg>
