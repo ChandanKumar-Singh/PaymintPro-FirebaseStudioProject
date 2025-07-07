@@ -70,14 +70,14 @@ export function LandingHeader() {
                   </NavigationMenuContent>
                 </NavigationMenuItem>
                 <NavigationMenuItem>
-                  <Link href="#" legacyBehavior passHref>
+                  <Link href="/pricing" legacyBehavior passHref>
                     <NavigationMenuLink
                       className={cn(
                         navigationMenuTriggerStyle(),
                         'bg-transparent text-white hover:bg-white/10 focus:bg-white/10'
                       )}
                     >
-                      Solutions
+                      Pricing
                     </NavigationMenuLink>
                   </Link>
                 </NavigationMenuItem>
@@ -168,18 +168,18 @@ export function LandingHeader() {
                     </SheetClose>
                      <SheetClose asChild>
                       <Link
+                        href="/pricing"
+                        className="hover:text-[#B2F35F] transition-colors"
+                      >
+                        Pricing
+                      </Link>
+                    </SheetClose>
+                     <SheetClose asChild>
+                      <Link
                         href="/blog"
                         className="hover:text-[#B2F35F] transition-colors"
                       >
                         Blog
-                      </Link>
-                    </SheetClose>
-                    <SheetClose asChild>
-                      <Link
-                        href="#"
-                        className="hover:text-[#B2F35F] transition-colors"
-                      >
-                        Solutions
                       </Link>
                     </SheetClose>
                     <SheetClose asChild>
