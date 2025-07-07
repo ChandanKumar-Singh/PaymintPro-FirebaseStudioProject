@@ -20,8 +20,8 @@ export function LandingFooter() {
               <ul className="space-y-3">
                 <li><Link href="/features" className="text-white/80 hover:text-white transition-colors">Features</Link></li>
                 <li><Link href="/pricing" className="text-white/80 hover:text-white transition-colors">Pricing</Link></li>
-                <li><Link href="#" className="text-white/80 hover:text-white transition-colors">Case studies</Link></li>
-                <li><Link href="#" className="text-white/80 hover:text-white transition-colors">Reviews</Link></li>
+                <li><Link href="/casestudies" className="text-white/80 hover:text-white transition-colors">Case studies</Link></li>
+                <li><Link href="/reviews" className="text-white/80 hover:text-white transition-colors">Reviews</Link></li>
                 <li><Link href="/multicurrency-coverage" className="text-white/80 hover:text-white transition-colors">Country coverage</Link></li>
               </ul>
             </div>
@@ -30,7 +30,7 @@ export function LandingFooter() {
               <ul className="space-y-3">
                 <li><Link href="/about" className="text-white/80 hover:text-white transition-colors">About</Link></li>
                 <li><Link href="/careers" className="text-white/80 hover:text-white transition-colors">Careers</Link></li>
-                <li><Link href="#" className="text-white/80 hover:text-white transition-colors">News</Link></li>
+                <li><Link href="/blog" className="text-white/80 hover:text-white transition-colors">News</Link></li>
                 <li><Link href="/contact" className="text-white/80 hover:text-white transition-colors">Contact us</Link></li>
               </ul>
             </div>
@@ -40,7 +40,7 @@ export function LandingFooter() {
                 <li><Link href="/blog" className="text-white/80 hover:text-white transition-colors">Blog</Link></li>
                 <li><Link href="/faq" className="text-white/80 hover:text-white transition-colors">FAQ</Link></li>
                 <li><Link href="/faq" className="text-white/80 hover:text-white transition-colors">Help centre</Link></li>
-                <li><Link href="#" className="text-white/80 hover:text-white transition-colors">Developers</Link></li>
+                <li><Link href="/developers" className="text-white/80 hover:text-white transition-colors">Developers</Link></li>
               </ul>
             </div>
             <div>
@@ -48,9 +48,9 @@ export function LandingFooter() {
               <ul className="space-y-3">
                 <li><Link href="/terms" className="text-white/80 hover:text-white transition-colors">Terms</Link></li>
                 <li><Link href="/privacy" className="text-white/80 hover:text-white transition-colors">Privacy</Link></li>
-                <li><Link href="#" className="text-white/80 hover:text-white transition-colors">Cookies</Link></li>
-                <li><Link href="#" className="text-white/80 hover:text-white transition-colors">Licenses</Link></li>
-                <li><Link href="#" className="text-white/80 hover:text-white transition-colors">Settings</Link></li>
+                <li><Link href="/cookies" className="text-white/80 hover:text-white transition-colors">Cookies</Link></li>
+                <li><Link href="/licenses" className="text-white/80 hover:text-white transition-colors">Licenses</Link></li>
+                <li><Link href="/settings" className="text-white/80 hover:text-white transition-colors">Settings</Link></li>
               </ul>
             </div>
           </div>

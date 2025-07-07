@@ -1,3 +1,4 @@
+
 'use client';
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
@@ -18,8 +19,10 @@ const personalTermsNav = [
 const mainLinks = [
     { name: "Personal Terms", href: "/terms", count: 8 },
     { name: "Business Terms", href: "/terms#", count: 10 },
-    { name: "Privacy Policy", href: "/privacy", count: 9 },
-    { name: "Cookie Policy", href: "/terms#", count: 7 },
+    { name: "Privacy Policy", href: "/privacy", count: 6 },
+    { name: "Cookie Policy", href: "/cookies", count: 4 },
+    { name: "Licenses", href: "/licenses", count: 8 },
+    { name: "Cookie Settings", href: "/cookies#settings", count: 4 },
 ];
 
 export function LegalNav() {
@@ -34,7 +37,7 @@ export function LegalNav() {
                 <ul className="space-y-1">
                      {mainLinks.map((item) => (
                         <li key={item.name}>
-                            <Link href={item.href} className={cn("flex justify-between items-center p-2 rounded-md font-semibold", pathname === item.href ? "bg-gray-100 text-gray-900" : "text-gray-600 hover:bg-gray-100/50")}>
+                            <Link href={item.href} className={cn("flex justify-between items-center p-2 rounded-md font-semibold", pathname === item.href.split('#')[0] ? "bg-gray-100 text-gray-900" : "text-gray-600 hover:bg-gray-100/50")}>
                                 <span>{item.name}</span>
                                 <Badge variant="secondary" className="bg-gray-200 text-gray-600 font-medium">{item.count}</Badge>
                             </Link>
@@ -45,6 +48,7 @@ export function LegalNav() {
             
             {pathname === '/terms' && (
                  <div>
+                    <h4 className="font-semibold text-gray-800 mb-2 pl-2">On this page</h4>
                     <ul className="space-y-1 border-l-2 border-gray-200 ml-3">
                         {personalTermsNav.map((item) => (
                             <li key={item.name}>
