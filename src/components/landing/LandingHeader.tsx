@@ -20,6 +20,9 @@ import {
   SheetContent,
   SheetTrigger,
   SheetClose,
+  SheetHeader,
+  SheetTitle,
+  SheetDescription,
 } from '@/components/ui/sheet';
 import { Logo } from './Logo';
 
@@ -133,35 +136,49 @@ export function LandingHeader() {
                 side="right"
                 className="bg-[#052011] text-white border-l-gray-800"
               >
+                <SheetHeader className="sr-only">
+                  <SheetTitle>Mobile Menu</SheetTitle>
+                  <SheetDescription>
+                    Navigation links for the Paymint website.
+                  </SheetDescription>
+                </SheetHeader>
                 <div className="flex flex-col h-full">
                   <div className="p-4 border-b border-white/20">
                     <Logo />
                   </div>
                   <nav className="flex flex-col gap-4 p-4 text-lg">
-                    <Link
-                      href="#"
-                      className="hover:text-[#B2F35F] transition-colors"
-                    >
-                      <SheetClose>Products</SheetClose>
-                    </Link>
-                    <Link
-                      href="#"
-                      className="hover:text-[#B2F35F] transition-colors"
-                    >
-                       <SheetClose>Solutions</SheetClose>
-                    </Link>
-                    <Link
-                      href="#"
-                      className="hover:text-[#B2F35F] transition-colors"
-                    >
-                       <SheetClose>Resources</SheetClose>
-                    </Link>
-                     <Link
-                      href="#"
-                      className="hover:text-[#B2F35F] transition-colors"
-                    >
-                       <SheetClose>Company</SheetClose>
-                    </Link>
+                    <SheetClose asChild>
+                      <Link
+                        href="#"
+                        className="hover:text-[#B2F35F] transition-colors"
+                      >
+                        Products
+                      </Link>
+                    </SheetClose>
+                    <SheetClose asChild>
+                      <Link
+                        href="#"
+                        className="hover:text-[#B2F35F] transition-colors"
+                      >
+                        Solutions
+                      </Link>
+                    </SheetClose>
+                    <SheetClose asChild>
+                      <Link
+                        href="#"
+                        className="hover:text-[#B2F35F] transition-colors"
+                      >
+                        Resources
+                      </Link>
+                    </SheetClose>
+                    <SheetClose asChild>
+                      <Link
+                        href="#"
+                        className="hover:text-[#B2F35F] transition-colors"
+                      >
+                        Company
+                      </Link>
+                    </SheetClose>
                   </nav>
                   <div className="mt-auto p-4 space-y-4 border-t border-white/20">
                      <Button asChild variant="ghost" className="w-full text-lg hover:bg-white/10 hover:text-white">
