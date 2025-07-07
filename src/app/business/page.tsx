@@ -1,37 +1,31 @@
 import { Hero } from "@/components/business/Hero";
-import { Offer } from "@/components/business/Offer";
-import { WhyChooseUs } from "@/components/business/WhyChooseUs";
-import { MultiCurrency } from "@/components/business/MultiCurrency";
-import { CardExperience } from "@/components/business/CardExperience";
-import { OneApp } from "@/components/business/OneApp";
+import { Partners } from "@/components/business/Partners";
+import { PaymentChoice } from "@/components/business/PaymentChoice";
+import { AcceptLocalPayments } from "@/components/business/AcceptLocalPayments";
+import { BoostSales } from "@/components/business/BoostSales";
+import { EmpowerTeam } from "@/components/business/EmpowerTeam";
+import { GlobalSolutions } from "@/components/business/GlobalSolutions";
 import { Testimonials } from "@/components/business/Testimonials";
-import { GettingStarted } from "@/components/business/GettingStarted";
-import { ZeroFeeCTA } from "@/components/business/ZeroFeeCTA";
+import { SaveMoney } from "@/components/business/SaveMoney";
 import { CountryCoverage } from "@/components/business/CountryCoverage";
 import { FAQ } from "@/components/business/FAQ";
 import { FinalCTA } from "@/components/business/FinalCTA";
-import { LandingHeader } from "@/components/landing/LandingHeader";
-import { LandingFooter } from "@/components/landing/LandingFooter";
 
 export default function BusinessPage() {
   return (
     <div className="bg-white">
-      <LandingHeader />
-      <main>
-        <Hero />
-        <Offer />
-        <WhyChooseUs />
-        <MultiCurrency />
-        <CardExperience />
-        <OneApp />
-        <Testimonials />
-        <GettingStarted />
-        <ZeroFeeCTA />
-        <CountryCoverage />
-        <FAQ />
-        <FinalCTA />
-      </main>
-      <LandingFooter />
+      <Hero />
+      <Partners />
+      <PaymentChoice />
+      <AcceptLocalPayments />
+      <BoostSales />
+      <EmpowerTeam />
+      <GlobalSolutions />
+      <Testimonials />
+      <SaveMoney />
+      <CountryCoverage />
+      <FAQ />
+      <FinalCTA />
     </div>
   );
 }
