@@ -1,5 +1,7 @@
 import Link from 'next/link';
 import { Twitter, Github, Linkedin } from 'lucide-react';
+import { MobileNav } from '@/components/mobile-nav';
+import { Button } from '@/components/ui/button';
 
 function Logo() {
   return (
@@ -32,11 +34,29 @@ export default function LegalLayout({
 }) {
   return (
     <div className="flex flex-col min-h-screen bg-background mx-auto w-full">
-      <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60  px-4">
-        <div className="container flex h-16 items-center justify-between">
+      <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+        <div className="container flex h-16 items-center justify-between px-4 md:px-6">
           <Link href="/" aria-label="Home">
             <Logo />
           </Link>
+          <div className="hidden md:flex items-center gap-8">
+            <nav className="flex items-center gap-6 text-sm font-medium">
+              <Link href="/#features" className="transition-colors hover:text-primary">Features</Link>
+              <Link href="/#pricing" className="transition-colors hover:text-primary">Pricing</Link>
+              <Link href="/#contact" className="transition-colors hover:text-primary">Contact</Link>
+            </nav>
+            <div className="flex items-center gap-2">
+              <Button variant="ghost" asChild>
+                  <Link href="/login">Sign In</Link>
+              </Button>
+              <Button asChild>
+                  <Link href="/register">Sign Up</Link>
+              </Button>
+            </div>
+          </div>
+          <div className="md:hidden">
+            <MobileNav />
+          </div>
         </div>
       </header>
 
@@ -46,8 +66,8 @@ export default function LegalLayout({
         </div>
       </main>
 
-      <footer className="bg-muted border-t">
-        <div className="container py-12 lg:py-16 px-4">
+      <footer id="contact" className="bg-muted border-t">
+        <div className="container py-12 lg:py-16">
           <div className="grid gap-10 lg:grid-cols-4">
             <div className="space-y-4">
               <Logo />
