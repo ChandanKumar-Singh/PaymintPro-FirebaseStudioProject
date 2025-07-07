@@ -1,9 +1,10 @@
+
 'use client';
 
 import { Button } from '@/components/ui/button';
 import Image from 'next/image';
 import Link from 'next/link';
-import { ArrowRight, CirclePlay, ChevronDown, CheckCircle, ArrowLeft } from 'lucide-react';
+import { ArrowRight, CirclePlay, ChevronDown, CheckCircle, ArrowLeft, Banknote, CreditCard, Landmark, Smartphone } from 'lucide-react';
 import { useState } from 'react';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent } from '@/components/ui/card';
@@ -14,7 +15,6 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 
-// Re-importing reusable components
 import { CountryCoverage } from '@/components/landing/CountryCoverage';
 import { FinalCTA } from '@/components/landing/FinalCTA';
 
@@ -25,39 +25,80 @@ function Hero() {
 
   return (
     <section className="bg-[#052011] text-white pt-32 pb-20">
-      <div className="container mx-auto px-4 text-center">
-        <div className="bg-[#B2F35F]/10 text-[#B2F35F] font-bold py-1 px-3 rounded-full inline-block mb-4 text-sm">
-          PAYMINT FOR PERSONAL
-        </div>
-        <h1 className="text-4xl sm:text-5xl lg:text-7xl font-bold tracking-tight mb-6 leading-tight max-w-4xl mx-auto">
-          Cross-border payment made easy.
-        </h1>
-        <p className="text-lg text-white/80 mb-10 max-w-2xl mx-auto">
-          With our innovative fintech solutions, you can seamlessly handle all your financial needs. From international transfers to everyday payments, Paymint is your trusted partner.
-        </p>
-        <div className="flex flex-col sm:flex-row gap-4 justify-center">
-          <Button
-            asChild
-            size="lg"
-            className="bg-[#B2F35F] text-[#052011] hover:bg-[#B2F35F]/90 rounded-md px-6 py-5 text-base font-bold"
-          >
-            <Link href="/register">Create account</Link>
-          </Button>
-          <Button
-            asChild
-            size="lg"
-            variant="ghost"
-            className="text-white hover:text-white hover:bg-white/10 rounded-md px-6 py-5 text-base font-bold"
-          >
-            <Link href="#">
-              <CirclePlay className="mr-2 w-5 h-5" />
-              Contact sales
-            </Link>
-          </Button>
-        </div>
-        <div className="mt-16 relative">
-          <Image src="https://placehold.co/800x400.png" data-ai-hint="dashboard ui" alt="Paymint Dashboard" width={800} height={400} className="rounded-xl shadow-2xl mx-auto" />
-          <Image src="https://placehold.co/250x500.png" data-ai-hint="mobile app payments" alt="Paymint Mobile App" width={250} height={500} className="absolute -bottom-16 -right-8 hidden lg:block rounded-xl shadow-2xl" />
+      <div className="container mx-auto px-4">
+        <div className="grid lg:grid-cols-2 gap-12 items-center">
+          <div className="text-center lg:text-left">
+            <h1 className="text-4xl sm:text-5xl lg:text-7xl font-bold tracking-tight mb-6 leading-tight">
+              The fast and secure way to send money.
+            </h1>
+            <p className="text-lg text-white/80 mb-10 max-w-lg mx-auto lg:mx-0">
+              With our innovative fintech solutions, you can seamlessly handle
+              all your financial needs. From international transfers to everyday
+              payments, Paymint is your trusted partner.
+            </p>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
+              <Button
+                asChild
+                size="lg"
+                className="bg-[#B2F35F] text-[#052011] hover:bg-[#B2F35F]/90 rounded-full px-8 py-6 text-base font-bold"
+              >
+                <Link href="/register">
+                  Create account <ArrowRight className="ml-2 w-5 h-5" />
+                </Link>
+              </Button>
+              <Button
+                asChild
+                size="lg"
+                variant="ghost"
+                className="text-white hover:text-white hover:bg-white/10 rounded-full px-8 py-6 text-base font-bold"
+              >
+                <Link href="/contact">
+                  <CirclePlay className="mr-2 w-5 h-5" />
+                  Contact sales
+                </Link>
+              </Button>
+            </div>
+          </div>
+          <div className="flex justify-center">
+            <div className="bg-white text-black p-6 rounded-2xl w-full max-w-md shadow-2xl">
+              <div className="flex justify-between items-center mb-4">
+                <span className="font-bold text-lg text-[#052011]">Amount</span>
+                <button className="flex items-center gap-2 font-medium text-[#052011]">
+                  <Image src={fromCurrency.flag} data-ai-hint={fromCurrency.dataAiHint} alt={fromCurrency.name} width={24} height={24} className="rounded-full" />
+                  {fromCurrency.code}
+                  <ChevronDown className="w-4 h-4" />
+                </button>
+              </div>
+              <Input
+                type="text"
+                defaultValue="2,000"
+                className="text-4xl font-bold h-auto p-0 border-none focus-visible:ring-0 text-[#052011] bg-transparent"
+              />
+              <div className="border-t border-gray-200 my-4"></div>
+              <div className="flex justify-between items-center mb-2">
+                <span className="font-bold text-lg text-[#052011]">They'll get</span>
+                 <button className="flex items-center gap-2 font-medium text-[#052011]">
+                  <Image src={toCurrency.flag} data-ai-hint={toCurrency.dataAiHint} alt={toCurrency.name} width={24} height={24} className="rounded-full" />
+                  {toCurrency.code}
+                  <ChevronDown className="w-4 h-4" />
+                </button>
+              </div>
+              <p className="text-4xl font-bold text-[#052011]">2,997,298.58</p>
+              <div className="text-sm text-gray-500 mt-4 space-y-1">
+                <div className="flex justify-between">
+                  <span>Fee</span>
+                  <span>$1.99</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>Rate</span>
+                  <span className="font-medium text-[#B2F35F]">1 USD = 1,498.45 NGN</span>
+                </div>
+              </div>
+               <Button className="w-full mt-6 bg-[#B2F35F] text-[#052011] hover:bg-[#B2F35F]/90 rounded-full py-6 text-lg font-bold">
+                 Get Started
+               </Button>
+            </div>
+          </div>
         </div>
       </div>
     </section>
@@ -106,7 +147,9 @@ function Offerings() {
                             <li className="flex items-center gap-3"><CheckCircle className="w-5 h-5 text-[#B2F35F]" /> Hold 35+ currencies</li>
                             <li className="flex items-center gap-3"><CheckCircle className="w-5 h-5 text-[#B2F35F]" /> Get your Paymint card</li>
                         </ul>
-                        <Button variant="outline" className="bg-transparent text-white border-white/40 hover:bg-white/10 hover:text-white">Learn more</Button>
+                        <Button asChild variant="outline" className="bg-transparent text-white border-white/40 hover:bg-white/10 hover:text-white">
+                            <Link href="/features">Learn more</Link>
+                        </Button>
                          <Image src="https://placehold.co/350x300.png" data-ai-hint="mobile money transfer" alt="Individual use" width={350} height={300} className="ml-auto mt-8" />
                     </div>
                     <div className="bg-[#052011] text-white p-8 rounded-2xl">
@@ -117,7 +160,9 @@ function Offerings() {
                             <li className="flex items-center gap-3"><CheckCircle className="w-5 h-5 text-[#B2F35F]" /> Mass Payouts</li>
                             <li className="flex items-center gap-3"><CheckCircle className="w-5 h-5 text-[#B2F35F]" /> API Integrations</li>
                         </ul>
-                        <Button variant="outline" className="bg-transparent text-white border-white/40 hover:bg-white/10 hover:text-white">Learn more</Button>
+                        <Button asChild variant="outline" className="bg-transparent text-white border-white/40 hover:bg-white/10 hover:text-white">
+                           <Link href="/business">Learn more</Link>
+                        </Button>
                          <Image src="https://placehold.co/350x300.png" data-ai-hint="business payment solution" alt="Business use" width={350} height={300} className="ml-auto mt-8" />
                     </div>
                 </div>
@@ -128,7 +173,7 @@ function Offerings() {
 
 // Component 4: BestProvider
 function BestProvider() {
-  const ways = [
+  const features = [
     { icon: CheckCircle, title: 'Fast & Secure', description: 'With our innovative fintech solutions, you can seamlessly handle all your financial needs.' },
     { icon: CheckCircle, title: 'Low transfer fees', description: 'From international transfers to everyday payments, Paymint is your trusted partner.' },
     { icon: CheckCircle, title: 'No subscription', description: 'We believe in transparent pricing and fair rates for everyone.' },
@@ -145,17 +190,17 @@ function BestProvider() {
             Millions of happy customers and a 4.5 star rating on Trustpilot.
         </p>
         <Button asChild size="lg" className="bg-[#B2F35F] text-[#052011] hover:bg-[#B2F35F]/90 rounded-md font-bold mx-auto block w-fit">
-            <Link href="#">Check prices</Link>
+            <Link href="/pricing">Check prices</Link>
         </Button>
         <div className="mt-16 grid sm:grid-cols-2 gap-x-8 gap-y-12 max-w-4xl mx-auto">
-          {ways.map((way, index) => (
+          {features.map((feature, index) => (
             <div key={index} className="flex items-start gap-4">
               <div className="flex-shrink-0 bg-[#E7FAD1] p-3 rounded-full">
-                <way.icon className="w-6 h-6 text-[#052011]" />
+                <feature.icon className="w-6 h-6 text-[#052011]" />
               </div>
               <div>
-                <h3 className="text-xl font-bold text-[#052011] mb-1">{way.title}</h3>
-                <p className="text-gray-600">{way.description}</p>
+                <h3 className="text-xl font-bold text-[#052011] mb-1">{feature.title}</h3>
+                <p className="text-gray-600">{feature.description}</p>
               </div>
             </div>
           ))}
@@ -183,7 +228,7 @@ function MultiCurrency() {
                             <li className="flex items-center gap-3"><CheckCircle className="w-5 h-5 text-[#B2F35F]" /> No hidden fees</li>
                          </ul>
                          <Button asChild size="lg" className="bg-[#B2F35F] text-[#052011] hover:bg-[#B2F35F]/90 rounded-md font-bold">
-                            <Link href="#">Get started</Link>
+                            <Link href="/multicurrency-coverage">Get started</Link>
                          </Button>
                     </div>
                     <div>
@@ -213,7 +258,7 @@ function CardExperience() {
                             <li className="flex items-center gap-3"><CheckCircle className="w-5 h-5 text-[#B2F35F]" /> Real exchange rate</li>
                          </ul>
                          <Button asChild size="lg" className="bg-[#B2F35F] text-[#052011] hover:bg-[#B2F35F]/90 rounded-md font-bold">
-                            <Link href="#">Learn more</Link>
+                            <Link href="/cards">Learn more</Link>
                          </Button>
                     </div>
                     <div className="lg:order-1">
@@ -271,7 +316,7 @@ function Testimonials() {
                         <p className="font-bold text-[#052011]/60 mb-2">TESTIMONIAL</p>
                         <h2 className="text-4xl sm:text-5xl font-bold text-[#052011] tracking-tight">Customer success is our success</h2>
                     </div>
-                    <div className="flex gap-4">
+                    <div className="hidden md:flex gap-4">
                         <Button variant="outline" size="icon" className="rounded-full h-12 w-12 border-gray-300">
                             <ArrowLeft className="h-5 w-5" />
                         </Button>
@@ -289,7 +334,9 @@ function Testimonials() {
                                     <p className="text-lg font-medium text-gray-800 mb-4">"{t.text}"</p>
                                     <h4 className="font-bold text-lg text-[#052011]">{t.name}</h4>
                                     <p className="text-sm text-gray-600">{t.title}</p>
-                                    <Button variant="link" className="p-0 h-auto mt-4 text-[#052011] font-bold">Read story</Button>
+                                    <Button asChild variant="link" className="p-0 h-auto mt-4 text-[#052011] font-bold">
+                                      <Link href="#">Read story</Link>
+                                    </Button>
                                 </div>
                             </CardContent>
                         </Card>
@@ -336,7 +383,7 @@ function HowItWorks() {
                             </li>
                         </ol>
                          <Button asChild size="lg" className="bg-[#B2F35F] text-[#052011] hover:bg-[#B2F35F]/90 rounded-md font-bold mt-8">
-                            <Link href="#">Learn more</Link>
+                            <Link href="/features">Learn more</Link>
                          </Button>
                     </div>
                 </div>
@@ -409,7 +456,7 @@ function FAQ() {
 }
 
 
-export default function NewMarketingPage() {
+export default function MarketingPage() {
   return (
     <>
       <Hero />
