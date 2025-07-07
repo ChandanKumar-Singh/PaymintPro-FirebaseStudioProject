@@ -38,9 +38,9 @@ export function LandingFooter() {
               <h4 className="font-semibold text-lg mb-4">Resources</h4>
               <ul className="space-y-3">
                 <li><Link href="/blog" className="text-white/80 hover:text-white transition-colors">Blog</Link></li>
-                <li><Link href="#" className="text-white/80 hover:text-white transition-colors">Infographics</Link></li>
-                <li><Link href="#" className="text-white/80 hover:text-white transition-colors">Templates</Link></li>
-                <li><Link href="#" className="text-white/80 hover:text-white transition-colors">TUTORIALS</Link></li>
+                <li><Link href="/faq" className="text-white/80 hover:text-white transition-colors">FAQ</Link></li>
+                <li><Link href="/faq" className="text-white/80 hover:text-white transition-colors">Help centre</Link></li>
+                <li><Link href="#" className="text-white/80 hover:text-white transition-colors">Developers</Link></li>
               </ul>
             </div>
             <div>
