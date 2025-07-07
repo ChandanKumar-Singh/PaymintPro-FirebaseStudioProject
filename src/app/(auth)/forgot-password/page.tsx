@@ -47,14 +47,14 @@ export default function ForgotPasswordPage() {
     }
 
   return (
-    <Card>
-        <CardHeader className="text-left">
+    <Card className="shadow-none border-none">
+        <CardHeader className="text-left p-0">
             <CardTitle className="text-2xl">Forgot Password</CardTitle>
             <CardDescription>
                 Enter your email and we'll send you a link to reset your password.
             </CardDescription>
         </CardHeader>
-        <CardContent>
+        <CardContent className="p-0 mt-6">
             <form onSubmit={handleReset} className="grid gap-4">
                 <div className="grid gap-2">
                     <Label htmlFor="email">Email</Label>
@@ -68,7 +68,7 @@ export default function ForgotPasswordPage() {
                         disabled={isLoading}
                     />
                 </div>
-                <Button type="submit" className="w-full" disabled={isLoading}>
+                <Button type="submit" className="w-full bg-[#B2F35F] text-[#052011] hover:bg-[#B2F35F]/90" disabled={isLoading}>
                     {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                     Send Reset Link
                 </Button>

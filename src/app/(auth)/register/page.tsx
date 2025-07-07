@@ -91,14 +91,14 @@ export default function RegisterPage() {
     }
 
   return (
-    <Card>
-      <CardHeader className="text-left">
+    <Card className="shadow-none border-none">
+      <CardHeader className="text-left p-0">
         <CardTitle className="text-2xl">Sign Up</CardTitle>
         <CardDescription>
           Enter your information to create an account
         </CardDescription>
       </CardHeader>
-      <CardContent>
+      <CardContent className="p-0 mt-6">
         <form onSubmit={handleRegister} className="grid gap-4">
           <div className="grid grid-cols-2 gap-4">
             <div className="grid gap-2">
@@ -126,7 +126,7 @@ export default function RegisterPage() {
             <Label htmlFor="password">Password</Label>
             <Input id="password" type="password" required value={password} onChange={(e) => setPassword(e.target.value)} disabled={isLoading}/>
           </div>
-          <Button type="submit" className="w-full" disabled={isLoading}>
+          <Button type="submit" className="w-full bg-[#B2F35F] text-[#052011] hover:bg-[#B2F35F]/90" disabled={isLoading}>
             {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
             Create an account
           </Button>
