@@ -5,43 +5,42 @@ import Image from 'next/image';
 
 export function Hero() {
   return (
-    <section className="py-20 sm:py-28">
+    <section className="bg-[#052011] text-white pt-32 pb-20">
       <div className="container mx-auto px-4">
-        <div className="grid lg:grid-cols-2 gap-12 items-center">
-          <div className="text-center lg:text-left">
-            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight mb-6">
-              Cross-border payment made easy.
-            </h1>
-            <p className="text-lg text-muted-foreground mb-8 max-w-xl mx-auto lg:mx-0">
-              The secure and easy way to exchange and transfer money. Send money to friends, family, and businesses abroad.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
-              <Button asChild size="lg">
-                <Link href="/register">
-                  Open a free account
-                  <ArrowRight className="ml-2 w-5 h-5" />
-                </Link>
-              </Button>
-              <Button asChild size="lg" variant="outline">
-                <Link href="#">
-                  <PlayCircle className="mr-2 w-5 h-5" />
-                  See how it works
-                </Link>
-              </Button>
-            </div>
+        <div className="text-center">
+          <p className="text-sm font-bold uppercase tracking-widest text-[#B2F35F] mb-4">For Individuals and Businesses</p>
+          <h1 className="text-4xl sm:text-5xl lg:text-7xl font-bold tracking-tight mb-6 leading-tight">
+            Cross-border payment <br/> made easy.
+          </h1>
+          <p className="text-lg text-white/80 mb-10 max-w-2xl mx-auto">
+            Pay for individuals and businesses to securely send and receive money globally, with the best bank rate.
+          </p>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <Button asChild size="lg" className="bg-[#B2F35F] text-[#052011] hover:bg-[#B2F35F]/90 rounded-full px-8 py-6 text-base font-bold">
+              <Link href="/register">
+                Create account
+                <ArrowRight className="ml-2 w-5 h-5" />
+              </Link>
+            </Button>
+            <Button asChild size="lg" variant="ghost" className="text-white hover:text-white hover:bg-white/10 rounded-full px-8 py-6 text-base font-bold">
+              <Link href="#">
+                <PlayCircle className="mr-2 w-5 h-5" />
+                Contact sales
+              </Link>
+            </Button>
           </div>
-          <div className="flex justify-center">
+        </div>
+        <div className="mt-16 flex justify-center">
             <Image
-              src="https://placehold.co/600x450.png"
-              data-ai-hint="dashboard fintech"
+              src="https://placehold.co/1000x500.png"
+              data-ai-hint="dashboard fintech screen"
               alt="Paymint Dashboard"
-              width={600}
-              height={450}
-              className="rounded-lg shadow-2xl"
+              width={1200}
+              height={600}
+              className="rounded-t-xl shadow-2xl"
               priority
             />
           </div>
-        </div>
       </div>
     </section>
   );

@@ -2,26 +2,32 @@ import { Hero } from "@/components/landing/Hero";
 import { Partners } from "@/components/landing/Partners";
 import { Features } from "@/components/landing/Features";
 import { InternationalTransfers } from "@/components/landing/InternationalTransfers";
-import { AppShowcase } from "@/components/landing/AppShowcase";
+import { MultiCurrency } from "@/components/landing/MultiCurrency";
+import { CardExperience } from "@/components/landing/CardExperience";
+import { OverseasTransfers } from "@/components/landing/OverseasTransfers";
 import { Testimonials } from "@/components/landing/Testimonials";
-import { Security } from "@/components/landing/Security";
 import { GettingStarted } from "@/components/landing/GettingStarted";
 import { CTA } from "@/components/landing/CTA";
-import { FAQs } from "@/components/landing/FAQs";
+import { LandingHeader } from "@/components/landing/Header";
+import { LandingFooter } from "@/components/landing/Footer";
 
 export default function LandingPage() {
   return (
-    <>
-      <Hero />
-      <Partners />
-      <Features />
-      <InternationalTransfers />
-      <AppShowcase />
-      <Testimonials />
-      <Security />
-      <GettingStarted />
-      <FAQs />
-      <CTA />
-    </>
+    <div className="bg-white">
+      <LandingHeader />
+      <main>
+        <Hero />
+        <Partners />
+        <Features />
+        <InternationalTransfers />
+        <MultiCurrency />
+        <CardExperience />
+        <OverseasTransfers />
+        <Testimonials />
+        <GettingStarted />
+        <CTA />
+      </main>
+      <LandingFooter />
+    </div>
   );
 }

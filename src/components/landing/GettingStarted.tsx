@@ -1,40 +1,66 @@
 import Image from "next/image";
+import Link from 'next/link';
+import { Button } from "../ui/button";
+import { ArrowRight } from "lucide-react";
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "../ui/accordion";
 
 const steps = [
   {
-    number: "01",
-    title: "Sign up for a free account",
-    description: "It takes just a few minutes to create your Paymint account. We only ask for the essential information."
+    title: "Create your Paymint account",
+    description: "Open your registration form to create your free account, which you can use for your personal and business transactions security and trusted worldwide."
   },
   {
-    number: "02",
-    title: "Link your bank account or card",
-    description: "Securely connect your bank or card to your Paymint account. Your information is encrypted and protected."
+    title: "Enter purchasable limits",
+    description: "Set your own limits for transactions to manage your finances effectively."
   },
   {
-    number: "03",
-    title: "Start sending money with us",
-    description: "You're all set! Send money to friends, family, or businesses across the globe with just a few clicks."
+    title: "Send funds for your transfer",
+    description: "Easily send funds across borders with competitive rates and low fees."
   }
 ];
 
 export function GettingStarted() {
   return (
-    <section className="py-20 sm:py-28">
+    <section className="py-20 sm:py-28 bg-[#F9FAFB]">
       <div className="container mx-auto px-4">
-        <div className="text-center mb-12">
-          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold">
-            It’s simple to start using Paymint
-          </h2>
-        </div>
-        <div className="grid md:grid-cols-3 gap-8">
-          {steps.map((step, index) => (
-            <div key={index} className="text-center p-6 bg-muted/30 rounded-lg">
-              <div className="mb-4 text-5xl font-bold text-primary">{step.number}</div>
-              <h3 className="text-xl font-bold mb-2">{step.title}</h3>
-              <p className="text-muted-foreground">{step.description}</p>
-            </div>
-          ))}
+        <div className="grid lg:grid-cols-2 gap-12 items-center">
+          <div className="flex justify-center">
+            <Image
+              src="https://placehold.co/500x600.png"
+              data-ai-hint="mobile app form"
+              alt="Paymint Account Creation"
+              width={450}
+              height={600}
+              className="rounded-xl shadow-lg"
+            />
+          </div>
+          <div className="lg:pl-12">
+            <p className="font-bold text-[#052011]/60 mb-2">How to get started</p>
+            <h2 className="text-4xl sm:text-5xl font-bold text-[#052011] mb-8 tracking-tight">
+              It’s simple to start using Paymint
+            </h2>
+             <Accordion type="single" collapsible className="w-full space-y-4" defaultValue="item-0">
+                {steps.map((step, index) => (
+                  <AccordionItem key={index} value={`item-${index}`} className="bg-white border border-gray-200 rounded-lg px-6">
+                    <AccordionTrigger className="text-lg text-left hover:no-underline font-bold text-[#052011]">
+                       <span className="flex items-center gap-4">
+                        <span className="flex items-center justify-center w-8 h-8 rounded-full bg-[#E7FAD1] text-[#052011] font-bold text-lg">{index + 1}</span>
+                        {step.title}
+                       </span>
+                    </AccordionTrigger>
+                    <AccordionContent className="text-gray-600 pl-12">
+                      {step.description}
+                    </AccordionContent>
+                  </AccordionItem>
+                ))}
+            </Accordion>
+            <Button asChild size="lg" variant="outline" className="border-[#B2F35F] text-[#052011] hover:bg-[#B2F35F]/20 hover:text-[#052011] rounded-full mt-8 px-6 py-5 text-base font-bold">
+              <Link href="#">
+                Get started now
+                <ArrowRight className="ml-2 w-5 h-5" />
+              </Link>
+            </Button>
+          </div>
         </div>
       </div>
     </section>

@@ -1,64 +1,63 @@
 import Image from 'next/image';
+import Link from 'next/link';
+import { ArrowRight, ShieldCheck, Globe, Zap, Banknote } from "lucide-react";
+import { Button } from '../ui/button';
 
 const benefits = [
   {
-    icon: 'https://placehold.co/48x48.png',
-    hint: 'wallet icon',
-    title: 'One Account for 20+ currencies',
-    description: 'Manage your money across the world without the fuss. Hold, receive, and send money in multiple currencies.'
+    icon: Zap,
+    title: 'Fast reliable transfers',
+    description: 'Get your money where it needs to go, quickly and reliably.'
   },
   {
-    icon: 'https://placehold.co/48x48.png',
-    hint: 'plane icon',
-    title: 'Receive money from 30+ countries',
-    description: 'Get local bank details for the UK, Eurozone, US, and more. Let people pay you like a local.'
+    icon: Globe,
+    title: 'Global coverage',
+    description: 'Send money to over 170 countries and in 30+ currencies.'
   },
   {
-    icon: 'https://placehold.co/48x48.png',
-    hint: 'transfer icon',
-    title: 'The best international money transfer',
-    description: 'We use the real exchange rate and a tiny, transparent fee. That means more money for you.'
+    icon: Banknote,
+    title: 'Bank-beating rates',
+    description: 'We use the real exchange rate, so you save on every transfer.'
+  },
+  {
+    icon: ShieldCheck,
+    title: 'Secure & Trusted',
+    description: 'Your money is protected with bank-level security.'
   }
 ];
 
 export function InternationalTransfers() {
   return (
-    <section className="py-20 sm:py-28 bg-muted/30">
+    <section className="bg-[#F9FAFB] py-20 sm:py-28">
       <div className="container mx-auto px-4">
-        <div className="grid lg:grid-cols-2 gap-12 items-center">
-          <div>
-            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold mb-8">
-              We are the best international money transfer provider
-            </h2>
-            <div className="space-y-8">
-              {benefits.map((benefit, index) => (
-                <div key={index} className="flex items-start gap-4">
-                  <Image 
-                    src={benefit.icon}
-                    data-ai-hint={benefit.hint}
-                    alt={benefit.title}
-                    width={48}
-                    height={48}
-                    className="flex-shrink-0 mt-1"
-                  />
-                  <div>
-                    <h3 className="text-xl font-bold mb-2">{benefit.title}</h3>
-                    <p className="text-muted-foreground">{benefit.description}</p>
-                  </div>
-                </div>
-              ))}
+        <div className="max-w-3xl mb-12">
+          <p className="font-bold text-[#052011]/60 mb-2">Why Paymint</p>
+          <h2 className="text-4xl sm:text-5xl font-bold text-[#052011] tracking-tight">
+            We are the best international money transfer provider
+          </h2>
+          <p className="mt-4 text-lg text-gray-600">
+            Fast, reliable and secure international money transfers across the world.
+          </p>
+           <Button asChild size="lg" className="bg-[#B2F35F] text-[#052011] hover:bg-[#B2F35F]/90 rounded-full mt-6 px-6 py-5 text-base font-bold">
+              <Link href="/register">
+                Create account
+                <ArrowRight className="ml-2 w-5 h-5" />
+              </Link>
+            </Button>
+        </div>
+
+        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+          {benefits.map((benefit, index) => (
+            <div key={index} className="flex flex-col items-start gap-4">
+              <div className="bg-[#E7FAD1] p-3 rounded-full">
+                  <benefit.icon className="w-8 h-8 text-[#052011]" />
+              </div>
+              <div>
+                <h3 className="text-xl font-bold text-[#052011] mb-2">{benefit.title}</h3>
+                <p className="text-gray-600">{benefit.description}</p>
+              </div>
             </div>
-          </div>
-          <div className="flex justify-center">
-            <Image 
-              src="https://placehold.co/500x500.png"
-              data-ai-hint="world map graphic"
-              alt="International Transfers"
-              width={500}
-              height={500}
-              className="rounded-lg"
-            />
-          </div>
+          ))}
         </div>
       </div>
     </section>
