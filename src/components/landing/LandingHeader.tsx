@@ -1,4 +1,3 @@
-
 'use client';
 
 import Link from 'next/link';
@@ -43,9 +42,9 @@ export function LandingHeader() {
                     <ul className="grid gap-3 p-6 md:w-[400px] lg:w-[500px] lg:grid-cols-[.75fr_1fr] bg-[#0A2D1A] text-white border-gray-700">
                       <li className="row-span-3">
                         <NavigationMenuLink asChild>
-                          <a
+                          <Link
                             className="flex h-full w-full select-none flex-col justify-end rounded-md bg-gradient-to-b from-muted/50 to-muted p-6 no-underline outline-none focus:shadow-md"
-                            href="/"
+                            href="/business"
                           >
                             <div className="mb-2 mt-4 text-lg font-medium">
                               Paymint for Business
@@ -54,7 +53,7 @@ export function LandingHeader() {
                               Global payments and financial solutions for
                               growing businesses.
                             </p>
-                          </a>
+                          </Link>
                         </NavigationMenuLink>
                       </li>
                       <ListItem href="#" title="Payments">
@@ -70,36 +69,39 @@ export function LandingHeader() {
                   </NavigationMenuContent>
                 </NavigationMenuItem>
                 <NavigationMenuItem>
-                  <Link
-                    href="#"
-                    className={cn(
-                      navigationMenuTriggerStyle(),
-                      'bg-transparent text-white hover:bg-white/10 focus:bg-white/10'
-                    )}
-                  >
-                    Solutions
+                  <Link href="#" legacyBehavior passHref>
+                    <NavigationMenuLink
+                      className={cn(
+                        navigationMenuTriggerStyle(),
+                        'bg-transparent text-white hover:bg-white/10 focus:bg-white/10'
+                      )}
+                    >
+                      Solutions
+                    </NavigationMenuLink>
                   </Link>
                 </NavigationMenuItem>
                 <NavigationMenuItem>
-                  <Link
-                    href="#"
-                    className={cn(
-                      navigationMenuTriggerStyle(),
-                      'bg-transparent text-white hover:bg-white/10 focus:bg-white/10'
-                    )}
-                  >
-                    Resources
+                  <Link href="#" legacyBehavior passHref>
+                    <NavigationMenuLink
+                      className={cn(
+                        navigationMenuTriggerStyle(),
+                        'bg-transparent text-white hover:bg-white/10 focus:bg-white/10'
+                      )}
+                    >
+                      Resources
+                    </NavigationMenuLink>
                   </Link>
                 </NavigationMenuItem>
                 <NavigationMenuItem>
-                   <Link
-                    href="#"
-                    className={cn(
-                      navigationMenuTriggerStyle(),
-                      'bg-transparent text-white hover:bg-white/10 focus:bg-white/10'
-                    )}
-                  >
-                    Company
+                   <Link href="#" legacyBehavior passHref>
+                    <NavigationMenuLink
+                      className={cn(
+                        navigationMenuTriggerStyle(),
+                        'bg-transparent text-white hover:bg-white/10 focus:bg-white/10'
+                      )}
+                    >
+                      Company
+                    </NavigationMenuLink>
                   </Link>
                 </NavigationMenuItem>
               </NavigationMenuList>
@@ -144,15 +146,17 @@ export function LandingHeader() {
                 </SheetHeader>
                 <div className="flex flex-col h-full">
                   <div className="p-4 border-b border-white/20">
-                    <Logo />
+                    <SheetClose asChild>
+                      <Logo />
+                    </SheetClose>
                   </div>
                   <nav className="flex flex-col gap-4 p-4 text-lg">
                     <SheetClose asChild>
                       <Link
-                        href="#"
+                        href="/business"
                         className="hover:text-[#B2F35F] transition-colors"
                       >
-                        Products
+                        Business
                       </Link>
                     </SheetClose>
                     <SheetClose asChild>
@@ -181,12 +185,16 @@ export function LandingHeader() {
                     </SheetClose>
                   </nav>
                   <div className="mt-auto p-4 space-y-4 border-t border-white/20">
-                     <Button asChild variant="ghost" className="w-full text-lg hover:bg-white/10 hover:text-white">
-                        <Link href="/login">Log in</Link>
-                     </Button>
-                     <Button asChild className="w-full bg-[#B2F35F] text-[#052011] hover:bg-[#B2F35F]/90 text-lg rounded-full">
-                        <Link href="/register">Create account</Link>
-                     </Button>
+                     <SheetClose asChild>
+                       <Button asChild variant="ghost" className="w-full text-lg hover:bg-white/10 hover:text-white">
+                          <Link href="/login">Log in</Link>
+                       </Button>
+                     </SheetClose>
+                     <SheetClose asChild>
+                       <Button asChild className="w-full bg-[#B2F35F] text-[#052011] hover:bg-[#B2F35F]/90 text-lg rounded-full">
+                          <Link href="/register">Create account</Link>
+                       </Button>
+                     </SheetClose>
                   </div>
                 </div>
               </SheetContent>
