@@ -5,7 +5,7 @@ import { cn } from '@/lib/utils';
 
 export function Logo({ className }: { className?: string }) {
   return (
-    <Link href="/" className={cn("flex items-center gap-2", className)}>
+    <Link href="/home" className={cn("flex items-center gap-2", className)}>
       <svg
         width="32"
         height="32"

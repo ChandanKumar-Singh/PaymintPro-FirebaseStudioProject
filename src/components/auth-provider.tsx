@@ -105,26 +105,30 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     if (loading || !isFirebaseConfigValid) return;
 
-    const isAuthRoute = ['/login', '/register', '/forgot-password'].some(route => pathname.startsWith(route));
-    const isPublicRoute = ['/', '/terms', '/privacy'].some(route => pathname.startsWith(route)) || isAuthRoute;
+    const authRoutes = ['/login', '/register', '/forgot-password'];
+    const publicRoutes = ['/home', '/business', '/terms', '/privacy'];
     
+    const isAuthRoute = authRoutes.includes(pathname);
+    const isPublicRoute = publicRoutes.some(route => pathname.startsWith(route)) || isAuthRoute;
+
     // If user is not authenticated and is trying to access a protected route, redirect to login.
     if (!user && !isPublicRoute) {
       router.push('/login');
     }
 
-    // If user is authenticated and is on the landing page or an auth route, redirect to the dashboard.
-    if (user && (pathname === '/' || isAuthRoute)) {
+    // If user is authenticated and is on an auth route, redirect to the dashboard.
+    if (user && isAuthRoute) {
       router.push('/dashboard');
     }
   }, [user, loading, pathname, router, isFirebaseConfigValid]);
+
 
   if (!isFirebaseConfigValid) {
     return <FirebaseConfigErrorComponent />;
   }
 
   // Show a loader while auth state is being determined, but not for public marketing pages
-  if (loading && !['/', '/terms', '/privacy'].some(route => pathname.startsWith(route))) {
+  if (loading && !['/home', '/business', '/terms', '/privacy'].some(route => pathname.startsWith(route))) {
     return <FullScreenLoader />;
   }
 
