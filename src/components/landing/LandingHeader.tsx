@@ -69,40 +69,43 @@ export function LandingHeader() {
                   </NavigationMenuContent>
                 </NavigationMenuItem>
                 <NavigationMenuItem>
-                  <Link href="#" legacyBehavior passHref>
-                    <NavigationMenuLink
+                  <NavigationMenuLink asChild>
+                    <Link
+                      href="#"
                       className={cn(
                         navigationMenuTriggerStyle(),
                         'bg-transparent text-white hover:bg-white/10 focus:bg-white/10'
                       )}
                     >
                       Solutions
-                    </NavigationMenuLink>
-                  </Link>
+                    </Link>
+                  </NavigationMenuLink>
                 </NavigationMenuItem>
                 <NavigationMenuItem>
-                  <Link href="#" legacyBehavior passHref>
-                    <NavigationMenuLink
+                  <NavigationMenuLink asChild>
+                    <Link
+                      href="#"
                       className={cn(
                         navigationMenuTriggerStyle(),
                         'bg-transparent text-white hover:bg-white/10 focus:bg-white/10'
                       )}
                     >
                       Resources
-                    </NavigationMenuLink>
-                  </Link>
+                    </Link>
+                  </NavigationMenuLink>
                 </NavigationMenuItem>
                 <NavigationMenuItem>
-                   <Link href="#" legacyBehavior passHref>
-                    <NavigationMenuLink
+                  <NavigationMenuLink asChild>
+                    <Link
+                      href="#"
                       className={cn(
                         navigationMenuTriggerStyle(),
                         'bg-transparent text-white hover:bg-white/10 focus:bg-white/10'
                       )}
                     >
                       Company
-                    </NavigationMenuLink>
-                  </Link>
+                    </Link>
+                  </NavigationMenuLink>
                 </NavigationMenuItem>
               </NavigationMenuList>
             </NavigationMenu>
@@ -138,18 +141,16 @@ export function LandingHeader() {
                 side="right"
                 className="bg-[#052011] text-white border-l-gray-800"
               >
-                <SheetHeader className="sr-only">
-                  <SheetTitle>Mobile Menu</SheetTitle>
-                  <SheetDescription>
-                    Navigation links for the Paymint website.
-                  </SheetDescription>
-                </SheetHeader>
-                <div className="flex flex-col h-full">
-                  <div className="p-4 border-b border-white/20">
+                <SheetHeader className="p-4 border-b border-white/20">
+                    <SheetTitle className="sr-only">Mobile Menu</SheetTitle>
+                    <SheetDescription className="sr-only">
+                        Navigation links for the Paymint website.
+                    </SheetDescription>
                     <SheetClose asChild>
                       <Logo />
                     </SheetClose>
-                  </div>
+                </SheetHeader>
+                <div className="flex flex-col h-full">
                   <nav className="flex flex-col gap-4 p-4 text-lg">
                     <SheetClose asChild>
                       <Link
