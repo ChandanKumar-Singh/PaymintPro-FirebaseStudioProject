@@ -69,8 +69,8 @@ export function LandingHeader() {
                     </ul>
                   </NavigationMenuContent>
                 </NavigationMenuItem>
-                 <NavigationMenuItem>
-                  <Link href="/features" legacyBehavior passHref>
+                <NavigationMenuItem>
+                  <Link href="/features">
                     <NavigationMenuLink
                       className={cn(
                         navigationMenuTriggerStyle(),
@@ -82,7 +82,7 @@ export function LandingHeader() {
                   </Link>
                 </NavigationMenuItem>
                 <NavigationMenuItem>
-                  <Link href="/pricing" legacyBehavior passHref>
+                  <Link href="/pricing" >
                     <NavigationMenuLink
                       className={cn(
                         navigationMenuTriggerStyle(),
@@ -94,7 +94,7 @@ export function LandingHeader() {
                   </Link>
                 </NavigationMenuItem>
                 <NavigationMenuItem>
-                   <Link href="/blog" legacyBehavior passHref>
+                  <Link href="/blog" >
                     <NavigationMenuLink
                       className={cn(
                         navigationMenuTriggerStyle(),
@@ -105,8 +105,8 @@ export function LandingHeader() {
                     </NavigationMenuLink>
                   </Link>
                 </NavigationMenuItem>
-                 <NavigationMenuItem>
-                  <Link href="/contact" legacyBehavior passHref>
+                <NavigationMenuItem>
+                  <Link href="/contact" >
                     <NavigationMenuLink
                       className={cn(
                         navigationMenuTriggerStyle(),
@@ -152,10 +152,10 @@ export function LandingHeader() {
                 className="bg-[#052011] text-white border-l-gray-800"
               >
                 <SheetHeader>
-                   <SheetTitle className="sr-only">Mobile Menu</SheetTitle>
-                   <SheetDescription className="sr-only">
-                       Navigation links for the Paymint website.
-                   </SheetDescription>
+                  <SheetTitle className="sr-only">Mobile Menu</SheetTitle>
+                  <SheetDescription className="sr-only">
+                    Navigation links for the Paymint website.
+                  </SheetDescription>
                   <SheetClose asChild>
                     <Logo />
                   </SheetClose>
@@ -170,7 +170,7 @@ export function LandingHeader() {
                         Business
                       </Link>
                     </SheetClose>
-                     <SheetClose asChild>
+                    <SheetClose asChild>
                       <Link
                         href="/cards"
                         className="hover:text-[#B2F35F] transition-colors"
@@ -178,15 +178,15 @@ export function LandingHeader() {
                         Cards
                       </Link>
                     </SheetClose>
-                     <SheetClose asChild>
-                        <Link
-                            href="/features"
-                            className="hover:text-[#B2F35F] transition-colors"
-                        >
-                            Features
-                        </Link>
-                     </SheetClose>
-                     <SheetClose asChild>
+                    <SheetClose asChild>
+                      <Link
+                        href="/features"
+                        className="hover:text-[#B2F35F] transition-colors"
+                      >
+                        Features
+                      </Link>
+                    </SheetClose>
+                    <SheetClose asChild>
                       <Link
                         href="/pricing"
                         className="hover:text-[#B2F35F] transition-colors"
@@ -194,7 +194,7 @@ export function LandingHeader() {
                         Pricing
                       </Link>
                     </SheetClose>
-                     <SheetClose asChild>
+                    <SheetClose asChild>
                       <Link
                         href="/blog"
                         className="hover:text-[#B2F35F] transition-colors"
@@ -212,16 +212,16 @@ export function LandingHeader() {
                     </SheetClose>
                   </nav>
                   <div className="mt-auto p-4 space-y-4 border-t border-white/20">
-                     <SheetClose asChild>
-                       <Button asChild variant="ghost" className="w-full text-lg hover:bg-white/10 hover:text-white">
-                          <Link href="/login">Log in</Link>
-                       </Button>
-                     </SheetClose>
-                     <SheetClose asChild>
-                       <Button asChild className="w-full bg-[#B2F35F] text-[#052011] hover:bg-[#B2F35F]/90 text-lg rounded-full">
-                          <Link href="/register">Create account</Link>
-                       </Button>
-                     </SheetClose>
+                    <SheetClose asChild>
+                      <Button asChild variant="ghost" className="w-full text-lg hover:bg-white/10 hover:text-white">
+                        <Link href="/login">Log in</Link>
+                      </Button>
+                    </SheetClose>
+                    <SheetClose asChild>
+                      <Button asChild className="w-full bg-[#B2F35F] text-[#052011] hover:bg-[#B2F35F]/90 text-lg rounded-full">
+                        <Link href="/register">Create account</Link>
+                      </Button>
+                    </SheetClose>
                   </div>
                 </div>
               </SheetContent>
