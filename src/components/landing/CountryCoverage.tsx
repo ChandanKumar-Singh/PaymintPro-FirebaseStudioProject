@@ -1,6 +1,7 @@
 'use client';
 import Image from 'next/image';
 import { Button } from '../ui/button';
+import Link from 'next/link';
 
 const countries = [
     { name: 'France', flag: 'https://placehold.co/24x24.png', dataAiHint: 'france flag' },
@@ -34,11 +35,15 @@ export function CountryCoverage() {
                              </div>
                         ))}
                          <div className="flex items-center col-span-full justify-center mt-4">
-                             <Button variant="link" className="text-[#052011] font-bold">See all 150+ countries</Button>
+                             <Button asChild variant="link" className="text-[#052011] font-bold">
+                                <Link href="/multicurrency-coverage">See all 150+ countries</Link>
+                             </Button>
                          </div>
                     </div>
                     <div className="flex justify-center">
-                        <Image src="https://placehold.co/600x400.png" data-ai-hint="world map graphic" alt="World Map" width={600} height={400} />
+                       <Link href="/multicurrency-coverage">
+                         <Image src="https://placehold.co/600x400.png" data-ai-hint="world map graphic" alt="World Map" width={600} height={400} />
+                       </Link>
                     </div>
                 </div>
             </div>
