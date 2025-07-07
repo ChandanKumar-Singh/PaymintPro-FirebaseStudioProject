@@ -7,7 +7,7 @@ export default function MarketingLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="bg-white">
+    <div className="bg-white mx-auto w-full">
       <LandingHeader />
       <main>{children}</main>
       <LandingFooter />
