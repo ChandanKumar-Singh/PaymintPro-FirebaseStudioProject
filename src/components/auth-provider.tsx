@@ -106,20 +106,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     if (loading || !isFirebaseConfigValid) return;
 
     const authRoutes = ['/login', '/register', '/forgot-password'];
-    const publicRoutes = ['/home', '/business', '/terms', '/privacy'];
-    
     const isAuthRoute = authRoutes.includes(pathname);
-    const isPublicRoute = publicRoutes.some(route => pathname.startsWith(route)) || isAuthRoute;
 
-    // If user is not authenticated and is trying to access a protected route, redirect to login.
-    if (!user && !isPublicRoute) {
-      router.push('/login');
-    }
-
-    // If user is authenticated and is on an auth route, redirect to the dashboard.
+    // If a user is logged in and tries to visit a login/register page,
+    // redirect them to the dashboard.
     if (user && isAuthRoute) {
       router.push('/dashboard');
     }
+    // The logic that previously redirected unauthenticated users from protected
+    // routes has been removed to allow full site access without login.
   }, [user, loading, pathname, router, isFirebaseConfigValid]);
 
 
@@ -128,7 +123,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }
 
   // Show a loader while auth state is being determined, but not for public marketing pages
-  if (loading && !['/home', '/business', '/terms', '/privacy'].some(route => pathname.startsWith(route))) {
+  const isMarketingPage = ['/', '/home', '/business', '/cards', '/terms', '/privacy'].some(route => pathname === route);
+  if (loading && !isMarketingPage) {
     return <FullScreenLoader />;
   }
 
