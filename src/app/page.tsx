@@ -1,7 +1,3 @@
-import Loading from './(main)/loading';
-
-export default function RootPage() {
-  // The AuthProvider will handle redirecting the user to the appropriate page.
-  // This page just shows a loader as a fallback.
-  return <Loading />;
-}
+// This file is intentionally left blank to resolve a routing conflict.
+// The root marketing page is now defined in src/app/(marketing)/page.tsx
+// and the AuthProvider handles initial routing logic.
