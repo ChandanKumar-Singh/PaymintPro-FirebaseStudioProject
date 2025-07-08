@@ -24,7 +24,7 @@ export function RecentTransactions({ transactions }: RecentTransactionsProps) {
                 <CardDescription>The latest movements in your account.</CardDescription>
             </div>
             <Button asChild variant="ghost" size="sm">
-                <Link href="/transactions">View all</Link>
+                <Link href="/dashboard/transactions">View all</Link>
             </Button>
         </div>
       </CardHeader>

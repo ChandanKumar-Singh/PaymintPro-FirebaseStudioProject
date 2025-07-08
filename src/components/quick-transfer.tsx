@@ -68,7 +68,7 @@ export function QuickInvoice() {
   }
 
   const handleSaveDraft = () => {
-     router.push('/invoicing/new');
+     router.push('/dashboard/invoicing/new');
   }
 
 

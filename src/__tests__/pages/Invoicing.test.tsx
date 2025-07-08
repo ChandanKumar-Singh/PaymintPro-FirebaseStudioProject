@@ -1,7 +1,7 @@
 import React from 'react';
 import { render, screen, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
-import InvoicingPage from '@/app/(main)/invoicing/page';
+import InvoicingPage from '@/app/(main)/dashboard/invoicing/page';
 import { useAuth } from '@/components/auth-provider';
 import * as data from '@/lib/data';
 

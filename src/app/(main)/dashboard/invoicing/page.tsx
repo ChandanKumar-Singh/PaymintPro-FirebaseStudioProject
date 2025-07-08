@@ -223,7 +223,7 @@ export default function InvoicingPage() {
             />
             <div className="flex justify-between items-center">
                 <h1 className="text-3xl font-bold tracking-tight">Invoicing</h1>
-                <Link href="/invoicing/new" passHref>
+                <Link href="/dashboard/invoicing/new" passHref>
                     <Button>
                         <PlusCircle className="mr-2 h-4 w-4" />
                         Create Invoice
@@ -255,7 +255,7 @@ export default function InvoicingPage() {
                             description="Create your first invoice to get started."
                             actionButton={
                                 <Button asChild>
-                                    <Link href="/invoicing/new">
+                                    <Link href="/dashboard/invoicing/new">
                                         <PlusCircle className="mr-2 h-4 w-4" />
                                         Create Invoice
                                     </Link>

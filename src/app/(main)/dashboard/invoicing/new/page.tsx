@@ -76,7 +76,7 @@ export default function NewInvoicePage() {
                 title: status === 'Sent' ? "Invoice Sent" : "Draft Saved",
                 description: `The invoice has been successfully ${status === 'Sent' ? 'created and sent' : 'saved as a draft'}.`,
             });
-            router.push('/invoicing');
+            router.push('/dashboard/invoicing');
         } catch (error) {
             toast({ title: "Error", description: "Failed to create invoice.", variant: "destructive" });
         } finally {

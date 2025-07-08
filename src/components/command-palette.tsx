@@ -169,28 +169,28 @@ export function CommandPalette() {
                                     <LayoutDashboard className="mr-2 h-4 w-4" />
                                     <span>Dashboard</span>
                                 </CommandItem>
-                                <CommandItem onSelect={() => runCommand(() => router.push('/transactions'))} onMouseDown={(e) => handleMouseDown(e, () => router.push('/transactions'))} className="cursor-pointer">
+                                <CommandItem onSelect={() => runCommand(() => router.push('/dashboard/transactions'))} onMouseDown={(e) => handleMouseDown(e, () => router.push('/dashboard/transactions'))} className="cursor-pointer">
                                     <ArrowRightLeft className="mr-2 h-4 w-4" />
                                     <span>Transactions</span>
                                 </CommandItem>
-                                <CommandItem onSelect={() => runCommand(() => router.push('/invoicing'))} onMouseDown={(e) => handleMouseDown(e, () => router.push('/invoicing'))} className="cursor-pointer">
+                                <CommandItem onSelect={() => runCommand(() => router.push('/dashboard/invoicing'))} onMouseDown={(e) => handleMouseDown(e, () => router.push('/dashboard/invoicing'))} className="cursor-pointer">
                                     <FileText className="mr-2 h-4 w-4" />
                                     <span>Invoicing</span>
                                 </CommandItem>
-                                <CommandItem onSelect={() => runCommand(() => router.push('/settings'))} onMouseDown={(e) => handleMouseDown(e, () => router.push('/settings'))} className="cursor-pointer">
+                                <CommandItem onSelect={() => runCommand(() => router.push('/dashboard/settings'))} onMouseDown={(e) => handleMouseDown(e, () => router.push('/dashboard/settings'))} className="cursor-pointer">
                                     <Settings className="mr-2 h-4 w-4" />
                                     <span>Settings</span>
                                 </CommandItem>
                             </CommandGroup>
                             <CommandSeparator />
                             <CommandGroup heading="Actions">
-                                <CommandItem onSelect={() => runCommand(() => router.push('/invoicing/new'))} onMouseDown={(e) => handleMouseDown(e, () => router.push('/invoicing/new'))} className="cursor-pointer">
+                                <CommandItem onSelect={() => runCommand(() => router.push('/dashboard/invoicing/new'))} onMouseDown={(e) => handleMouseDown(e, () => router.push('/dashboard/invoicing/new'))} className="cursor-pointer">
                                     <FilePlus2 className="mr-2 h-4 w-4" />
                                     <span>Create New Invoice</span>
                                 </CommandItem>
                                 <CommandItem onSelect={() => {
-                                    runCommand(() => router.push('/support'))
-                                }} onMouseDown={(e) => handleMouseDown(e, () => router.push('/support'))} className="cursor-pointer">
+                                    runCommand(() => router.push('/dashboard/support'))
+                                }} onMouseDown={(e) => handleMouseDown(e, () => router.push('/dashboard/support'))} className="cursor-pointer">
                                     <PlusCircle className="mr-2 h-4 w-4" />
                                     <span>Create New Ticket</span>
                                 </CommandItem>

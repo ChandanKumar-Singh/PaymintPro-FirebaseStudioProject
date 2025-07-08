@@ -24,20 +24,20 @@ import {
 
 const menuItems = [
   { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
-  { href: '/transactions', label: 'Transactions', icon: ArrowRightLeft },
-  { href: '/accounts', label: 'Accounts', icon: Landmark },
-  { href: '/cards', label: 'Cards', icon: CreditCard },
-  { href: '/payments', label: 'Payments', icon: Receipt },
-  { href: '/budgets', label: 'Budgets', icon: Target },
-  { href: '/invoicing', label: 'Invoicing', icon: FileText },
-  { href: '/trading', label: 'Trading', icon: CandlestickChart },
-  { href: '/reports', label: 'Reports', icon: PieChart },
-  { href: '/advisor', label: 'AI Advisor', icon: Sparkles },
+  { href: '/dashboard/transactions', label: 'Transactions', icon: ArrowRightLeft },
+  { href: '/dashboard/accounts', label: 'Accounts', icon: Landmark },
+  { href: '/dashboard/user-cards', label: 'Cards', icon: CreditCard },
+  { href: '/dashboard/payments', label: 'Payments', icon: Receipt },
+  { href: '/dashboard/budgets', label: 'Budgets', icon: Target },
+  { href: '/dashboard/invoicing', label: 'Invoicing', icon: FileText },
+  { href: '/dashboard/trading', label: 'Trading', icon: CandlestickChart },
+  { href: '/dashboard/reports', label: 'Reports', icon: PieChart },
+  { href: '/dashboard/advisor', label: 'AI Advisor', icon: Sparkles },
 ];
 
 const secondaryMenuItems = [
-    { href: '/support', label: 'Support', icon: LifeBuoy },
-    { href: '/settings', label: 'Settings', icon: Settings }
+  { href: '/dashboard/support', label: 'Support', icon: LifeBuoy },
+  { href: '/dashboard/settings', label: 'Settings', icon: Settings }
 ];
 
 export function MainNav() {
@@ -47,6 +47,23 @@ export function MainNav() {
     <div className="flex h-full flex-col justify-between p-2">
       <SidebarMenu>
         {menuItems.map((item) => (
+          <SidebarMenuItem key={item.href}>
+            <SidebarMenuButton
+              asChild
+              isActive={
+                isActive(item)}
+              tooltip={item.label}
+            >
+              <Link href={item.href}>
+                <item.icon />
+                {item.label}
+              </Link>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+        ))}
+      </SidebarMenu>
+      <SidebarMenu>
+        {secondaryMenuItems.map((item) => (
           <SidebarMenuItem key={item.href}>
             <SidebarMenuButton
               asChild
@@ -61,22 +78,12 @@ export function MainNav() {
           </SidebarMenuItem>
         ))}
       </SidebarMenu>
-      <SidebarMenu>
-        {secondaryMenuItems.map((item) => (
-            <SidebarMenuItem key={item.href}>
-                <SidebarMenuButton
-                asChild
-                isActive={pathname.startsWith(item.href)}
-                tooltip={item.label}
-                >
-                <Link href={item.href}>
-                    <item.icon />
-                    {item.label}
-                </Link>
-                </SidebarMenuButton>
-            </SidebarMenuItem>
-        ))}
-      </SidebarMenu>
     </div>
   );
+
+  function isActive(item: any): boolean | undefined {
+    console.log(`Checking active state for ${item.href} against ${pathname}`);
+    return item.href == '/dashboard' ? pathname == '/dashboard' :
+      pathname.startsWith(item.href);
+  }
 }

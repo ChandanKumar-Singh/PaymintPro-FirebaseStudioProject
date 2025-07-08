@@ -120,7 +120,7 @@ export default function DashboardPage() {
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
                 <DropdownMenuItem asChild>
-                  <Link href="/invoicing/new">New Invoice</Link>
+                  <Link href="/dashboard/invoicing/new">New Invoice</Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem onSelect={() => handleOpen('new-payment')}>
                     New Payment

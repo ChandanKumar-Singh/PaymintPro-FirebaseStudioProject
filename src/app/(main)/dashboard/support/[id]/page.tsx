@@ -99,7 +99,7 @@ export default function TicketDetailPage() {
                 setHasMore(messagesData.hasMore);
             } catch (error) {
                 toast({ title: "Error", description: "Could not fetch ticket details.", variant: "destructive" });
-                router.push('/support');
+                router.push('/dashboard/support');
             } finally {
                 setLoading(false);
                 setIsInitialLoad(false);
@@ -355,7 +355,7 @@ export default function TicketDetailPage() {
                 <header className="p-4 border-b flex items-center justify-between gap-4">
                     <div className="flex items-center gap-4">
                          <Button variant="ghost" size="icon" asChild className="md:hidden">
-                            <Link href="/support">
+                            <Link href="/dashboard/support">
                                 <ArrowLeft />
                             </Link>
                         </Button>

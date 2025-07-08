@@ -42,7 +42,7 @@ export function TicketList({ tickets, onNewTicket }: TicketListProps) {
                     {tickets.map(ticket => (
                         <Link
                             key={ticket.id}
-                            href={`/support/${ticket.id}`}
+                            href={`/dashboard/support/${ticket.id}`}
                             className={cn(
                                 "block p-3 rounded-lg hover:bg-muted cursor-pointer",
                                 activeTicketId === ticket.id && "bg-muted"
