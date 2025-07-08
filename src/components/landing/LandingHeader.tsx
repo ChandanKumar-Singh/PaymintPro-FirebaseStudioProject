@@ -132,7 +132,7 @@ export function LandingHeader() {
               asChild
               className="bg-[#B2F35F] text-[#052011] hover:bg-[#B2F35F]/90 rounded-full"
             >
-              <Link href="/register">Create account</Link>
+              <Link href="/register">Register</Link>
             </Button>
           </div>
           <div className="lg:hidden">
@@ -219,7 +219,7 @@ export function LandingHeader() {
                     </SheetClose>
                     <SheetClose asChild>
                       <Button asChild className="w-full bg-[#B2F35F] text-[#052011] hover:bg-[#B2F35F]/90 text-lg rounded-full">
-                        <Link href="/register">Create account</Link>
+                        <Link href="/register">Register</Link>
                       </Button>
                     </SheetClose>
                   </div>
