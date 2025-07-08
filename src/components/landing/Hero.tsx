@@ -1,3 +1,4 @@
+
 'use client';
 import { Button } from '@/components/ui/button';
 import Image from 'next/image';
@@ -39,7 +40,7 @@ export function Hero() {
                 variant="ghost"
                 className="text-white hover:text-white hover:bg-white/10 rounded-full px-8 py-6 text-base font-bold"
               >
-                <Link href="#">
+                <Link href="/contact">
                   <CirclePlay className="mr-2 w-5 h-5" />
                   Contact sales
                 </Link>
@@ -59,7 +60,7 @@ export function Hero() {
               <Input
                 type="text"
                 defaultValue="2,000"
-                className="text-4xl font-bold h-auto p-0 border-none focus-visible:ring-0 text-[#052011]"
+                className="text-4xl font-bold h-auto p-0 border-none focus-visible:ring-0 text-[#052011] bg-transparent"
               />
               <div className="border-t border-gray-200 my-4"></div>
               <div className="flex justify-between items-center mb-2">
@@ -78,10 +79,10 @@ export function Hero() {
                 </div>
                 <div className="flex justify-between">
                   <span>Rate</span>
-                  <span className="font-medium text-[#B2F35F]">1 USD = 1,498.45 NGN</span>
+                  <span className="font-medium text-primary">1 USD = 1,498.45 NGN</span>
                 </div>
               </div>
-               <Button className="w-full mt-6 bg-[#B2F35F] text-[#052011] hover:bg-[#B2F35F]/90 rounded-full py-6 text-lg font-bold">
+               <Button className="w-full mt-6 bg-primary text-primary-foreground hover:bg-primary/90 rounded-full py-6 text-lg font-bold">
                  Get Started
                </Button>
             </div>

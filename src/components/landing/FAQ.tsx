@@ -1,4 +1,6 @@
+
 'use client';
+
 import {
   Accordion,
   AccordionContent,
@@ -7,70 +9,39 @@ import {
 } from "@/components/ui/accordion";
 import { Button } from "../ui/button";
 import Link from "next/link";
-import { CircleHelp, Mail } from "lucide-react";
-
-const faqs = [
-    {
-        question: "How do I create a transfer with Paymint?",
-        answer: "Creating a transfer is simple. First, create your free account. Then, tell us how much you want to send and where. Finally, pay for your transfer and track its progress."
-    },
-    {
-        question: "How fast will my money arrive?",
-        answer: "Most transfers arrive within 1-2 business days. Some transfers can be even faster, arriving within minutes. The exact time depends on the currencies and payment method you choose."
-    },
-    {
-        question: "How much does it cost to use Paymint?",
-        answer: "We believe in transparent pricing. Our fees are low and always shown upfront. Your first transfer is even zero-fee! The total cost depends on the amount, currency, and payment method."
-    },
-    {
-        question: "Is my money and data secure with Paymint?",
-        answer: "Absolutely. We use bank-level security and advanced encryption to protect your money and personal information. We are regulated by financial authorities around the world."
-    },
-];
 
 export function FAQ() {
+    const faqs = [
+        { q: "How do I register for a Paymint personal account?", a: "It's quick and simple to register for a Paymint account. To get started opening a personal account, just click Register. Signing up is easy, we'll just need some basic identification documents so that we can electronically verify your identity. This is to comply with standard regulatory requirements in each territory that we operate in." },
+        { q: "Is my money safe and secure?", a: "Yes, your money and data are safe with us. We use bank-level security measures, including advanced encryption and fraud prevention tools, to protect your account and transactions." },
+        { q: "How can I exchange currencies with Paymint?", a: "You can exchange currencies within your multi-currency account. Simply select the currencies you want to exchange, enter the amount, and confirm the transaction. We use the mid-market rate to ensure you get the best possible exchange." },
+    ]
     return (
-        <section className="bg-white py-20 sm:py-28">
+        <section className="bg-white pb-20 sm:pb-28">
             <div className="container mx-auto px-4">
-                 <div className="grid lg:grid-cols-3 gap-12">
-                     <div className="lg:col-span-1">
-                        <p className="font-bold text-[#052011]/60 mb-2">How can we help?</p>
-                        <h2 className="text-4xl sm:text-5xl font-bold text-[#052011] tracking-tight">Common questions</h2>
-                        <p className="mt-4 text-lg text-gray-600">
-                            Can't find the answer you're looking for? Please chat with our friendly team.
-                        </p>
-                        <div className="mt-8 space-y-4">
-                            <Button className="w-full justify-start gap-3 p-6 text-left text-base rounded-lg bg-[#E7FAD1] text-[#052011] hover:bg-[#d8f5a7]">
-                                <CircleHelp className="w-6 h-6" />
-                                <div>
-                                    <p className="font-bold">Chat with us</p>
-                                    <p className="font-normal text-sm">Our team is here to help</p>
-                                </div>
-                            </Button>
-                             <Button className="w-full justify-start gap-3 p-6 text-left text-base rounded-lg bg-[#E7FAD1] text-[#052011] hover:bg-[#d8f5a7]">
-                                <Mail className="w-6 h-6" />
-                                <div>
-                                    <p className="font-bold">Email us</p>
-                                    <p className="font-normal text-sm">We'll get back to you soon</p>
-                                </div>
-                            </Button>
-                        </div>
-                     </div>
-                     <div className="lg:col-span-2">
-                        <Accordion type="single" collapsible className="w-full" defaultValue="item-0">
-                            {faqs.map((faq, index) => (
-                                <AccordionItem key={index} value={`item-${index}`} className="border-b border-gray-200 py-4">
-                                    <AccordionTrigger className="text-lg font-bold text-[#052011] hover:no-underline text-left">
-                                        {faq.question}
-                                    </AccordionTrigger>
-                                    <AccordionContent className="text-base text-gray-600 pt-2">
-                                        {faq.answer}
-                                    </AccordionContent>
-                                </AccordionItem>
-                            ))}
-                        </Accordion>
-                     </div>
-                 </div>
+                <div className="grid lg:grid-cols-3 gap-12">
+                    <div className="lg:col-span-1">
+                        <p className="font-bold text-muted-foreground mb-2">How can we help?</p>
+                        <h2 className="text-4xl sm:text-5xl font-bold text-foreground tracking-tight">Common questions</h2>
+                        <Button asChild size="lg" className="bg-primary text-primary-foreground hover:bg-primary/90 rounded-md font-bold mt-8">
+                           <Link href="/faq">All FAQ's</Link>
+                        </Button>
+                    </div>
+                    <div className="lg:col-span-2">
+                       <Accordion type="single" collapsible className="w-full" defaultValue="item-0">
+                           {faqs.map((faq, index) => (
+                               <AccordionItem key={index} value={`item-${index}`} className="border-b py-4">
+                                   <AccordionTrigger className="text-lg font-bold text-foreground hover:no-underline text-left">
+                                       {faq.q}
+                                   </AccordionTrigger>
+                                   <AccordionContent className="text-base text-muted-foreground pt-2">
+                                       {faq.a}
+                                   </AccordionContent>
+                               </AccordionItem>
+                           ))}
+                       </Accordion>
+                    </div>
+                </div>
             </div>
         </section>
     );
