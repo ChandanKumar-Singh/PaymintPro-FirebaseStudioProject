@@ -15,7 +15,7 @@ export function Offerings() {
                         <h3 className="text-3xl font-bold mb-4">For Individuals</h3>
                         <p className="text-white/80 mb-6">With our innovative fintech solutions, you can seamlessly handle all your financial needs. From international transfers to everyday payments.</p>
                         
-                        <Button asChild variant="secondary" className="bg-[#B2F35F] text-[#052011] hover:bg-[#B2F35F]/90 rounded-md font-bold">
+                        <Button asChild variant="secondary" className="bg-[#B2F35F] text-[#052011] hover:bg-[#B2F35F]/90 font-bold">
                             <Link href="/features">Learn more</Link>
                         </Button>
                          <Image src="https://placehold.co/400x300.png" data-ai-hint="mobile money transfer" alt="Individual use" width={400} height={300} className="ml-auto mt-8" />
@@ -23,7 +23,7 @@ export function Offerings() {
                     <div className="bg-[#0A2D1A] text-white p-8 rounded-2xl text-left">
                         <h3 className="text-3xl font-bold mb-4">For Business</h3>
                         <p className="text-white/80 mb-6">With our innovative fintech solutions, you can seamlessly handle all your financial needs. From international transfers to everyday payments.</p>
-                        <Button asChild variant="secondary" className="bg-[#B2F35F] text-[#052011] hover:bg-[#B2F35F]/90 rounded-md font-bold">
+                        <Button asChild variant="secondary" className="bg-[#B2F35F] text-[#052011] hover:bg-[#B2F35F]/90 font-bold">
                            <Link href="/business">Learn more</Link>
                         </Button>
                          <Image src="https://placehold.co/400x300.png" data-ai-hint="business payment solution" alt="Business use" width={400} height={300} className="ml-auto mt-8" />

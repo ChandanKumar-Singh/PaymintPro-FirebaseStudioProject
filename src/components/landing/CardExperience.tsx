@@ -22,7 +22,7 @@ export function CardExperience() {
                             <li className="flex items-center gap-3"><CheckCircle className="w-5 h-5 text-[#B2F35F]" /> No hidden fees</li>
                             <li className="flex items-center gap-3"><CheckCircle className="w-5 h-5 text-[#B2F35F]" /> Real exchange rate</li>
                          </ul>
-                         <Button asChild size="lg" className="bg-[#B2F35F] text-[#052011] hover:bg-[#B2F35F]/90 rounded-md font-bold">
+                         <Button asChild size="lg" className="bg-[#B2F35F] text-[#052011] hover:bg-[#B2F35F]/90  font-bold">
                             <Link href="/cards">Learn more</Link>
                          </Button>
                     </div>

@@ -50,7 +50,7 @@ const categories = ['All', 'SaaS', 'E-commerce', 'Marketplace', 'Ride Sharing', 
 
 const Pagination = () => (
     <div className="flex justify-between items-center mt-12">
-        <Button variant="outline" className="rounded-md hidden sm:flex bg-white text-[#052011] border-gray-300 hover:bg-gray-100">
+        <Button variant="outline" className="hidden sm:flex bg-white text-[#052011] border-gray-300 hover:bg-gray-100">
             <ChevronLeft className="mr-2 h-4 w-4" /> Previous
         </Button>
         <div className="flex items-center gap-1 sm:gap-2">

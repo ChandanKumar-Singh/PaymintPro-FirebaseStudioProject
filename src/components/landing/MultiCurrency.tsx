@@ -22,7 +22,7 @@ export function MultiCurrency() {
                             <li className="flex items-center gap-3"><CheckCircle className="w-5 h-5 text-lime-500" /> Millions of happy customers</li>
                             <li className="flex items-center gap-3"><CheckCircle className="w-5 h-5 text-lime-500" /> No hidden fees</li>
                          </ul>
-                         <Button asChild size="lg" className="bg-[#B2F35F] text-[#052011] hover:bg-[#B2F35F]/90 rounded-md font-bold">
+                         <Button asChild size="lg" className="bg-[#B2F35F] text-[#052011] hover:bg-[#B2F35F]/90  font-bold">
                             <Link href="/multicurrency-coverage">Get started</Link>
                          </Button>
                     </div>

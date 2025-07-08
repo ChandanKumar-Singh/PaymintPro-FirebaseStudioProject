@@ -22,7 +22,7 @@ export function BestProvider() {
         <p className="text-center text-lg text-gray-600 mb-12 max-w-2xl mx-auto">
             Millions of happy customers and a 4.5 star rating on Trustpilot.
         </p>
-        <Button asChild size="lg" className="bg-[#B2F35F] text-[#052011] hover:bg-[#B2F35F]/90 rounded-md font-bold mx-auto block w-fit">
+        <Button asChild size="lg" className="bg-[#B2F35F] text-[#052011] hover:bg-[#B2F35F]/90 font-bold mx-auto block w-fit">
             <Link href="/pricing">Check prices</Link>
         </Button>
         <div className="mt-16 grid sm:grid-cols-2 gap-x-8 gap-y-12 max-w-4xl mx-auto">

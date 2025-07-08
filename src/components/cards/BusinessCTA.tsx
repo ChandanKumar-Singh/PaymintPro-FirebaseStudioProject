@@ -45,7 +45,7 @@ export function BusinessCTA() {
               <Button
                 asChild
                 size="lg"
-                className="bg-[#B5F567] text-[#0C2B1B] hover:bg-[#B5F567]/90 rounded-md font-bold"
+                className="bg-[#B5F567] text-[#0C2B1B] hover:bg-[#B5F567]/90  font-bold"
               >
                 <Link href="/business">
                   Learn more <ArrowRight className="ml-2 w-5 h-5" />

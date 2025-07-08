@@ -21,7 +21,7 @@ export function Hero() {
           <Button
             asChild
             size="lg"
-            className="bg-[#B5F567] text-[#0C2B1B] hover:bg-[#B5F567]/90 rounded-md px-6 py-5 text-base font-bold"
+            className="bg-[#B5F567] text-[#0C2B1B] hover:bg-[#B5F567]/90 px-6 py-5 text-base font-bold"
           >
             <Link href="#">
               Order your card <ArrowRight className="ml-2 w-5 h-5" />
@@ -31,7 +31,7 @@ export function Hero() {
             asChild
             size="lg"
             variant="outline"
-            className="text-white border-white/40 hover:text-white hover:bg-white/10 rounded-md px-6 py-5 text-base font-bold"
+            className="text-white border-white/40 hover:text-white hover:bg-white/10 px-6 py-5 text-base font-bold"
           >
             <Link href="#">Contact sales</Link>
           </Button>

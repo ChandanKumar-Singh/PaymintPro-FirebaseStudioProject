@@ -28,7 +28,7 @@ export function BoostSales() {
                             </li>
                         ))}
                     </ul>
-                    <Button asChild size="lg" className="bg-[#B2F35F] text-[#052011] hover:bg-[#B2F35F]/90 rounded-md px-6 py-5 text-base font-bold">
+                    <Button asChild size="lg" className="bg-[#B2F35F] text-[#052011] hover:bg-[#B2F35F]/90 px-6 py-5 text-base font-bold">
                         <Link href="#">Get started</Link>
                     </Button>
                 </div>

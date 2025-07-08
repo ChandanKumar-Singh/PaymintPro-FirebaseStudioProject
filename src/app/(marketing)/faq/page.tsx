@@ -156,7 +156,7 @@ export default function FAQPage() {
                             <h2 className="text-3xl font-bold mb-2">Can't find your answer?</h2>
                             <p className="text-white/80">Our customer support team is here to help.</p>
                         </div>
-                        <Button asChild size="lg" className="bg-[#B2F35F] text-[#052011] hover:bg-[#B2F35F]/90 rounded-md mt-6 md:mt-0 px-6 py-5 font-bold">
+                        <Button asChild size="lg" className="bg-[#B2F35F] text-[#052011] hover:bg-[#B2F35F]/90 mt-6 md:mt-0 px-6 py-5 font-bold">
                             <Link href="/contact">
                                 Contact us <ArrowRight className="ml-2 w-5 h-5" />
                             </Link>

@@ -20,7 +20,7 @@ export function Hero() {
           <Button
             asChild
             size="lg"
-            className="bg-[#B2F35F] text-[#052011] hover:bg-[#B2F35F]/90 rounded-md px-6 py-5 text-base font-bold"
+            className="bg-[#B2F35F] text-[#052011] hover:bg-[#B2F35F]/90 px-6 py-5 text-base font-bold"
           >
             <Link href="/register">Create account</Link>
           </Button>
@@ -28,7 +28,7 @@ export function Hero() {
             asChild
             size="lg"
             variant="outline"
-            className="text-white border-white/40 hover:text-white hover:bg-white/10 rounded-md px-6 py-5 text-base font-bold"
+            className="text-white border-white/40 hover:text-white hover:bg-white/10 px-6 py-5 text-base font-bold"
           >
             <Link href="/contact">Contact sales</Link>
           </Button>

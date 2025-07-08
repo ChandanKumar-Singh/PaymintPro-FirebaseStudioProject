@@ -42,7 +42,7 @@ export function CountryCoverage() {
                 <div className="rounded-2xl border-2 border-dashed border-blue-300 bg-[#F9FAFB] p-8">
                     {/* Top Section */}
                     <div className="mb-8">
-                        <div className="inline-block bg-[#E7FAD1] text-[#052011] font-bold py-1 px-3 rounded-md text-sm mb-4">
+                        <div className="inline-block bg-[#E7FAD1] text-[#052011] font-bold py-1 px-3  text-sm mb-4">
                             Country coverage
                         </div>
                         <h2 className="text-4xl sm:text-5xl font-bold text-[#052011] mb-6 tracking-tight">

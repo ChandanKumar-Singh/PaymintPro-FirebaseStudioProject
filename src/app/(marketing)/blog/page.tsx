@@ -334,7 +334,7 @@ export default function BlogPage() {
                                                     <Image src={story.logo} alt={story.title} width={100} height={30} data-ai-hint={story.dataAiHint} className="mb-4" />
                                                     <h3 className="text-2xl font-bold flex-grow">{story.title}</h3>
                                                     <div className="flex justify-between items-end mt-6">
-                                                        <Button className={`rounded-md font-bold ${story.buttonColor} ${story.buttonTextColor} hover:opacity-90`}>
+                                                        <Button className={`font-bold ${story.buttonColor} ${story.buttonTextColor} hover:opacity-90`}>
                                                             Read story <ArrowRight className="ml-2 h-4 w-4" />
                                                         </Button>
                                                         <Image src={story.image} alt="" width={100} height={100} data-ai-hint={story.dataAiHint} className="rounded-full" />

@@ -23,7 +23,7 @@ export function FAQ() {
                     <div className="lg:col-span-1">
                         <p className="font-bold text-[#052011]/60 mb-2">How can we help?</p>
                         <h2 className="text-4xl sm:text-5xl font-bold text-[#052011] tracking-tight">Common questions</h2>
-                        <Button asChild size="lg" className="bg-[#B2F35F] text-[#052011] hover:bg-[#B2F35F]/90 rounded-md font-bold mt-8">
+                        <Button asChild size="lg" className="bg-[#B2F35F] text-[#052011] hover:bg-[#B2F35F]/90  font-bold mt-8">
                            <Link href="/faq">All FAQ's</Link>
                         </Button>
                     </div>

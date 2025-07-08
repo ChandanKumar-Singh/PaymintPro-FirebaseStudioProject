@@ -39,7 +39,7 @@ export function Spend() {
             <Button
               asChild
               size="lg"
-              className="bg-[#B5F567] text-[#0C2B1B] hover:bg-[#B5F567]/90 rounded-md px-8 py-6 text-base font-bold"
+              className="bg-[#B5F567] text-[#0C2B1B] hover:bg-[#B5F567]/90 px-8 py-6 text-base font-bold"
             >
               <Link href="#">Get started</Link>
             </Button>

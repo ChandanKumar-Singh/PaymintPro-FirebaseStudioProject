@@ -39,7 +39,7 @@ export function HowItWorks() {
                                 </div>
                             </li>
                         </ol>
-                         <Button asChild size="lg" className="bg-[#B2F35F] text-[#052011] hover:bg-[#B2F35F]/90 rounded-md font-bold mt-8">
+                         <Button asChild size="lg" className="bg-[#B2F35F] text-[#052011] hover:bg-[#B2F35F]/90  font-bold mt-8">
                             <Link href="/features">Learn more</Link>
                          </Button>
                     </div>
