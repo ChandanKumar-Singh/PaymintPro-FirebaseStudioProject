@@ -1,4 +1,3 @@
-
 'use client';
 
 import Link from 'next/link';
@@ -43,18 +42,17 @@ export function LandingHeader() {
                     <ul className="grid gap-3 p-6 md:w-[400px] lg:w-[500px] lg:grid-cols-[.75fr_1fr] bg-[#0A2D1A] text-white border-gray-700">
                       <li className="row-span-3">
                         <NavigationMenuLink asChild>
-                          <Link
-                            className="flex h-full w-full select-none flex-col justify-end rounded-md bg-gradient-to-b from-muted/50 to-muted p-6 no-underline outline-none focus:shadow-md"
-                            href="/business"
-                          >
-                            <div className="mb-2 mt-4 text-lg font-medium">
-                              Paymint for Business
-                            </div>
-                            <p className="text-sm leading-tight text-white/80">
-                              Global payments and financial solutions for
-                              growing businesses.
-                            </p>
-                          </Link>
+                          <div className="flex h-full w-full select-none flex-col justify-end rounded-md bg-gradient-to-b from-muted/50 to-muted p-6 no-underline outline-none focus:shadow-md">
+                            <Link href="/business" className="[&>a]:hover:no-underline">
+                              <div className="mb-2 mt-4 text-lg font-medium">
+                                Paymint for Business
+                              </div>
+                              <p className="text-sm leading-tight text-white/80">
+                                Global payments and financial solutions for
+                                growing businesses.
+                              </p>
+                            </Link>
+                          </div>
                         </NavigationMenuLink>
                       </li>
                       <ListItem href="/cards" title="Cards">
@@ -70,52 +68,48 @@ export function LandingHeader() {
                   </NavigationMenuContent>
                 </NavigationMenuItem>
                 <NavigationMenuItem>
-                  <Link href="/features">
-                    <NavigationMenuLink
-                      className={cn(
-                        navigationMenuTriggerStyle(),
-                        'bg-transparent text-white hover:bg-white/10 focus:bg-white/10'
-                      )}
-                    >
-                      Features
-                    </NavigationMenuLink>
-                  </Link>
+                  <NavigationMenuLink
+                    href="/features"
+                    className={cn(
+                      navigationMenuTriggerStyle(),
+                      'bg-transparent text-white hover:bg-white/10 focus:bg-white/10'
+                    )}
+                  >
+                    Features
+                  </NavigationMenuLink>
                 </NavigationMenuItem>
                 <NavigationMenuItem>
-                  <Link href="/pricing" >
-                    <NavigationMenuLink
-                      className={cn(
-                        navigationMenuTriggerStyle(),
-                        'bg-transparent text-white hover:bg-white/10 focus:bg-white/10'
-                      )}
-                    >
-                      Pricing
-                    </NavigationMenuLink>
-                  </Link>
+                  <NavigationMenuLink
+                    href="/pricing"
+                    className={cn(
+                      navigationMenuTriggerStyle(),
+                      'bg-transparent text-white hover:bg-white/10 focus:bg-white/10'
+                    )}
+                  >
+                    Pricing
+                  </NavigationMenuLink>
                 </NavigationMenuItem>
                 <NavigationMenuItem>
-                  <Link href="/blog" >
-                    <NavigationMenuLink
-                      className={cn(
-                        navigationMenuTriggerStyle(),
-                        'bg-transparent text-white hover:bg-white/10 focus:bg-white/10'
-                      )}
-                    >
-                      Blog
-                    </NavigationMenuLink>
-                  </Link>
+                  <NavigationMenuLink
+                    href="/blog"
+                    className={cn(
+                      navigationMenuTriggerStyle(),
+                      'bg-transparent text-white hover:bg-white/10 focus:bg-white/10'
+                    )}
+                  >
+                    Blog
+                  </NavigationMenuLink>
                 </NavigationMenuItem>
                 <NavigationMenuItem>
-                  <Link href="/contact" >
-                    <NavigationMenuLink
-                      className={cn(
-                        navigationMenuTriggerStyle(),
-                        'bg-transparent text-white hover:bg-white/10 focus:bg-white/10'
-                      )}
-                    >
-                      Contact us
-                    </NavigationMenuLink>
-                  </Link>
+                  <NavigationMenuLink
+                    href="/contact"
+                    className={cn(
+                      navigationMenuTriggerStyle(),
+                      'bg-transparent text-white hover:bg-white/10 focus:bg-white/10'
+                    )}
+                  >
+                    Contact us
+                  </NavigationMenuLink>
                 </NavigationMenuItem>
               </NavigationMenuList>
             </NavigationMenu>
@@ -211,7 +205,7 @@ export function LandingHeader() {
                       </Link>
                     </SheetClose>
                   </nav>
-                  <div className="mt-auto p-4 space-y-4 border-t border-white/20">
+                  <div className="mt-auto p-4 space-y-4 border-t border-white/20 pb-10">
                     <SheetClose asChild>
                       <Button asChild variant="ghost" className="w-full text-lg hover:bg-white/10 hover:text-white">
                         <Link href="/login">Log in</Link>
@@ -234,13 +228,13 @@ export function LandingHeader() {
 }
 
 const ListItem = React.forwardRef<
-  React.ElementRef<'a'>,
-  React.ComponentPropsWithoutRef<'a'>
->(({ className, title, children, ...props }, ref) => {
+  React.ElementRef<'div'>,
+  React.ComponentPropsWithoutRef<'div'> & { href: string; title: string }
+>(({ className, title, children, href, ...props }, ref) => {
   return (
     <li>
       <NavigationMenuLink asChild>
-        <a
+        <div
           ref={ref}
           className={cn(
             'block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-white/10 focus:bg-white/10',
@@ -248,11 +242,13 @@ const ListItem = React.forwardRef<
           )}
           {...props}
         >
-          <div className="text-sm font-medium leading-none">{title}</div>
-          <p className="line-clamp-2 text-sm leading-snug text-white/80">
-            {children}
-          </p>
-        </a>
+          <Link href={href} className="hover:no-underline">
+            <div className="text-sm font-medium leading-none">{title}</div>
+            <p className="line-clamp-2 text-sm leading-snug text-white/80">
+              {children}
+            </p>
+          </Link>
+        </div>
       </NavigationMenuLink>
     </li>
   );
