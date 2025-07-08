@@ -4,38 +4,29 @@
 import { Button } from '@/components/ui/button';
 import Image from 'next/image';
 import Link from 'next/link';
-import { CheckCircle } from 'lucide-react';
 
 export function Offerings() {
     return (
-        <section className="bg-white pb-20 sm:pb-28">
-            <div className="container mx-auto px-4">
-                <div className="grid md:grid-cols-2 gap-8">
-                    <div className="bg-secondary text-secondary-foreground p-8 rounded-2xl">
+        <section className="bg-white py-20 sm:py-28">
+            <div className="container mx-auto px-4 text-center">
+                 <h2 className="text-4xl sm:text-5xl font-bold text-[#052011] mb-6 tracking-tight">We offer fast and secure money transfers</h2>
+                <div className="grid md:grid-cols-2 gap-8 mt-12 max-w-5xl mx-auto">
+                    <div className="bg-[#0A2D1A] text-white p-8 rounded-2xl text-left">
                         <h3 className="text-3xl font-bold mb-4">For Individuals</h3>
-                        <p className="text-secondary-foreground/80 mb-6">Send, spend, and receive money from a single account.</p>
-                        <ul className="space-y-3 mb-8">
-                            <li className="flex items-center gap-3"><CheckCircle className="w-5 h-5 text-primary" /> No subscription, monthly, or hidden fees.</li>
-                            <li className="flex items-center gap-3"><CheckCircle className="w-5 h-5 text-primary" /> Hold 35+ currencies</li>
-                            <li className="flex items-center gap-3"><CheckCircle className="w-5 h-5 text-primary" /> Get your Paymint card</li>
-                        </ul>
-                        <Button asChild variant="outline" className="bg-transparent text-foreground border-foreground/40 hover:bg-accent hover:text-accent-foreground">
+                        <p className="text-white/80 mb-6">With our innovative fintech solutions, you can seamlessly handle all your financial needs. From international transfers to everyday payments.</p>
+                        
+                        <Button asChild variant="secondary" className="bg-[#B2F35F] text-[#052011] hover:bg-[#B2F35F]/90 rounded-md font-bold">
                             <Link href="/features">Learn more</Link>
                         </Button>
-                         <Image src="https://placehold.co/350x300.png" data-ai-hint="mobile money transfer" alt="Individual use" width={350} height={300} className="ml-auto mt-8" />
+                         <Image src="https://placehold.co/400x300.png" data-ai-hint="mobile money transfer" alt="Individual use" width={400} height={300} className="ml-auto mt-8" />
                     </div>
-                    <div className="bg-secondary text-secondary-foreground p-8 rounded-2xl">
+                    <div className="bg-[#0A2D1A] text-white p-8 rounded-2xl text-left">
                         <h3 className="text-3xl font-bold mb-4">For Business</h3>
-                        <p className="text-secondary-foreground/80 mb-6">Tools for your business to grow globally.</p>
-                         <ul className="space-y-3 mb-8">
-                            <li className="flex items-center gap-3"><CheckCircle className="w-5 h-5 text-primary" /> No subscription, monthly, or hidden fees.</li>
-                            <li className="flex items-center gap-3"><CheckCircle className="w-5 h-5 text-primary" /> Mass Payouts</li>
-                            <li className="flex items-center gap-3"><CheckCircle className="w-5 h-5 text-primary" /> API Integrations</li>
-                        </ul>
-                        <Button asChild variant="outline" className="bg-transparent text-foreground border-foreground/40 hover:bg-accent hover:text-accent-foreground">
+                        <p className="text-white/80 mb-6">With our innovative fintech solutions, you can seamlessly handle all your financial needs. From international transfers to everyday payments.</p>
+                        <Button asChild variant="secondary" className="bg-[#B2F35F] text-[#052011] hover:bg-[#B2F35F]/90 rounded-md font-bold">
                            <Link href="/business">Learn more</Link>
                         </Button>
-                         <Image src="https://placehold.co/350x300.png" data-ai-hint="business payment solution" alt="Business use" width={350} height={300} className="ml-auto mt-8" />
+                         <Image src="https://placehold.co/400x300.png" data-ai-hint="business payment solution" alt="Business use" width={400} height={300} className="ml-auto mt-8" />
                     </div>
                 </div>
             </div>

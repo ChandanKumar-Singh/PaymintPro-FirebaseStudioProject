@@ -17,7 +17,7 @@ export function Hero() {
         <div className="grid lg:grid-cols-2 gap-12 items-center">
           <div className="text-center lg:text-left">
             <h1 className="text-4xl sm:text-5xl lg:text-7xl font-bold tracking-tight mb-6 leading-tight">
-              The fast and secure way to send money.
+              Cross-border payment made easy.
             </h1>
             <p className="text-lg text-white/80 mb-10 max-w-lg mx-auto lg:mx-0">
               With our innovative fintech solutions, you can seamlessly handle
@@ -31,7 +31,7 @@ export function Hero() {
                 className="bg-[#B2F35F] text-[#052011] hover:bg-[#B2F35F]/90 rounded-full px-8 py-6 text-base font-bold"
               >
                 <Link href="/register">
-                  Create account <ArrowRight className="ml-2 w-5 h-5" />
+                  Get Started <ArrowRight className="ml-2 w-5 h-5" />
                 </Link>
               </Button>
               <Button
@@ -48,44 +48,13 @@ export function Hero() {
             </div>
           </div>
           <div className="flex justify-center">
-            <div className="bg-white text-black p-6 rounded-2xl w-full max-w-md shadow-2xl">
-              <div className="flex justify-between items-center mb-4">
-                <span className="font-bold text-lg text-[#052011]">Amount</span>
-                <button className="flex items-center gap-2 font-medium text-[#052011]">
-                  <Image src={fromCurrency.flag} data-ai-hint={fromCurrency.dataAiHint} alt={fromCurrency.name} width={24} height={24} className="rounded-full" />
-                  {fromCurrency.code}
-                  <ChevronDown className="w-4 h-4" />
-                </button>
-              </div>
-              <Input
-                type="text"
-                defaultValue="2,000"
-                className="text-4xl font-bold h-auto p-0 border-none focus-visible:ring-0 text-[#052011] bg-transparent"
-              />
-              <div className="border-t border-gray-200 my-4"></div>
-              <div className="flex justify-between items-center mb-2">
-                <span className="font-bold text-lg text-[#052011]">They'll get</span>
-                 <button className="flex items-center gap-2 font-medium text-[#052011]">
-                  <Image src={toCurrency.flag} data-ai-hint={toCurrency.dataAiHint} alt={toCurrency.name} width={24} height={24} className="rounded-full" />
-                  {toCurrency.code}
-                  <ChevronDown className="w-4 h-4" />
-                </button>
-              </div>
-              <p className="text-4xl font-bold text-[#052011]">2,997,298.58</p>
-              <div className="text-sm text-gray-500 mt-4 space-y-1">
-                <div className="flex justify-between">
-                  <span>Fee</span>
-                  <span>$1.99</span>
-                </div>
-                <div className="flex justify-between">
-                  <span>Rate</span>
-                  <span className="font-medium text-primary">1 USD = 1,498.45 NGN</span>
-                </div>
-              </div>
-               <Button className="w-full mt-6 bg-primary text-primary-foreground hover:bg-primary/90 rounded-full py-6 text-lg font-bold">
-                 Get Started
-               </Button>
-            </div>
+            <Image 
+                src="https://placehold.co/600x400.png"
+                width={600}
+                height={400}
+                alt="Paymint Dashboard and Mobile App"
+                data-ai-hint="dashboard mobile app"
+            />
           </div>
         </div>
       </div>

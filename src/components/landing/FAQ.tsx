@@ -21,20 +21,20 @@ export function FAQ() {
             <div className="container mx-auto px-4">
                 <div className="grid lg:grid-cols-3 gap-12">
                     <div className="lg:col-span-1">
-                        <p className="font-bold text-muted-foreground mb-2">How can we help?</p>
-                        <h2 className="text-4xl sm:text-5xl font-bold text-foreground tracking-tight">Common questions</h2>
-                        <Button asChild size="lg" className="bg-primary text-primary-foreground hover:bg-primary/90 rounded-md font-bold mt-8">
+                        <p className="font-bold text-[#052011]/60 mb-2">How can we help?</p>
+                        <h2 className="text-4xl sm:text-5xl font-bold text-[#052011] tracking-tight">Common questions</h2>
+                        <Button asChild size="lg" className="bg-[#B2F35F] text-[#052011] hover:bg-[#B2F35F]/90 rounded-md font-bold mt-8">
                            <Link href="/faq">All FAQ's</Link>
                         </Button>
                     </div>
                     <div className="lg:col-span-2">
                        <Accordion type="single" collapsible className="w-full" defaultValue="item-0">
                            {faqs.map((faq, index) => (
-                               <AccordionItem key={index} value={`item-${index}`} className="border-b py-4">
-                                   <AccordionTrigger className="text-lg font-bold text-foreground hover:no-underline text-left">
+                               <AccordionItem key={index} value={`item-${index}`} className="border-b border-gray-200 py-4">
+                                   <AccordionTrigger className="text-lg font-bold text-[#052011] hover:no-underline text-left">
                                        {faq.q}
                                    </AccordionTrigger>
-                                   <AccordionContent className="text-base text-muted-foreground pt-2">
+                                   <AccordionContent className="text-base text-gray-600 pt-2">
                                        {faq.a}
                                    </AccordionContent>
                                </AccordionItem>

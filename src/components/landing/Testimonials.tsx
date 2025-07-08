@@ -18,28 +18,28 @@ export function Testimonials() {
             <div className="container mx-auto px-4">
                 <div className="flex justify-between items-center mb-12">
                     <div>
-                        <p className="font-bold text-muted-foreground mb-2">TESTIMONIAL</p>
-                        <h2 className="text-4xl sm:text-5xl font-bold text-foreground tracking-tight">Customer success is our success</h2>
+                        <p className="font-bold text-[#052011]/60 mb-2">TESTIMONIAL</p>
+                        <h2 className="text-4xl sm:text-5xl font-bold text-[#052011] tracking-tight">Customer success is our success</h2>
                     </div>
                     <div className="hidden md:flex gap-4">
-                        <Button variant="outline" size="icon" className="rounded-full h-12 w-12">
+                        <Button variant="outline" size="icon" className="rounded-full h-12 w-12 border-gray-300">
                             <ArrowLeft className="h-5 w-5" />
                         </Button>
-                        <Button variant="secondary" size="icon" className="rounded-full h-12 w-12 bg-secondary text-secondary-foreground hover:bg-secondary/80">
+                        <Button variant="secondary" size="icon" className="rounded-full h-12 w-12 bg-[#E7FAD1] text-[#052011] hover:bg-[#E7FAD1]/80">
                             <ArrowRight className="h-5 w-5" />
                         </Button>
                     </div>
                 </div>
                 <div className="grid lg:grid-cols-3 gap-8">
                     {testimonials.map(t => (
-                        <Card key={t.name} className="bg-accent border-none rounded-2xl overflow-hidden">
+                        <Card key={t.name} className="bg-[#E7FAD1] border-none rounded-2xl overflow-hidden">
                             <CardContent className="p-0">
                                 <Image src={t.image} alt={t.name} width={350} height={250} className="w-full" data-ai-hint={t.dataAiHint} />
                                 <div className="p-6">
-                                    <p className="text-lg font-medium text-accent-foreground mb-4">"{t.text}"</p>
-                                    <h4 className="font-bold text-lg text-foreground">{t.name}</h4>
-                                    <p className="text-sm text-muted-foreground">{t.title}</p>
-                                    <Button asChild variant="link" className="p-0 h-auto mt-4 text-foreground font-bold">
+                                    <p className="text-lg font-medium text-[#052011]/80 mb-4">"{t.text}"</p>
+                                    <h4 className="font-bold text-lg text-[#052011]">{t.name}</h4>
+                                    <p className="text-sm text-[#052011]/60">{t.title}</p>
+                                    <Button asChild variant="link" className="p-0 h-auto mt-4 text-[#052011] font-bold">
                                       <Link href="#">Read story</Link>
                                     </Button>
                                 </div>
