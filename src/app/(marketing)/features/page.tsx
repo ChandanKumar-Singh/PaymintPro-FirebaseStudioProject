@@ -1,3 +1,4 @@
+
 'use client';
 
 import { BestWays } from "@/components/landing/BestWays";
