@@ -446,9 +446,9 @@ export default function TicketDetailPage() {
                                     <AvatarFallback>S</AvatarFallback>
                                 </Avatar>
                                 <div className="bg-muted px-4 py-3 rounded-lg flex items-center gap-1">
-                                    <span className="h-2 w-2 rounded-full bg-muted-foreground animate-pulse delay-0"></span>
-                                    <span className="h-2 w-2 rounded-full bg-muted-foreground animate-pulse delay-150"></span>
-                                    <span className="h-2 w-2 rounded-full bg-muted-foreground animate-pulse delay-300"></span>
+                                    <span className="h-2 w-2 bg-muted-foreground animate-pulse delay-0"></span>
+                                    <span className="h-2 w-2 bg-muted-foreground animate-pulse delay-150"></span>
+                                    <span className="h-2 w-2 bg-muted-foreground animate-pulse delay-300"></span>
                                 </div>
                             </div>
                         )}
@@ -476,7 +476,7 @@ export default function TicketDetailPage() {
                             <div className="relative p-2 border rounded-md">
                                 <Button
                                     variant="ghost" size="icon"
-                                    className="absolute top-1 right-1 h-6 w-6 rounded-full bg-background/50 hover:bg-background/80"
+                                    className="absolute top-1 right-1 h-6 w-6 bg-background/50 hover:bg-background/80"
                                     onClick={handleRemoveAttachment} >
                                     <X className="h-4 w-4" />
                                     <span className="sr-only">Remove attachment</span>

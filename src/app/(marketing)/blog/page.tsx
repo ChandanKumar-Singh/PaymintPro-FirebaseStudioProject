@@ -194,18 +194,18 @@ const stories = [
 
 const Pagination = () => (
     <div className="flex justify-between items-center mt-12">
-        <Button variant="outline" className="rounded-md hidden sm:flex bg-white text-[#052011] border-gray-300 hover:bg-gray-100">
+        <Button variant="outline" className="hidden sm:flex bg-white text-[#052011] border-gray-300 hover:bg-gray-100">
             <ChevronLeft className="mr-2 h-4 w-4" /> Previous
         </Button>
         <div className="flex items-center gap-1 sm:gap-2">
-            <Button variant="ghost" size="icon" className="h-10 w-10 rounded-full bg-[#B2F35F] text-[#052011] hover:bg-[#B2F35F]/90">1</Button>
-            <Button variant="ghost" size="icon" className="h-10 w-10 rounded-full text-[#052011] hover:bg-gray-200">2</Button>
-            <Button variant="ghost" size="icon" className="h-10 w-10 rounded-full text-[#052011] hover:bg-gray-200">3</Button>
-            <Button variant="ghost" size="icon" className="h-10 w-10 rounded-full text-[#052011] hover:bg-gray-200">4</Button>
+            <Button variant="ghost" size="icon" className="h-10 w-10 bg-[#B2F35F] text-[#052011] hover:bg-[#B2F35F]/90">1</Button>
+            <Button variant="ghost" size="icon" className="h-10 w-10 text-[#052011] hover:bg-gray-200">2</Button>
+            <Button variant="ghost" size="icon" className="h-10 w-10 text-[#052011] hover:bg-gray-200">3</Button>
+            <Button variant="ghost" size="icon" className="h-10 w-10 text-[#052011] hover:bg-gray-200">4</Button>
             <span className="text-gray-500">...</span>
-            <Button variant="ghost" size="icon" className="h-10 w-10 rounded-full text-[#052011] hover:bg-gray-200">12</Button>
+            <Button variant="ghost" size="icon" className="h-10 w-10  text-[#052011] hover:bg-gray-200">12</Button>
         </div>
-        <Button variant="outline" className="rounded-md bg-white text-[#052011] border-gray-300 hover:bg-gray-100">
+        <Button variant="outline" className="bg-white text-[#052011] border-gray-300 hover:bg-gray-100">
             Next <ChevronRight className="ml-2 h-4 w-4" />
         </Button>
     </div>

@@ -149,10 +149,10 @@ function HistorySection() {
                     ))}
                 </Tabs>
                 <div className="mt-8 flex justify-center gap-4">
-                    <Button variant="outline" size="icon" className="rounded-full h-12 w-12 border-gray-300">
+                    <Button variant="outline" size="icon" className="h-12 w-12 border-gray-300">
                         <ArrowLeft className="h-5 w-5" />
                     </Button>
-                    <Button variant="secondary" size="icon" className="rounded-full h-12 w-12 bg-[#052011] text-white hover:bg-gray-800">
+                    <Button variant="secondary" size="icon" className="h-12 w-12 bg-[#052011] text-white hover:bg-gray-800">
                         <ArrowRight className="h-5 w-5" />
                     </Button>
                 </div>
@@ -219,7 +219,7 @@ function CareersSection() {
                         <p className="text-gray-600 mb-8">
                            We're looking talented, all over the world. It a remote company with employees from eight countries around the globe. Our team is big on collaboration and flexibility.
                         </p>
-                        <Button className="bg-[#B2F35F] text-[#052011] hover:bg-[#B2F35F]/90 rounded-md font-bold px-6 py-5 text-base">
+                        <Button className="bg-[#B2F35F] text-[#052011] hover:bg-[#B2F35F]/90 font-bold px-6 py-5 text-base">
                             View open roles <ArrowRight className="ml-2 h-5 w-5" />
                         </Button>
                     </div>

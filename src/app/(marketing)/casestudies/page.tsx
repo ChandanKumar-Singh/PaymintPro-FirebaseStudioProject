@@ -54,11 +54,11 @@ const Pagination = () => (
             <ChevronLeft className="mr-2 h-4 w-4" /> Previous
         </Button>
         <div className="flex items-center gap-1 sm:gap-2">
-            <Button variant="ghost" size="icon" className="h-10 w-10 rounded-full bg-[#B2F35F] text-[#052011] hover:bg-[#B2F35F]/90">1</Button>
-            <Button variant="ghost" size="icon" className="h-10 w-10 rounded-full text-[#052011] hover:bg-gray-200">2</Button>
-            <Button variant="ghost" size="icon" className="h-10 w-10 rounded-full text-[#052011] hover:bg-gray-200">3</Button>
+            <Button variant="ghost" size="icon" className="h-10 w-10 bg-[#B2F35F] text-[#052011] hover:bg-[#B2F35F]/90">1</Button>
+            <Button variant="ghost" size="icon" className="h-10 w-10 text-[#052011] hover:bg-gray-200">2</Button>
+            <Button variant="ghost" size="icon" className="h-10 w-10 text-[#052011] hover:bg-gray-200">3</Button>
         </div>
-        <Button variant="outline" className="rounded-md bg-white text-[#052011] border-gray-300 hover:bg-gray-100">
+        <Button variant="outline" className="bg-white text-[#052011] border-gray-300 hover:bg-gray-100">
             Next <ChevronRight className="ml-2 h-4 w-4" />
         </Button>
     </div>
@@ -80,7 +80,7 @@ export default function CaseStudiesPage() {
                 <div className="container mx-auto px-4">
                      <div className="flex flex-wrap justify-center gap-2 mb-12">
                         {categories.map((cat, index) => (
-                            <Button key={cat} variant={index === 0 ? "default" : "outline"} className={index === 0 ? "bg-[#052011] text-white hover:bg-gray-800 rounded-full" : "rounded-full border-gray-300 text-[#052011] bg-white hover:bg-gray-100"}>
+                            <Button key={cat} variant={index === 0 ? "default" : "outline"} className={index === 0 ? "bg-[#052011] text-white hover:bg-gray-800" : " border-gray-300 text-[#052011] bg-white hover:bg-gray-100"}>
                                 {cat}
                             </Button>
                         ))}

@@ -69,7 +69,7 @@ function ContactHero() {
                             <div className="flex gap-3">
                                 {socialLinks.map((link, i) => (
                                     <Link key={i} href={link.href}>
-                                        <Button variant="outline" size="icon" className="rounded-full bg-transparent border-white/30 hover:bg-white/20 hover:text-white">
+                                        <Button variant="outline" size="icon" className="bg-transparent border-white/30 hover:bg-white/20 hover:text-white">
                                             <link.icon className="h-5 w-5" />
                                         </Button>
                                     </Link>

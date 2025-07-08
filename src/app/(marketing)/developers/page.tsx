@@ -49,10 +49,10 @@ export default function DevelopersPage() {
                         Access our powerful, reliable, and secure APIs to create innovative financial products and services.
                     </p>
                     <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                        <Button asChild size="lg" className="bg-primary text-primary-foreground hover:bg-primary/90 rounded-md px-6 py-5 text-base font-bold">
+                        <Button asChild size="lg" className="bg-primary text-primary-foreground hover:bg-primary/90 px-6 py-5 text-base font-bold">
                             <Link href="#">Get API Keys</Link>
                         </Button>
-                        <Button asChild size="lg" variant="outline" className="text-sidebar-foreground border-sidebar-foreground/40 hover:text-sidebar-foreground hover:bg-sidebar-accent rounded-md px-6 py-5 text-base font-bold">
+                        <Button asChild size="lg" variant="outline" className="text-sidebar-foreground border-sidebar-foreground/40 hover:text-sidebar-foreground hover:bg-sidebar-accent px-6 py-5 text-base font-bold">
                             <Link href="/contact">Contact Sales</Link>
                         </Button>
                     </div>
