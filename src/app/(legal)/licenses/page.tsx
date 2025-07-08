@@ -18,30 +18,30 @@ export default function LicensesPage() {
   return (
     <div>
       <div className="mb-10">
-        <p className="text-sm font-semibold text-lime-600 mb-1">Terms & Policies</p>
-        <h1 className="text-5xl font-bold tracking-tight text-gray-900">Third-Party Licenses</h1>
-        <p className="mt-2 text-gray-500">Paymint is built with amazing open-source software.</p>
+        <p className="text-sm font-semibold text-primary mb-1">Terms & Policies</p>
+        <h1 className="text-5xl font-bold tracking-tight text-foreground">Third-Party Licenses</h1>
+        <p className="mt-2 text-muted-foreground">Paymint is built with amazing open-source software.</p>
       </div>
-      <article className="space-y-4 text-gray-700 leading-relaxed prose prose-neutral max-w-none">
+      <article className="space-y-4 text-foreground/80 leading-relaxed prose prose-neutral max-w-none">
         <p>We are grateful to the developers and communities behind these projects for their contributions. Below is a list of the open-source software we use and their respective licenses.</p>
         
         <Card>
             <CardContent className="p-0">
                 <div className="overflow-x-auto">
                     <table className="min-w-full">
-                        <thead className="bg-gray-50">
+                        <thead className="bg-muted">
                             <tr>
-                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Package</th>
-                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">License</th>
+                                <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">Package</th>
+                                <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">License</th>
                             </tr>
                         </thead>
-                        <tbody className="bg-white divide-y divide-gray-200">
+                        <tbody className="bg-card divide-y divide-border">
                             {licenses.map(lib => (
                                 <tr key={lib.name}>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                                        <a href={lib.url} target="_blank" rel="noopener noreferrer" className="text-lime-600 hover:underline">{lib.name}</a>
+                                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-foreground">
+                                        <a href={lib.url} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">{lib.name}</a>
                                     </td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{lib.license}</td>
+                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-muted-foreground">{lib.license}</td>
                                 </tr>
                             ))}
                         </tbody>

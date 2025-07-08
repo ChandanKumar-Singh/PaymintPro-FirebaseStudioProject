@@ -1,12 +1,13 @@
+
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Download, ThumbsDown, ThumbsUp } from "lucide-react";
 
 const Section = ({ id, title, subtitle, children }: { id: string, title: string, subtitle?: string, children: React.ReactNode }) => (
     <section id={id} className="mb-12 scroll-mt-24">
-        <h2 className="text-3xl font-bold text-gray-800 mb-2">{title}</h2>
-        {subtitle && <h3 className="text-xl text-gray-600 mb-6 font-medium">{subtitle}</h3>}
-        <div className="space-y-4 text-gray-700 leading-relaxed prose prose-neutral max-w-none">
+        <h2 className="text-3xl font-bold text-foreground mb-2">{title}</h2>
+        {subtitle && <h3 className="text-xl text-muted-foreground mb-6 font-medium">{subtitle}</h3>}
+        <div className="space-y-4 text-foreground/80 leading-relaxed prose prose-neutral max-w-none">
             {children}
         </div>
     </section>
@@ -16,10 +17,10 @@ export default function PersonalTermsPage() {
     return (
         <div>
             <div className="mb-10">
-                <p className="text-sm font-semibold text-lime-600 mb-1">Terms & Policies</p>
-                <h1 className="text-5xl font-bold tracking-tight text-gray-900">Personal Terms</h1>
-                <p className="mt-2 text-gray-500">Last updated on September 15, 2023</p>
-                <Button variant="outline" className="mt-6 bg-lime-500 text-lime-900 border-lime-600/20 hover:bg-lime-500/90 font-bold">
+                <p className="text-sm font-semibold text-primary mb-1">Terms & Policies</p>
+                <h1 className="text-5xl font-bold tracking-tight text-foreground">Personal Terms</h1>
+                <p className="mt-2 text-muted-foreground">Last updated on September 15, 2023</p>
+                <Button variant="default" className="mt-6">
                     <Download className="mr-2 h-4 w-4" />
                     Download PDF
                 </Button>
@@ -77,16 +78,16 @@ export default function PersonalTermsPage() {
                 </Section>
 
                 <Section id="contact" title="How to contact us">
-                     <p>If you have any questions about this Personal Terms, please contact us at <a href="mailto:info@paymint.com" className="text-lime-600 font-semibold">info@paymint.com</a>.</p>
+                     <p>If you have any questions about this Personal Terms, please contact us at <a href="mailto:info@paymint.com" className="text-primary font-semibold">info@paymint.com</a>.</p>
                 </Section>
             </article>
 
-            <Card className="mt-16 bg-gray-50 border-gray-200">
+            <Card className="mt-16 bg-muted">
                 <CardContent className="p-6 flex flex-col sm:flex-row justify-between items-center gap-4">
-                    <p className="font-semibold text-gray-700">Was this article helpful?</p>
+                    <p className="font-semibold text-foreground">Was this article helpful?</p>
                     <div className="flex items-center gap-2">
-                        <Button variant="outline" className="bg-white"><ThumbsUp className="mr-2 h-4 w-4" /> Yes</Button>
-                        <Button variant="outline" className="bg-white"><ThumbsDown className="mr-2 h-4 w-4" /> No</Button>
+                        <Button variant="outline" className="bg-background"><ThumbsUp className="mr-2 h-4 w-4" /> Yes</Button>
+                        <Button variant="outline" className="bg-background"><ThumbsDown className="mr-2 h-4 w-4" /> No</Button>
                     </div>
                 </CardContent>
             </Card>

@@ -60,10 +60,10 @@ export function LandingHeader() {
                       <ListItem href="/cards" title="Cards">
                         The most modern multi-currency card.
                       </ListItem>
-                      <ListItem href="#" title="Transfers">
+                      <ListItem href="/features" title="Transfers">
                         Send money globally with low fees.
                       </ListItem>
-                      <ListItem href="#" title="Multi-currency Account">
+                      <ListItem href="/features" title="Multi-currency Account">
                         Hold and manage money in 35+ currencies.
                       </ListItem>
                     </ul>
