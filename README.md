@@ -8,22 +8,22 @@ Paymint Pro is a comprehensive, full-stack financial management application desi
 
 ## Table of Contents
 
--   [Project Overview](#project-overview)
--   [Core Features](#core-features)
-    -   [Admin Dashboard](#admin-dashboard)
-    -   [Marketing Website](#marketing-website)
--   [System Architecture & Workflow](#system-architecture--workflow)
-    -   [Authentication](#authentication)
-    -   [Data Model](#data-model)
-    -   [AI Integration](#ai-integration)
--   [Tech Stack](#tech-stack)
--   [Project Structure](#project-structure)
--   [Getting Started](#getting-started)
-    -   [Prerequisites](#prerequisites)
-    -   [Firebase Setup](#firebase-setup)
-    -   [Installation & Running](#installation--running)
--   [Future Scope](#future-scope)
--   [License](#license)
+- [Project Overview](#project-overview)
+- [Core Features](#core-features)
+  - [Admin Dashboard](#admin-dashboard)
+  - [Marketing Website](#marketing-website)
+- [System Architecture & Workflow](#system-architecture--workflow)
+  - [Authentication](#authentication)
+  - [Data Model](#data-model)
+  - [AI Integration](#ai-integration)
+- [Tech Stack](#tech-stack)
+- [Project Structure](#project-structure)
+- [Getting Started](#getting-started)
+  - [Prerequisites](#prerequisites)
+  - [Firebase Setup](#firebase-setup)
+  - [Installation & Running](#installation--running)
+- [Future Scope](#future-scope)
+- [License](#license)
 
 ---
 
